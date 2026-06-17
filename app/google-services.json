@@ -1,0 +1,50 @@
+{
+  "project_info": {
+    "project_number": "105984395368",
+    "project_id": "localconnect-3d5c1",
+    "storage_bucket": "localconnect-3d5c1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105984395368:android:cb526ed7f4afa4d16093dd",
+        "android_client_info": {
+          "package_name": "com.example.localconnect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "105984395368-abcdefg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.localconnect",
+            "certificate_hash": "9e3fc02eee9086061918333bf339aee2a993a2c9"
+          }
+        },
+        {
+          "client_id": "105984395368-hijklmn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.localconnect",
+            "certificate_hash": "33770a4310201e114379bc8c40dfc90937cfe9a61df9969e2c6e8d3097f925e4"
+          }
+        },
+        {
+          "client_id": "105984395368-opqrstu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLCkl_xNuGbIE2XoXZhSAGscr17tNWUPQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

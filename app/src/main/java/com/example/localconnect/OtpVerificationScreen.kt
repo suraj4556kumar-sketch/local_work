@@ -83,7 +83,7 @@ fun OtpVerificationScreen(
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 IconButton(onClick = onBack) {
-                    Text("←", fontSize = 22.sp, color = Color(0xFF1A1A1A), fontWeight = FontWeight.Bold)
+                    Text("←", fontSize = 22.sp, color = androidx.compose.ui.graphics.Color.White, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -113,7 +113,7 @@ fun OtpVerificationScreen(
 
             if (isError) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(strings.incorrectOtp, fontSize = 13.sp, color = Color(0xFFE53935))
+                Text(strings.incorrectOtp, fontSize = 13.sp, color = Color(0xFFF97316))
             }
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -176,7 +176,7 @@ private fun OtpInputField(
                     tween(200), label = "bg$index"
                 )
                 val boxBorder by animateColorAsState(
-                    when { isError -> Color(0xFFE53935); isFocused -> OrangePrimary; char != null -> OrangeLight; else -> Color(0xFFE0E0E0) },
+                    when { isError -> Color(0xFFF97316); isFocused -> OrangePrimary; char != null -> OrangeLight; else -> Color(0xFFE0E0E0) },
                     tween(200), label = "border$index"
                 )
                 Box(

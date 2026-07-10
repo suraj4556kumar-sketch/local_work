@@ -13,8 +13,9 @@ data class UserSession(
     val verificationId: String = "",
     val firebaseUid: String = "",
     val name: String = "",
-    val age: String = "",
+    val dob: String = "",
     val gender: String = "",
     val location: String = "",
-    val role: UserRole = UserRole.NONE
+    val role: UserRole = UserRole.NONE,
+    val hasJobProfile: Boolean = false
 )

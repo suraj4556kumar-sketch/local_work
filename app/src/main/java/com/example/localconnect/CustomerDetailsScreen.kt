@@ -1,0 +1,481 @@
+package com.example.localconnect
+
+import com.example.localconnect.ui.theme.*
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
+
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.localconnect.data.ServiceTask
+import com.example.localconnect.data.ServiceRequest
+import com.example.localconnect.ui.theme.OrangePrimary
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomerDetailsScreen(
+    session: UserSession,
+    service: ServiceTask,
+    selectedDate: String,
+    selectedTimeSlot: String,
+    selectedServices: Set<String>,
+    onBack: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    // Instead of AppStrings, we use simple mapped strings or hardcoded for the prototype
+    val langCode = session.language.code
+    val isHi = langCode == "hi"
+    val isBn = langCode == "bn"
+
+    val customerDetailsTitle = if (isHi) "ग्राहक विवरण" else if (isBn) "গ্রাহকের বিবরণ" else "Customer Details"
+    val bookingSummary = if (isHi) "बुकिंग सारांश" else if (isBn) "বুকিং সারসংক্ষেপ" else "Booking Summary"
+    val serviceCategory = if (isHi) "सेवा" else if (isBn) "সেবা" else "Service"
+    val selectedWork = if (isHi) "चुना गया काम" else if (isBn) "নির্বাচিত কাজ" else "Selected Work"
+    val providerNameStr = if (isHi) "प्रदाता" else if (isBn) "প্রদানকারী" else "Provider"
+    val dateTimeLabel = if (isHi) "तारीख और समय" else if (isBn) "তারিখ এবং সময়" else "Date & Time"
+    val visitChargeStr = if (isHi) "विजिट शुल्क:" else if (isBn) "ভিজিট চার্জ:" else "Visit Charge:"
+    val cancelStr = if (isHi) "रद्द करें" else if (isBn) "বাতিল করুন" else "Cancel"
+    val confirmBookingStr = if (isHi) "बुकिंग पक्की करें" else if (isBn) "বুকিং নিশ্চিত করুন" else "Confirm Booking"
+    val fullNameStr = if (isHi) "पूरा नाम" else if (isBn) "সম্পূর্ণ নাম" else "Full Name"
+    val phoneStr = if (isHi) "फ़ोन नंबर" else if (isBn) "ফোন নম্বর" else "Phone Number"
+    val altPhoneStr = if (isHi) "वैकल्पिक फ़ोन नंबर" else if (isBn) "বিকল্প ফোন নম্বর" else "Alternate Phone Number"
+    val optionalStr = if (isHi) "वैकल्पिक" else if (isBn) "ঐচ্ছিক" else "Optional"
+    val serviceLocationStr = if (isHi) "सेवा का स्थान" else if (isBn) "পরিষেবার অবস্থান" else "Service Location"
+    val addressLabelStr = if (isHi) "पता" else if (isBn) "ঠিকানা" else "Address"
+    val landmarkLabelStr = if (isHi) "लैंडमार्क" else if (isBn) "ল্যান্ডমার্ক" else "Landmark"
+    val cityAreaStr = if (isHi) "शहर / क्षेत्र" else if (isBn) "শহর / এলাকা" else "City / Area"
+    val contactPrefStr = if (isHi) "संपर्क प्राथमिकता" else if (isBn) "যোগাযোগের পছন্দ" else "Contact Preference"
+    val contactPrefDescStr = if (isHi) "प्रदाता आपसे कैसे संपर्क करे?" else if (isBn) "কিভাবে প্রদানকারী আপনার সাথে যোগাযোগ করবে?" else "How should the provider contact you?"
+    val langPrefStr = if (isHi) "भाषा प्राथमिकता" else if (isBn) "ভাষার পছন্দ" else "Language Preference"
+    val langPrefDescStr = if (isHi) "पसंदीदा भाषा चुनें:" else if (isBn) "পছন্দের ভাষা নির্বাচন করুন:" else "Choose preferred language:"
+    val specialInstructionsStr = if (isHi) "विशेष निर्देश" else if (isBn) "বিশেষ নির্দেশাবলী" else "Special Instructions"
+    val safetyConfStr = if (isHi) "सुरक्षा पुष्टि" else if (isBn) "নিরাপত্তা নিশ্চিতকরণ" else "Safety Confirmation"
+    val agreeShareDetailsStr = if (isHi) "मैं सेवा प्रदाता के साथ अपना फोन नंबर और पता साझा करने के लिए सहमत हूं।" else if (isBn) "আমি পরিষেবা প্রদানকারীর সাথে আমার ফোন নম্বর এবং ঠিকানা শেয়ার করতে সম্মত।" else "I agree to share my phone number and address with the service provider."
+    val agreeFinalPriceStr = if (isHi) "मैं समझता/समझती हूं कि अंतिम मूल्य काम की स्थिति पर निर्भर हो सकता है।" else if (isBn) "আমি বুঝতে পেরেছি যে চূড়ান্ত মূল্য কাজের অবস্থার উপর নির্ভর করতে পারে।" else "I understand that final price may depend on work condition."
+    val finalConfStr = if (isHi) "अंतिम पुष्टि" else if (isBn) "চূড়ান্ত নিশ্চিতকরণ" else "Final Confirmation"
+    val payNowStr = if (isHi) "अभी भुगतान करें" else if (isBn) "এখন পেমেন্ট করুন" else "Pay Now"
+
+    var name by remember { mutableStateOf(session.name) }
+    var phone by remember { mutableStateOf(session.phone) }
+    var altPhone by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf(session.location) }
+    var landmark by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("Kharagpur") }
+
+
+    var langPref by remember { mutableStateOf("Hindi") }
+    var instructions by remember { mutableStateOf("") }
+
+    var agreeShare by remember { mutableStateOf(false) }
+    var agreePrice by remember { mutableStateOf(false) }
+
+    val contactOptions: List<Pair<String, androidx.compose.ui.graphics.vector.ImageVector>> = listOf(
+        Pair("Call", Icons.Filled.Phone),
+        Pair("Chat", Icons.Filled.ChatBubble),
+        Pair("WhatsApp", Icons.Filled.Email)
+    )
+
+    val languageOptions = listOf("Hindi", "Bengali", "English")
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        customerDetailsTitle,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = androidx.compose.ui.graphics.Color.White
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Text("←", fontSize = 24.sp, color = androidx.compose.ui.graphics.Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color(0xFFF97316), titleContentColor = androidx.compose.ui.graphics.Color.White, navigationIconContentColor = androidx.compose.ui.graphics.Color.White, actionIconContentColor = androidx.compose.ui.graphics.Color.White)
+            )
+        },
+        bottomBar = {
+            Surface(
+                color = Color.White,
+                shadowElevation = 8.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onBack,
+                        modifier = Modifier.weight(1f).height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.DarkGray)
+                    ) {
+                        Text(cancelStr, fontWeight = FontWeight.Bold)
+                    }
+                    Button(
+                        onClick = onConfirm,
+                        enabled = agreeShare && agreePrice,
+                        modifier = Modifier.weight(2f).height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Primary, // Blue-600
+                            disabledContainerColor = Primary.copy(alpha = 0.5f) // Blue-300
+                        )
+                    ) {
+                        Text(confirmBookingStr, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+                }
+            }
+        },
+        containerColor = Color(0xFFF3F4F6) // bg-gray-100
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 24.dp)
+        ) {
+            // 1. Booking Summary
+            Column(modifier = Modifier.background(Color(0xFFF9FAFB)).padding(16.dp).fillMaxWidth()) {
+                Text(bookingSummary.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 12.dp))
+                
+                Surface(
+                    color = Color.White,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, Color(0xFFE5E7EB)),
+                    shadowElevation = 2.dp
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(serviceCategory, fontSize = 12.sp, color = Color.Gray)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Filled.Build, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(service.category, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(selectedWork, fontSize = 12.sp, color = Color.Gray)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    selectedServices.joinToString(", ").ifEmpty { "N/A" }, 
+                                    fontSize = 14.sp, 
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(providerNameStr, fontSize = 12.sp, color = Color.Gray)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(service.providerName, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(dateTimeLabel, fontSize = 12.sp, color = Color.Gray)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                val displayDate = if (selectedDate.contains("Choose Date")) "Not Selected" else selectedDate
+                                Text("$displayDate, $selectedTimeSlot", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        HorizontalDivider(color = Color(0xFFF3F4F6))
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(visitChargeStr, fontSize = 14.sp, color = Color.DarkGray)
+                            Text("₹${service.price}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Primary)
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider(color = Color(0xFFE5E7EB))
+
+            // 2. Customer Details
+            Column(modifier = Modifier.background(Color.White).padding(20.dp).fillMaxWidth()) {
+                Text(customerDetailsTitle.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 16.dp))
+                
+                Text(fullNameStr, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    placeholder = { Text("Enter your name", color = Color.Gray, fontSize = 14.sp) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFF97316),
+                        unfocusedBorderColor = Color(0xFFE5E7EB),
+                        unfocusedContainerColor = Color(0xFFF9FAFB),
+                        focusedContainerColor = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(phoneStr, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    placeholder = { Text("Enter phone number", color = Color.Gray, fontSize = 14.sp) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFF97316),
+                        unfocusedBorderColor = Color(0xFFE5E7EB),
+                        unfocusedContainerColor = Color(0xFFF9FAFB),
+                        focusedContainerColor = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(modifier = Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(altPhoneStr, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+                    Text(optionalStr, fontSize = 12.sp, color = Color.Gray)
+                }
+                OutlinedTextField(
+                    value = altPhone,
+                    onValueChange = { altPhone = it },
+                    placeholder = { Text("Enter alternate number", color = Color.Gray, fontSize = 14.sp) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFF97316),
+                        unfocusedBorderColor = Color(0xFFE5E7EB),
+                        unfocusedContainerColor = Color(0xFFF9FAFB),
+                        focusedContainerColor = Color.White
+                    )
+                )
+            }
+
+            HorizontalDivider(color = Color(0xFFE5E7EB))
+
+            // 3. Service Location
+            Column(modifier = Modifier.background(Color.White).padding(20.dp).fillMaxWidth()) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 16.dp)) {
+                    Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = Primary)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(serviceLocationStr.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
+                }
+
+                Text(addressLabelStr, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    placeholder = { Text("Enter house / room / shop address", color = Color.Gray, fontSize = 14.sp) },
+                    modifier = Modifier.fillMaxWidth().height(80.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFF97316),
+                        unfocusedBorderColor = Color(0xFFE5E7EB),
+                        unfocusedContainerColor = Color(0xFFF9FAFB),
+                        focusedContainerColor = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(landmarkLabelStr, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
+                        OutlinedTextField(
+                            value = landmark,
+                            onValueChange = { landmark = it },
+                            placeholder = { Text("Nearby landmark", color = Color.Gray, fontSize = 14.sp) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFFF97316),
+                                unfocusedBorderColor = Color(0xFFE5E7EB),
+                                unfocusedContainerColor = Color(0xFFF9FAFB),
+                                focusedContainerColor = Color.White
+                            )
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(cityAreaStr, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
+                        OutlinedTextField(
+                            value = city,
+                            onValueChange = { city = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true,
+                            readOnly = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledBorderColor = Color(0xFFE5E7EB),
+                                disabledContainerColor = Color(0xFFF3F4F6),
+                                disabledTextColor = Color.DarkGray
+                            ),
+                            enabled = false
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Button(
+                    onClick = { /* TODO: GPS integration */ },
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFF7ED), contentColor = Primary)
+                ) {
+                    Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = Primary)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Use Current Location", fontWeight = FontWeight.SemiBold)
+                }
+            }
+
+            HorizontalDivider(color = Color(0xFFE5E7EB))
+
+
+
+            HorizontalDivider(color = Color(0xFFE5E7EB))
+
+            // 5. Special Instructions
+            Column(modifier = Modifier.background(Color.White).padding(20.dp).fillMaxWidth()) {
+                Text(specialInstructionsStr.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 12.dp))
+                
+                OutlinedTextField(
+                    value = instructions,
+                    onValueChange = { instructions = it },
+                    placeholder = { Text("Write any extra instructions here...", color = Color.Gray, fontSize = 14.sp) },
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFF97316),
+                        unfocusedBorderColor = Color(0xFFE5E7EB),
+                        unfocusedContainerColor = Color(0xFFF9FAFB),
+                        focusedContainerColor = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFF7ED), RoundedCornerShape(8.dp))
+                        .border(1.dp, Color(0xFFFFF7ED), RoundedCornerShape(8.dp))
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(16.dp).padding(top = 2.dp), tint = Color(0xFFF97316))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Example: Please call before coming. My house is near IIT Kharagpur main gate.",
+                        fontSize = 12.sp,
+                        color = Color(0xFFF97316),
+                        lineHeight = 18.sp
+                    )
+                }
+            }
+
+            // 6. Safety Confirmation
+            Column(modifier = Modifier.background(Color(0xFFF9FAFB)).padding(20.dp).fillMaxWidth()) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 16.dp)) {
+                    Icon(Icons.Filled.Security, contentDescription = null, modifier = Modifier.size(18.dp), tint = Primary)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(safetyConfStr.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
+                }
+
+                Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).clickable { agreeShare = !agreeShare }, verticalAlignment = Alignment.Top) {
+                    Checkbox(checked = agreeShare, onCheckedChange = { agreeShare = it })
+                    Text(agreeShareDetailsStr, fontSize = 14.sp, color = Color.DarkGray, modifier = Modifier.padding(top = 14.dp))
+                }
+
+                Row(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp).clickable { agreePrice = !agreePrice }, verticalAlignment = Alignment.Top) {
+                    Checkbox(checked = agreePrice, onCheckedChange = { agreePrice = it })
+                    Text(agreeFinalPriceStr, fontSize = 14.sp, color = Color.DarkGray, modifier = Modifier.padding(top = 14.dp))
+                }
+
+                // Final Box
+                Surface(
+                    color = Color(0xFF0F172A), // Slate-900
+                    shape = RoundedCornerShape(16.dp),
+                    shadowElevation = 8.dp
+                ) {
+                    Column(modifier = Modifier.padding(20.dp).fillMaxWidth()) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
+                            Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(20.dp), tint = Color(0xFFF97316))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(finalConfStr, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                        
+                        HorizontalDivider(color = Color(0xFF334155))
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        val displayDate = if (selectedDate.contains("Choose Date")) "Not Selected" else selectedDate
+                        
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Service:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(service.category, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Work:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(selectedServices.joinToString(", ").ifEmpty { "N/A" }, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(0.6f), textAlign = TextAlign.End)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Date & Time:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text("$displayDate, $selectedTimeSlot", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Address:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(city, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider(color = Color(0xFF334155))
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(payNowStr, color = Color(0xFFCBD5E1), fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            Text("₹${service.price}", color = Color(0xFFF97316), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

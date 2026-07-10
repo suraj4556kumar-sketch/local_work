@@ -89,7 +89,7 @@ fun PhoneEntryScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Text("←", fontSize = 22.sp, color = Color(0xFF1A1A1A), fontWeight = FontWeight.Bold)
+                    Text("←", fontSize = 22.sp, color = androidx.compose.ui.graphics.Color.White, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 // Language badge
@@ -190,7 +190,7 @@ fun PhoneEntryScreen(
             Text(
                 text = "${phoneNumber.length}/10",
                 fontSize = 12.sp,
-                color = if (isValid) Color(0xFF4CAF50) else Color(0xFFB0B0B0),
+                color = if (isValid) Color(0xFFF97316) else Color(0xFFB0B0B0),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End
             )

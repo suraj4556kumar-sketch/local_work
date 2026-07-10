@@ -29,15 +29,15 @@ import com.example.localconnect.ui.theme.*
 fun ProfileSetupScreen(
     session: UserSession,
     onBack: () -> Unit,
-    onContinue: (name: String, age: String, gender: String) -> Unit
+    onContinue: (name: String, dob: String, gender: String) -> Unit
 ) {
     val strings = getStrings(session.language.code)
     var name by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
+    var dob by remember { mutableStateOf("") }
     var selectedGender by remember { mutableStateOf("") }
 
     val genders = listOf(strings.male, strings.female, strings.other)
-    val canContinue = name.isNotBlank() && age.isNotBlank() && selectedGender.isNotBlank()
+    val canContinue = name.isNotBlank() && dob.isNotBlank() && selectedGender.isNotBlank()
 
     Box(
         modifier = Modifier
@@ -54,9 +54,9 @@ fun ProfileSetupScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ---- Top bar ----
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.fillMaxWidth().background(com.example.localconnect.ui.theme.OrangePrimary).padding(bottom=8.dp, top=8.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
-                    Text("←", fontSize = 22.sp, color = Color(0xFF1A1A1A), fontWeight = FontWeight.Bold)
+                    Text("←", fontSize = 22.sp, color = androidx.compose.ui.graphics.Color.White, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 // Step indicator
@@ -93,12 +93,12 @@ fun ProfileSetupScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // ---- Age field ----
+            // ---- DOB field ----
             OnboardingTextField(
-                value = age,
-                onValueChange = { if (it.length <= 3 && it.all { c -> c.isDigit() }) age = it },
-                placeholder = strings.agePlaceholder,
-                keyboardType = KeyboardType.Number
+                value = dob,
+                onValueChange = { dob = it },
+                placeholder = strings.dobPlaceholder,
+                keyboardType = KeyboardType.Text
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -127,7 +127,7 @@ fun ProfileSetupScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onContinue(name.trim(), age, selectedGender) },
+                onClick = { onContinue(name.trim(), dob.trim(), selectedGender) },
                 enabled = canContinue,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(14.dp),

@@ -2,6 +2,8 @@ package com.example.localconnect
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.*
@@ -25,13 +27,12 @@ import com.google.firebase.firestore.FirebaseFirestore
  * Every screen carries UserSession — data is never lost between steps.
  */
 sealed class Screen {
-    object Splash : Screen()
-    object LanguageSelection : Screen()
+    data object Splash : Screen()
+    data object LanguageSelection : Screen()
     data class PhoneEntry(val session: UserSession) : Screen()
     data class OtpVerification(val session: UserSession) : Screen()
     data class ProfileSetup(val session: UserSession) : Screen()
     data class LocationSetup(val session: UserSession) : Screen()
-    data class RoleSelection(val session: UserSession) : Screen()
     data class Home(val session: UserSession) : Screen()
 }
 
@@ -39,6 +40,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Cleanup old invalid URIs using callbacks
+        try {
+            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            db.collection("job_applications").get().addOnSuccessListener { snapshot ->
+                for (doc in snapshot.documents) {
+                    val uri = doc.getString("uploadedDocumentUri")
+                    if (uri != null && uri.isNotEmpty() && !uri.startsWith("data:")) {
+                        db.collection("job_applications").document(doc.id).update("uploadedDocumentUri", "")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         setContent {
             LocalConnectTheme {
                 AppNavigation()
@@ -55,28 +71,43 @@ fun AppNavigation() {
     }
 
     LaunchedEffect(Unit) {
+        // --- One Time Data Cleanup for Local URIs ---
+        val db = FirebaseFirestore.getInstance()
+        db.collection("job_applications").get().addOnSuccessListener { snap ->
+            snap.documents.forEach { doc ->
+                val docUri = doc.getString("uploadedDocumentUri") ?: ""
+                if (docUri.startsWith("content://") || docUri.startsWith("file://")) {
+                    doc.reference.update("uploadedDocumentUri", "")
+                }
+            }
+        }
+        // --------------------------------------------
+
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
             // User logged in. Fetch their profile to see if onboarding is done.
             val db = FirebaseFirestore.getInstance()
             db.collection("users").document(currentUser.uid).get()
                 .addOnSuccessListener { document ->
-                    if (document.exists() && document.contains("role")) {
+                    if (document.exists() && document.contains("location")) {
                         // User completed onboarding, restore session and go Home
-                        val roleStr = document.getString("role") ?: "NONE"
-                        val userRole = runCatching { UserRole.valueOf(roleStr) }.getOrDefault(UserRole.NONE)
                         val languageCode = document.getString("language") ?: "en"
                         val language = supportedLanguages.find { it.code == languageCode } ?: supportedLanguages[0]
+
+                        var fetchedName = document.getString("name") ?: ""
+                        if (fetchedName.lowercase() == "bhadwa") {
+                            db.collection("users").document(currentUser.uid).update("name", "suraj")
+                            fetchedName = "suraj"
+                        }
 
                         val session = UserSession(
                             language = language,
                             phone = document.getString("phone") ?: "",
                             firebaseUid = currentUser.uid,
-                            name = document.getString("name") ?: "",
-                            age = document.getString("age") ?: "",
+                            name = fetchedName,
+                            dob = document.getString("dob") ?: "",
                             gender = document.getString("gender") ?: "",
-                            location = document.getString("location") ?: "",
-                            role = userRole
+                            location = document.getString("location") ?: ""
                         )
                         currentScreen = Screen.Home(session)
                     } else {
@@ -147,13 +178,13 @@ fun AppNavigation() {
                 onBack = { currentScreen = Screen.PhoneEntry(screen.session) }
             )
 
-            // 4 — Profile (name / age / gender)
+            // 4 — Profile (name / dob / gender)
             is Screen.ProfileSetup -> ProfileSetupScreen(
                 session = screen.session,
                 onBack = { currentScreen = Screen.OtpVerification(screen.session) },
-                onContinue = { name, age, gender ->
+                onContinue = { name, dob, gender ->
                     currentScreen = Screen.LocationSetup(
-                        screen.session.copy(name = name, age = age, gender = gender)
+                        screen.session.copy(name = name, dob = dob, gender = gender)
                     )
                 }
             )
@@ -163,20 +194,17 @@ fun AppNavigation() {
                 session = screen.session,
                 onBack = { currentScreen = Screen.ProfileSetup(screen.session) },
                 onContinue = { location ->
-                    currentScreen = Screen.RoleSelection(screen.session.copy(location = location))
-                }
-            )
-
-            // 6 — Role selection (I want to Hire / I want Work)
-            is Screen.RoleSelection -> RoleSelectionScreen(
-                session = screen.session,
-                onRoleSelected = { role ->
-                    currentScreen = Screen.Home(screen.session.copy(role = role))
+                    currentScreen = Screen.Home(screen.session.copy(location = location))
                 }
             )
 
             // 7 — Personalised Home
-            is Screen.Home -> HomeScreen(session = screen.session)
+            is Screen.Home -> HomeScreen(
+                initialSession = screen.session,
+                onLogout = {
+                    currentScreen = Screen.LanguageSelection
+                }
+            )
         }
     }
 }

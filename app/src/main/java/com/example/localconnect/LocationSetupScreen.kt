@@ -1,5 +1,12 @@
 package com.example.localconnect
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
+
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -21,6 +28,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import com.example.localconnect.ui.theme.*
 
 private val popularCities = listOf("Delhi", "Mumbai", "Kolkata", "Bangalore", "Chennai", "Hyderabad", "Pune", "Jaipur")
@@ -43,6 +53,7 @@ fun LocationSetupScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .systemBarsPadding()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -50,9 +61,9 @@ fun LocationSetupScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ---- Top bar ----
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.fillMaxWidth().background(com.example.localconnect.ui.theme.OrangePrimary).padding(bottom=8.dp, top=8.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
-                    Text("←", fontSize = 22.sp, color = Color(0xFF1A1A1A), fontWeight = FontWeight.Bold)
+                    Text("←", fontSize = 22.sp, color = androidx.compose.ui.graphics.Color.White, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 StepIndicator(current = 2, total = 2)
@@ -67,7 +78,7 @@ fun LocationSetupScreen(
                     .clip(RoundedCornerShape(24.dp))
                     .background(Brush.linearGradient(listOf(OrangePrimary, OrangeLight))),
                 contentAlignment = Alignment.Center
-            ) { Text("📍", fontSize = 36.sp) }
+            ) { Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(36.dp), tint = com.example.localconnect.ui.theme.Primary) }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -118,7 +129,23 @@ fun LocationSetupScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onContinue(city.trim()) },
+                onClick = { 
+                    val finalCity = city.trim()
+                    val finalSession = session.copy(location = finalCity)
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    val userData = hashMapOf(
+                        "phone" to finalSession.phone,
+                        "name" to finalSession.name,
+                        "dob" to finalSession.dob,
+                        "gender" to finalSession.gender,
+                        "location" to finalSession.location,
+                        "language" to finalSession.language.code
+                    )
+                    db.collection("users").document(finalSession.firebaseUid).set(userData)
+                        .addOnSuccessListener {
+                            onContinue(finalCity)
+                        }
+                },
                 enabled = canContinue,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(14.dp),

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- Categories -->
+    
     <string name="cat_cook">রাধুনি</string>
     <string name="cat_maid">কাজের লোক</string>
     <string name="cat_driver">ড্রাইভার</string>
@@ -18,7 +18,7 @@
     <string name="cat_technician">টেকনিশিয়ান</string>
     <string name="cat_other">অন্যান্য</string>
 
-    <!-- Descriptions -->
+    
     <string name="template_desc_cook">সুস্বাদু খাবার প্রস্তুত করার জন্য একজন অভিজ্ঞ রাঁধুনির সন্ধান করছি। বিভিন্ন রান্নার ভালো জ্ঞান থাকতে হবে এবং উচ্চ স্বাস্থ্যবিধি বজায় রাখতে হবে।</string>
     <string name="template_desc_maid">পরিষ্কার করা, ধুলো ঝাড়া এবং গুছিয়ে রাখা সহ দৈনন্দিন ঘরের কাজের জন্য একজন নির্ভরযোগ্য এবং বিশ্বস্ত গৃহকর্মীর সন্ধান করছি।</string>
     <string name="template_desc_driver">যাত্রীদের নিরাপদে যাতায়াত করার জন্য বৈধ লাইসেন্স সহ একজন দায়িত্বশীল ড্রাইভারের সন্ধান করছি। সুরক্ষাকে অগ্রাধিকার দিতে হবে এবং ট্রাফিক নিয়ম কঠোরভাবে মেনে চলতে হবে।</string>
@@ -36,7 +36,7 @@
     <string name="template_desc_technician">সরঞ্জাম ইনস্টল, সমস্যা সমাধান এবং মেরামত করার জন্য একজন প্রযুক্তিগতভাবে দক্ষ টেকনিশিয়ানের সন্ধান করছি।</string>
     <string name="template_desc_other">এই ভূমিকার জন্য একজন নিবেদিত পেশাদারের সন্ধান করছি।</string>
 
-    <!-- Skills -->
+    
     <string-array name="skills_cook">
         <item>সময়সূচী অনুযায়ী খাবার প্রস্তুত করুন</item>
         <item>রান্নাঘরের পরিচ্ছন্নতা বজায় রাখুন</item>
@@ -119,7 +119,7 @@
     </string-array>
 
 
-    <!-- UI Overrides -->
+    
     <string name="tab_find_jobs">চাকরি খুঁজুন</string>
     <string name="tab_my_apps">আমার আবেদন</string>
     <string name="tab_my_jobs">আমার চাকরি</string>
@@ -325,7 +325,7 @@
     <string name="hirer_card_title">আমি নিয়োগ করতে চাই</string>
     <string name="hirer_card_desc">চাকরি পোস্ট করুন বা পরিষেবা দিন</string>
     <string name="seeker_card_title">আমি কাজ চাই</string>
-    <string name="seeker_card_desc">Find jobs or services near you</string>
+    <string name="seeker_card_desc">আপনার কাছাকাছি চাকরি বা পরিষেবা খুঁজুন</string>
     <string name="hirer_welcome">স্বাগতম, নিয়োগকর্তা!</string>
     <string name="post_job_desc">হাজার হাজার প্রার্থীর কাছে পৌঁছান</string>
     <string name="find_workers">শ্রমিক খুঁজুন</string>
@@ -445,40 +445,40 @@
     <string name="seek_service_desc">আপনার কাছে একজন পেশাদার খুঁজুন</string>
     <string name="provide_service_title">সেবা প্রদান করুন</string>
     <string name="provide_service_desc">অন্যদের কাছে আপনার দক্ষতা অফার করুন</string>
-    <string name="i_confirm_this_is_a_genuine_job_posting_representing_an_actual_vacancy">I confirm this is a genuine job posting representing an actual vacancy. *</string>
-    <string name="tell_us_about_your_experience">Tell us about your experience...</string>
-    <string name="view_docname">View $docName</string>
-    <string name="job_title">Job Title *</string>
-    <string name="jobs_posted_15">• 15 jobs posted</string>
-    <string name="monthly_salary">Monthly Salary (₹)</string>
-    <string name="contact_person_name">Contact Person Name *</string>
-    <string name="describe_your_past_work_responsibilities">Describe your past work responsibilities</string>
-    <string name="view_on_map">View on Map</string>
-    <string name="write_any_extra_instructions_here">Write any extra instructions here...</string>
-    <string name="city_area">City / Area *</string>
-    <string name="offer_your_service_to_nearby_customers">Offer your service to nearby customers</string>
-    <string name="are_you_sure_you_want_to_exit_localconnect">Are you sure you want to exit LocalConnect?</string>
-    <string name="expected_compensation_month">Expected Compensation (₹ / month)</string>
-    <string name="verified">VERIFIED</string>
-    <string name="uploaded_docname">Uploaded: $docName</string>
-    <string name="listen">Listen</string>
-    <string name="category">Category *</string>
-    <string name="exp_experience">⭐ Exp: $experience</string>
-    <string name="choose_an_option_to_upload_your_photo">Choose an option to upload your photo</string>
-    <string name="find_jobs">Find Jobs</string>
-    <string name="date_time">Date &amp; Time:</string>
-    <string name="create_a_job_post_to_hire_workers">Create a job post to hire workers</string>
-    <string name="do_you_charge_fees_per_km">Do you charge fees per km?</string>
-    <string name="i_agree_that_fake_or_misleading_job_posts_may_result_in_account_suspension">I agree that fake or misleading job posts may result in account suspension. *</string>
-    <string name="upload_cv_or_certificate">Upload CV or Certificate</string>
-    <string name="choose_an_option_to_upload_your_video">Choose an option to upload your video</string>
-    <string name="upload_docname">Upload $docName</string>
-    <string name="employer_company_name">Employer / Company Name *</string>
-    <string name="enter_your_full_name">Enter your full name</string>
-    <string name="describe_the_job_role_environment">Describe the job role, environment...</string>
-    <string name="tell_us_about_your_experience_to_find_the_best_jobs">Tell us about your experience to find the best jobs.</string>
-    <string name="service">Service:</string>
-    <string name="address">Address:</string>
-    <string name="i_confirm_that_the_information_provided_in_this_application_is_correct_and_accurate_to_the_best_of_my_knowledge">I confirm that the information provided in this application is correct and accurate to the best of my knowledge.</string>
-    <string name="work">Work:</string>
+    <string name="i_confirm_this_is_a_genuine_job_posting_representing_an_actual_vacancy">আমি নিশ্চিত করছি যে এটি একটি প্রকৃত চাকরির পোস্টিং যা প্রকৃত শূন্যপদকে উপস্থাপন করে।*</string>
+    <string name="tell_us_about_your_experience">আপনার অভিজ্ঞতা সম্পর্কে বলুন...</string>
+    <string name="view_docname">$docName দেখুন</string>
+    <string name="job_title">চাকরির নাম*</string>
+    <string name="jobs_posted_15">• 15টি চাকরি পোস্ট করা হয়েছে</string>
+    <string name="monthly_salary">মাসিক বেতন (₹)</string>
+    <string name="contact_person_name">যোগাযোগ ব্যক্তির নাম *</string>
+    <string name="describe_your_past_work_responsibilities">আপনার অতীত কাজের দায়িত্ব বর্ণনা করুন</string>
+    <string name="view_on_map">মানচিত্রে দেখুন</string>
+    <string name="write_any_extra_instructions_here">এখানে কোনো অতিরিক্ত নির্দেশনা লিখুন...</string>
+    <string name="city_area">শহর / এলাকা *</string>
+    <string name="offer_your_service_to_nearby_customers">কাছাকাছি গ্রাহকদের আপনার সেবা অফার</string>
+    <string name="are_you_sure_you_want_to_exit_localconnect">আপনি কি নিশ্চিত আপনি LocalConnect থেকে প্রস্থান করতে চান?</string>
+    <string name="expected_compensation_month">প্রত্যাশিত ক্ষতিপূরণ (₹/মাস)</string>
+    <string name="verified">যাচাই করা হয়েছে</string>
+    <string name="uploaded_docname">আপলোড করা হয়েছে: $docName</string>
+    <string name="listen">শুনুন</string>
+    <string name="category">বিভাগ *</string>
+    <string name="exp_experience">⭐ অভিজ্ঞতা: $experience</string>
+    <string name="choose_an_option_to_upload_your_photo">আপনার ছবি আপলোড করার জন্য একটি বিকল্প চয়ন করুন</string>
+    <string name="find_jobs">চাকরি খুঁজুন</string>
+    <string name="date_time">তারিখ ও সময়:</string>
+    <string name="create_a_job_post_to_hire_workers">কর্মী নিয়োগের জন্য একটি চাকরির পোস্ট তৈরি করুন</string>
+    <string name="do_you_charge_fees_per_km">আপনি কি প্রতি কিমি ফি চার্জ করেন?</string>
+    <string name="i_agree_that_fake_or_misleading_job_posts_may_result_in_account_suspension">আমি সম্মত যে জাল বা বিভ্রান্তিকর চাকরির পোস্টের ফলে অ্যাকাউন্ট স্থগিত হতে পারে।*</string>
+    <string name="upload_cv_or_certificate">সিভি বা সার্টিফিকেট আপলোড করুন</string>
+    <string name="choose_an_option_to_upload_your_video">আপনার ভিডিও আপলোড করার জন্য একটি বিকল্প চয়ন করুন৷</string>
+    <string name="upload_docname">$docName আপলোড করুন</string>
+    <string name="employer_company_name">নিয়োগকর্তা / কোম্পানির নাম *</string>
+    <string name="enter_your_full_name">আপনার পুরো নাম লিখুন</string>
+    <string name="describe_the_job_role_environment">কাজের ভূমিকা, পরিবেশ বর্ণনা করুন...</string>
+    <string name="tell_us_about_your_experience_to_find_the_best_jobs">সেরা চাকরি খুঁজে পেতে আপনার অভিজ্ঞতা সম্পর্কে আমাদের বলুন।</string>
+    <string name="service">পরিষেবা:</string>
+    <string name="address">ঠিকানা:</string>
+    <string name="i_confirm_that_the_information_provided_in_this_application_is_correct_and_accurate_to_the_best_of_my_knowledge">আমি নিশ্চিত করছি যে এই আবেদনে প্রদত্ত তথ্য আমার জ্ঞান অনুযায়ী সঠিক এবং নির্ভুল।</string>
+    <string name="work">কাজ:</string>
 </resources>

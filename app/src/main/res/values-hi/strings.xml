@@ -449,7 +449,7 @@
     <string name="tell_us_about_your_experience">अपने अनुभव के बारे में बताएं...</string>
     <string name="view_docname">$docName देखें</string>
     <string name="job_title">नौकरी का शीर्षक *</string>
-    <string name="15_jobs_posted">• 15 नौकरियाँ पोस्ट की गईं</string>
+    <string name="jobs_posted_15">• 15 नौकरियाँ पोस्ट की गईं</string>
     <string name="monthly_salary">मासिक वेतन (₹)</string>
     <string name="contact_person_name">संपर्क व्यक्ति का नाम *</string>
     <string name="describe_your_past_work_responsibilities">अपनी पिछली कार्य जिम्मेदारियों का वर्णन करें</string>

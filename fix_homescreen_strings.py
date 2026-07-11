@@ -1,49 +1,60 @@
 import os
-import re
 
-translations = {
-    'Find available jobs in your area': ('find_available_jobs_area', 'अपने क्षेत्र में उपलब्ध नौकरियां खोजें', 'আপনার এলাকায় উপলব্ধ চাকরি খুঁজুন'),
-    'Find Services': ('find_services', 'सेवाएं खोजें', 'পরিষেবা খুঁজুন'),
-    'Find local service providers': ('find_local_service_providers', 'स्थानीय सेवा प्रदाता खोजें', 'স্থানীয় পরিষেবা প্রদানকারী খুঁজুন'),
-    'Post Job/Service': ('post_job_service', 'नौकरी/सेवा पोस्ट करें', 'চাকরি/পরিষেবা পোস্ট করুন'),
-    'Hire workers or provide a service': ('hire_workers_or_provide_service', 'श्रमिकों को काम पर रखें या सेवा प्रदान करें', 'শ্রমিক নিয়োগ করুন বা পরিষেবা প্রদান করুন')
-}
-
-res_dir = r'c:\Users\dhani\AndroidStudioProjects\LocalWork\app\src\main\res'
-
-def append_strings(file_path, strings_dict, lang_index):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    insertion_idx = content.rfind('</resources>')
-    if insertion_idx == -1: return
-    
-    new_strings = ""
-    for eng, vals in strings_dict.items():
-        id = vals[0]
-        val = vals[lang_index].replace('&', '&amp;').replace("'", r"\'")
-        if f'name="{id}"' not in content:
-            new_strings += f'    <string name="{id}">{val}</string>\n'
-    
-    if new_strings:
-        content = content[:insertion_idx] + new_strings + content[insertion_idx:]
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        print(f'Added to {file_path}')
-
-append_strings(os.path.join(res_dir, 'values', 'strings.xml'), {k: (v[0], k) for k, v in translations.items()}, 1)
-append_strings(os.path.join(res_dir, 'values-hi', 'strings.xml'), translations, 1)
-append_strings(os.path.join(res_dir, 'values-bn', 'strings.xml'), translations, 2)
-
-home_screen_path = r'c:\Users\dhani\AndroidStudioProjects\LocalWork\app\src\main\java\com\example\localconnect\HomeScreen.kt'
-with open(home_screen_path, 'r', encoding='utf-8') as f:
+kt_file = r'c:\Users\dhani\AndroidStudioProjects\LocalWork\app\src\main\java\com\example\localconnect\HomeScreen.kt'
+with open(kt_file, 'r', encoding='utf-8') as f:
     content = f.read()
 
-for eng, (id, hi, bn) in translations.items():
-    pattern = r'"' + re.escape(eng) + r'"'
-    replacement = r'androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.' + id + ')'
-    content = re.sub(pattern, replacement, content)
+content = content.replace('title = "Find Services", // Hardcoding as requested, can localize later', 'title = stringResource(R.string.find_services_title),')
+content = content.replace('description = "Find local service providers",', 'description = stringResource(R.string.find_services_desc),')
+content = content.replace('title = "Post Job/Service",', 'title = stringResource(R.string.post_job_service_title),')
+content = content.replace('description = "Hire workers or provide a service",', 'description = stringResource(R.string.post_job_service_desc),')
+content = content.replace('Triple(Icons.Filled.Work, "My Jobs", 7)', 'Triple(Icons.Filled.Work, stringResource(R.string.my_jobs), 7)')
+content = content.replace('Triple(Icons.Filled.Build, "My Services", 6)', 'Triple(Icons.Filled.Build, stringResource(R.string.my_services), 6)')
 
-with open(home_screen_path, 'w', encoding='utf-8') as f:
+with open(kt_file, 'w', encoding='utf-8') as f:
     f.write(content)
-print('Updated HomeScreen.kt')
+print('HomeScreen.kt updated.')
+
+def append_strings(file_path, strings_to_add):
+    if not os.path.exists(file_path): return
+    with open(file_path, 'r', encoding='utf-8') as f:
+        xml = f.read()
+    insertion_idx = xml.rfind('</resources>')
+    new_strings = ''
+    for key, val in strings_to_add.items():
+        if f'name="{key}"' not in xml:
+            new_strings += f'    <string name="{key}">{val}</string>\n'
+    if new_strings:
+        xml = xml[:insertion_idx] + new_strings + xml[insertion_idx:]
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(xml)
+
+en_strings = {
+    'find_services_title': 'Find Services',
+    'find_services_desc': 'Find local service providers',
+    'post_job_service_title': 'Post Job/Service',
+    'post_job_service_desc': 'Hire workers or provide a service',
+    'my_jobs': 'My Jobs',
+    'my_services': 'My Services'
+}
+hi_strings = {
+    'find_services_title': 'सेवाएँ खोजें',
+    'find_services_desc': 'स्थानीय सेवा प्रदाताओं को खोजें',
+    'post_job_service_title': 'नौकरी/सेवा पोस्ट करें',
+    'post_job_service_desc': 'कर्मचारियों को काम पर रखें या सेवा प्रदान करें',
+    'my_jobs': 'मेरी नौकरियां',
+    'my_services': 'मेरी सेवाएँ'
+}
+bn_strings = {
+    'find_services_title': 'পরিষেবা খুঁজুন',
+    'find_services_desc': 'স্থানীয় পরিষেবা প্রদানকারীদের খুঁজুন',
+    'post_job_service_title': 'কাজ/পরিষেবা পোস্ট করুন',
+    'post_job_service_desc': 'কর্মী নিয়োগ করুন বা একটি পরিষেবা প্রদান করুন',
+    'my_jobs': 'আমার কাজ',
+    'my_services': 'আমার পরিষেবাগুলি'
+}
+
+append_strings(r'c:\Users\dhani\AndroidStudioProjects\LocalWork\app\src\main\res\values\strings.xml', en_strings)
+append_strings(r'c:\Users\dhani\AndroidStudioProjects\LocalWork\app\src\main\res\values-hi\strings.xml', hi_strings)
+append_strings(r'c:\Users\dhani\AndroidStudioProjects\LocalWork\app\src\main\res\values-bn\strings.xml', bn_strings)
+print('XMLs updated.')

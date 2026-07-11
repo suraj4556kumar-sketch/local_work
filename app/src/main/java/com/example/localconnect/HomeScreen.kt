@@ -296,16 +296,16 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
 
             MainTile(
                 icon = Icons.Filled.Build,
-                title = "Find Services", // Hardcoding as requested, can localize later
-                description = "Find local service providers",
+                title = stringResource(R.string.find_services_title),
+                description = stringResource(R.string.find_services_desc),
                 gradientColors = listOf(Color(0xFFEA580C), OrangePrimary),
                 onClick = onNavigateToServices
             )
 
             MainTile(
                 icon = Icons.Filled.AddCircle,
-                title = "Post Job/Service",
-                description = "Hire workers or provide a service",
+                title = stringResource(R.string.post_job_service_title),
+                description = stringResource(R.string.post_job_service_desc),
                 gradientColors = listOf(Color(0xFFF59E0B), Color(0xFFFBBF24)),
                 onClick = { showPostActionSheet = true }
             )
@@ -451,8 +451,8 @@ private fun MainTile(
 private fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     val items = listOf(
         Triple(Icons.Filled.Home, stringResource(R.string.home_tab), 0),
-        Triple(Icons.Filled.Work, "My Jobs", 7),
-        Triple(Icons.Filled.Build, "My Services", 6),
+        Triple(Icons.Filled.Work, stringResource(R.string.my_jobs), 7),
+        Triple(Icons.Filled.Build, stringResource(R.string.my_services), 6),
         Triple(Icons.Filled.Person, stringResource(R.string.profile_tab), 4)
     )
 

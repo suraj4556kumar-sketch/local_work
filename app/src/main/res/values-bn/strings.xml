@@ -481,4 +481,10 @@
     <string name="address">ঠিকানা:</string>
     <string name="i_confirm_that_the_information_provided_in_this_application_is_correct_and_accurate_to_the_best_of_my_knowledge">আমি নিশ্চিত করছি যে এই আবেদনে প্রদত্ত তথ্য আমার জ্ঞান অনুযায়ী সঠিক এবং নির্ভুল।</string>
     <string name="work">কাজ:</string>
+    <string name="find_services_title">পরিষেবা খুঁজুন</string>
+    <string name="find_services_desc">স্থানীয় পরিষেবা প্রদানকারীদের খুঁজুন</string>
+    <string name="post_job_service_title">কাজ/পরিষেবা পোস্ট করুন</string>
+    <string name="post_job_service_desc">কর্মী নিয়োগ করুন বা একটি পরিষেবা প্রদান করুন</string>
+    <string name="my_jobs">আমার কাজ</string>
+    <string name="my_services">আমার পরিষেবাগুলি</string>
 </resources>

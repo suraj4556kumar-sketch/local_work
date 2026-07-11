@@ -481,4 +481,10 @@
     <string name="address">पता:</string>
     <string name="i_confirm_that_the_information_provided_in_this_application_is_correct_and_accurate_to_the_best_of_my_knowledge">मैं पुष्टि करता हूं कि इस एप्लिकेशन में दी गई जानकारी मेरी सर्वोत्तम जानकारी के अनुसार सही और सटीक है।</string>
     <string name="work">काम:</string>
+    <string name="find_services_title">सेवाएँ खोजें</string>
+    <string name="find_services_desc">स्थानीय सेवा प्रदाताओं को खोजें</string>
+    <string name="post_job_service_title">नौकरी/सेवा पोस्ट करें</string>
+    <string name="post_job_service_desc">कर्मचारियों को काम पर रखें या सेवा प्रदान करें</string>
+    <string name="my_jobs">मेरी नौकरियां</string>
+    <string name="my_services">मेरी सेवाएँ</string>
 </resources>

@@ -313,4 +313,10 @@
     <string name="remove_application">Remove Application</string>
     <string name="prior_experience_years">Prior Experience (Years)</string>
     <string name="work">Work:</string>
+    <string name="find_services_title">Find Services</string>
+    <string name="find_services_desc">Find local service providers</string>
+    <string name="post_job_service_title">Post Job/Service</string>
+    <string name="post_job_service_desc">Hire workers or provide a service</string>
+    <string name="my_jobs">My Jobs</string>
+    <string name="my_services">My Services</string>
 </resources>

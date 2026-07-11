@@ -152,7 +152,7 @@ fun JobApplicationScreen(
                         ),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD1D5DB))
                     ) {
-                        Text("Cancel", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.cancel), fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     }
                     
                     Button(
@@ -242,7 +242,7 @@ fun JobApplicationScreen(
                     OutlinedTextField(
                         value = fullName,
                         onValueChange = { fullName = it },
-                        placeholder = { Text("Enter your full name", color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.enter_your_full_name), color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                         singleLine = true,
                         textStyle = androidx.compose.ui.text.TextStyle(color = Color(0xFF111827), fontWeight = FontWeight.Medium),
@@ -257,7 +257,7 @@ fun JobApplicationScreen(
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        placeholder = { Text("Enter phone number", color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.enter_phone_number), color = Color.Gray) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                         singleLine = true,
@@ -349,7 +349,7 @@ fun JobApplicationScreen(
                             ),
                             border = if (!hasExperience) androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD1D5DB)) else null
                         ) {
-                            Text("Yes", fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.yes), fontWeight = FontWeight.Medium)
                         }
                         Button(
                             onClick = { hasExperience = false },
@@ -361,7 +361,7 @@ fun JobApplicationScreen(
                             ),
                             border = if (hasExperience) androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD1D5DB)) else null
                         ) {
-                            Text("No", fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.no), fontWeight = FontWeight.Medium)
                         }
                     }
 
@@ -433,9 +433,9 @@ fun JobApplicationScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             if (docUri != null) {
-                                Text("Uploaded: $docName", fontSize = 14.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.uploaded_docname), fontSize = 14.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
                             } else {
-                                Text("Upload $docName", fontSize = 14.sp, color = Color(0xFF6B7280))
+                                Text(stringResource(R.string.upload_docname), fontSize = 14.sp, color = Color(0xFF6B7280))
                             }
                         }
                         if (index < requiredDocs.size - 1) {
@@ -448,15 +448,15 @@ fun JobApplicationScreen(
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedLang == "Hindi", onClick = { selectedLang = "Hindi" }, modifier = Modifier.size(32.dp))
-                            Text("Hindi", fontSize = 13.sp, maxLines = 1)
+                            Text(stringResource(R.string.hindi), fontSize = 13.sp, maxLines = 1)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedLang == "Bengali", onClick = { selectedLang = "Bengali" }, modifier = Modifier.size(32.dp))
-                            Text("Bengali", fontSize = 13.sp, maxLines = 1)
+                            Text(stringResource(R.string.bengali), fontSize = 13.sp, maxLines = 1)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedLang == "English", onClick = { selectedLang = "English" }, modifier = Modifier.size(32.dp))
-                            Text("English", fontSize = 13.sp, maxLines = 1)
+                            Text(stringResource(R.string.english), fontSize = 13.sp, maxLines = 1)
                         }
                     }
                 }
@@ -475,7 +475,7 @@ fun JobApplicationScreen(
                     OutlinedTextField(
                         value = introduction,
                         onValueChange = { introduction = it },
-                        placeholder = { Text("Tell us about your experience...", color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.tell_us_about_your_experience), color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth().height(100.dp),
                         textStyle = androidx.compose.ui.text.TextStyle(color = Color(0xFF111827), fontWeight = FontWeight.Medium),
                         shape = RoundedCornerShape(8.dp),

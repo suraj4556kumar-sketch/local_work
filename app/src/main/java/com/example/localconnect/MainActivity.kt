@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import kotlinx.coroutines.launch
@@ -148,7 +151,7 @@ fun AppNavigation() {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator(color = OrangePrimary)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Loading LocalConnect...", color = Color.Gray)
+                        Text(stringResource(R.string.loading_localconnect), color = Color.Gray)
                     }
                 }
             }

@@ -515,7 +515,7 @@ fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatu
                     ) {
                         Icon(Icons.Filled.Description, contentDescription = null, tint = Color(0xFF4B5563), modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("View $docName", color = Color(0xFF4B5563), fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.view_docname), color = Color(0xFF4B5563), fontWeight = FontWeight.Medium)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))

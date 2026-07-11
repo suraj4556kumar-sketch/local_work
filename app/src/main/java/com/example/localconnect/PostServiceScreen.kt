@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -71,8 +74,8 @@ fun PostServiceScreen(
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text("Post a Service", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
-                        Text("Offer your service to nearby customers", fontSize = 12.sp, color = Color(0xFFFFEDD5))
+                        Text(stringResource(R.string.post_a_service), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
+                        Text(stringResource(R.string.offer_your_service_to_nearby_customers), fontSize = 12.sp, color = Color(0xFFFFEDD5))
                     }
                 }
             }
@@ -94,7 +97,7 @@ fun PostServiceScreen(
                         border = BorderStroke(1.dp, primaryColor),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryColor)
                     ) {
-                        Text("Save Draft", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.save_draft), fontWeight = FontWeight.Bold)
                     }
                     Button(
                         onClick = {
@@ -172,15 +175,15 @@ fun PostServiceScreen(
                 CustomTextField("Visiting Fees (₹)", "e.g. 500", visitingFees, keyboardType = KeyboardType.Number) { visitingFees = it }
                 
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Do you charge fees per km?", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+                Text(stringResource(R.string.do_you_charge_fees_per_km), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { hasFeesPerKm = true }) {
                         RadioButton(selected = hasFeesPerKm, onClick = { hasFeesPerKm = true }, colors = RadioButtonDefaults.colors(selectedColor = primaryColor))
-                        Text("Yes", fontSize = 14.sp)
+                        Text(stringResource(R.string.yes), fontSize = 14.sp)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { hasFeesPerKm = false }) {
                         RadioButton(selected = !hasFeesPerKm, onClick = { hasFeesPerKm = false }, colors = RadioButtonDefaults.colors(selectedColor = primaryColor))
-                        Text("No", fontSize = 14.sp)
+                        Text(stringResource(R.string.no), fontSize = 14.sp)
                     }
                 }
                 
@@ -212,7 +215,7 @@ fun PostServiceScreen(
 
             // 4. AVAILABILITY
             SectionGroup("AVAILABILITY", primaryColor, lightOrangeColor) {
-                Text("Available On", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+                Text(stringResource(R.string.available_on), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
                 val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
                 FlowRow(modifier = Modifier.fillMaxWidth()) {
                     daysOfWeek.forEach { day ->
@@ -274,7 +277,7 @@ fun PostServiceScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Text("⭐ Exp: $experience", fontSize = 12.sp, color = Color.Gray)
+                            Text(stringResource(R.string.exp_experience), fontSize = 12.sp, color = Color.Gray)
                             Text("🕒 ${availableDays.joinToString(", ").takeIf { it.isNotBlank() } ?: "None"}", fontSize = 12.sp, color = Color.Gray)
                         }
                     }

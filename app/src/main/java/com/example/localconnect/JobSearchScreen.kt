@@ -80,14 +80,14 @@ fun JobSearchScreen(
             Tab(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
-                text = { Text("Find Jobs", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                text = { Text(stringResource(R.string.find_jobs), fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(alpha = 0.7f)
             )
             Tab(
                 selected = selectedTab == 1,
                 onClick = { selectedTab = 1 },
-                text = { Text("My Applications", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                text = { Text(stringResource(R.string.my_applications), fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(alpha = 0.7f)
             )

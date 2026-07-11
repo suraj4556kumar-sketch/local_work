@@ -225,13 +225,13 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { showNameDialog = false },
             containerColor = Color.White,
-            title = { Text("Change Name", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.change_name), fontWeight = FontWeight.Bold) },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
                     singleLine = true,
-                    label = { Text("New Name") },
+                    label = { Text(stringResource(R.string.new_name)) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = OrangePrimary,
                         focusedLabelColor = OrangePrimary
@@ -258,12 +258,12 @@ fun ProfileScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary)
                 ) {
-                    Text("Save", color = Color.White)
+                    Text(stringResource(R.string.save), color = Color.White)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showNameDialog = false }) {
-                    Text("Cancel", color = Color.Gray)
+                    Text(stringResource(R.string.cancel), color = Color.Gray)
                 }
             }
         )

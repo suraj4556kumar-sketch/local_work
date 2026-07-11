@@ -166,7 +166,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
     if (applicationToDelete != null) {
         AlertDialog(
             onDismissRequest = { applicationToDelete = null },
-            title = { Text("Remove Application") },
+            title = { Text(stringResource(R.string.remove_application)) },
             text = { Text("Are you sure you want to remove your application for ${applicationToDelete!!.jobTitle}?") },
             confirmButton = {
                 Button(
@@ -185,12 +185,12 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                 ) {
-                    Text("Remove", color = Color.White)
+                    Text(stringResource(R.string.remove), color = Color.White)
                 }
             },
             dismissButton = {
                 OutlinedButton(onClick = { applicationToDelete = null }) {
-                    Text("Cancel", color = Color.Gray)
+                    Text(stringResource(R.string.cancel), color = Color.Gray)
                 }
             }
         )
@@ -208,7 +208,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text("← ", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF6B7280))
-                    Text("Back", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF6B7280))
+                    Text(stringResource(R.string.back), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF6B7280))
                 }
                 
                 Text(selectedApp!!.jobTitle, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
@@ -259,7 +259,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E7FF), contentColor = Color(0xFF4338CA))
                     ) {
-                        Text("View Job Details", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.view_job_details), fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -283,7 +283,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22C55E))
                         ) {
-                            Text("Accept Offer", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(stringResource(R.string.accept_offer), fontWeight = FontWeight.Bold, color = Color.White)
                         }
                         Button(
                             onClick = {
@@ -301,7 +301,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                         ) {
-                            Text("Reject Offer", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(stringResource(R.string.reject_offer), fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -317,7 +317,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
                             ) {
-                                Text("Call Employer", fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(stringResource(R.string.call_employer), fontWeight = FontWeight.Bold, color = Color.White)
                             }
                             Button(
                                 onClick = {
@@ -334,7 +334,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))
                             ) {
-                                Text("WhatsApp", fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(stringResource(R.string.whatsapp), fontWeight = FontWeight.Bold, color = Color.White)
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
@@ -358,7 +358,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF1F2937))
                 ) {
-                    Text("Close", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.close), fontWeight = FontWeight.Bold)
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -469,7 +469,7 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF374151))
                 ) {
-                    Text("View Details", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.view_details), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 }
                 if (app.status == "Selected") {
                     Button(
@@ -478,7 +478,7 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF22C55E), contentColor = Color.White)
                     ) {
-                        Text("Accept Offer", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.accept_offer), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
                     Button(
                         onClick = { onStatusChange("Offer Rejected") },
@@ -486,7 +486,7 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444), contentColor = Color.White)
                     ) {
-                        Text("Reject", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.reject), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }

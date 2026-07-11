@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -48,7 +51,7 @@ fun JobProfileSetupScreen(
         containerColor = Color.White,
         topBar = {
             TopAppBar(
-                title = { Text("Build Your Work Profile", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.build_your_work_profile), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color(0xFFF97316), titleContentColor = androidx.compose.ui.graphics.Color.White, navigationIconContentColor = androidx.compose.ui.graphics.Color.White, actionIconContentColor = androidx.compose.ui.graphics.Color.White)
             )
         }
@@ -69,7 +72,7 @@ fun JobProfileSetupScreen(
 
             // Category Dropdown
             Column {
-                Text("Job Category", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.job_category), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 ExposedDropdownMenuBox(
                     expanded = expandedCategory,
                     onExpandedChange = { expandedCategory = it }
@@ -106,11 +109,11 @@ fun JobProfileSetupScreen(
 
             // Experience Years
             Column {
-                Text("Prior Experience (Years)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.prior_experience_years), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = experienceYears,
                     onValueChange = { experienceYears = it },
-                    placeholder = { Text("e.g. 2") },
+                    placeholder = { Text(stringResource(R.string.eg_2)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -123,11 +126,11 @@ fun JobProfileSetupScreen(
 
             // Prior Job Description
             Column {
-                Text("Description of Prior Job", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.description_of_prior_job), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = priorJobDesc,
                     onValueChange = { priorJobDesc = it },
-                    placeholder = { Text("Describe your past work responsibilities") },
+                    placeholder = { Text(stringResource(R.string.describe_your_past_work_responsibilities)) },
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     shape = RoundedCornerShape(12.dp),
                     maxLines = 4,
@@ -140,11 +143,11 @@ fun JobProfileSetupScreen(
 
             // Expected Compensation
             Column {
-                Text("Expected Compensation (₹ / month)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.expected_compensation_month), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = expectedCompensation,
                     onValueChange = { expectedCompensation = it },
-                    placeholder = { Text("e.g. 15000") },
+                    placeholder = { Text(stringResource(R.string.eg_15000)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -157,7 +160,7 @@ fun JobProfileSetupScreen(
 
             // Documents Placeholder
             Column {
-                Text("Documents (Optional)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.documents_optional), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable { /* TODO: File picker */ },
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
@@ -168,8 +171,8 @@ fun JobProfileSetupScreen(
                         Text("📄", fontSize = 24.sp)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text("Upload CV or Certificate", fontWeight = FontWeight.SemiBold)
-                            Text("PDF or Image max 5MB", fontSize = 12.sp, color = Color.Gray)
+                            Text(stringResource(R.string.upload_cv_or_certificate), fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.pdf_or_image_max_5mb), fontSize = 12.sp, color = Color.Gray)
                         }
                     }
                 }
@@ -195,7 +198,7 @@ fun JobProfileSetupScreen(
                 if (isSaving) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Save & Continue", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.save_continue), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

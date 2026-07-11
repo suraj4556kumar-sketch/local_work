@@ -110,7 +110,7 @@ fun JobDetailsScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color.Gray),
                             enabled = false
                         ) {
-                            Text("Loading...", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.loading), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
                     } else if (hasApplied) {
                         Button(
@@ -121,7 +121,7 @@ fun JobDetailsScreen(
                         ) {
                             Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Applied", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.applied), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
                     } else {
                         Button(
@@ -130,7 +130,7 @@ fun JobDetailsScreen(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF97316), contentColor = Color.White)
                         ) {
-                            Text("Apply Now", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.apply_now), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -187,7 +187,7 @@ fun JobDetailsScreen(
                                 ) {
                                     Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color(0xFFF97316))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Verified Employer", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316))
+                                    Text(stringResource(R.string.verified_employer), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316))
                                 }
                             }
                         }
@@ -238,7 +238,7 @@ fun JobDetailsScreen(
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text("Salary", fontSize = 12.sp, color = Color(0xFF64748B))
+                                Text(stringResource(R.string.salary), fontSize = 12.sp, color = Color(0xFF64748B))
                                 Text(job.salary, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
                             }
                         }
@@ -257,7 +257,7 @@ fun JobDetailsScreen(
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text("Experience", fontSize = 12.sp, color = Color(0xFF64748B))
+                                Text(stringResource(R.string.experience), fontSize = 12.sp, color = Color(0xFF64748B))
                                 Text(job.experienceReq, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
                             }
                         }
@@ -280,7 +280,7 @@ fun JobDetailsScreen(
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text("Education", fontSize = 12.sp, color = Color(0xFF64748B))
+                                Text(stringResource(R.string.education), fontSize = 12.sp, color = Color(0xFF64748B))
                                 Text(job.educationReq.ifBlank { "Not Required" }, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
                             }
                         }
@@ -299,7 +299,7 @@ fun JobDetailsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Job Description", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                    Text(stringResource(R.string.job_description), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     // Audio Controls
                     Box(
@@ -310,7 +310,7 @@ fun JobDetailsScreen(
                             .padding(12.dp)
                     ) {
                         Column {
-                            Text("AUDIO DESCRIPTION", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B), letterSpacing = 0.5.sp)
+                            Text(stringResource(R.string.audio_description), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B), letterSpacing = 0.5.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Button(
@@ -323,7 +323,7 @@ fun JobDetailsScreen(
                                 ) {
                                     Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(12.dp), tint = com.example.localconnect.ui.theme.Primary)
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Listen", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.listen), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                                 }
                                 Button(
                                     onClick = { },
@@ -335,7 +335,7 @@ fun JobDetailsScreen(
                                 ) {
                                     Icon(Icons.Filled.Headphones, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Hindi", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.hindi), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                                 }
                                 Button(
                                     onClick = { },
@@ -347,7 +347,7 @@ fun JobDetailsScreen(
                                 ) {
                                     Icon(Icons.Filled.Headphones, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Bengali", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.bengali), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -363,7 +363,7 @@ fun JobDetailsScreen(
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     if (job.responsibilities.isNotEmpty()) {
-                        Text("Skills & Responsibilities", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                        Text(stringResource(R.string.skills_responsibilities), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             job.responsibilities.forEach { res ->
                                 Row(verticalAlignment = Alignment.Top) {
@@ -382,7 +382,7 @@ fun JobDetailsScreen(
             // --- Documents Required ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Documents Required", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                    Text(stringResource(R.string.documents_required), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     val reqs = job.requirements + job.documentsRequired
                     
@@ -393,7 +393,7 @@ fun JobDetailsScreen(
                             }
                         }
                     } else {
-                        Text("No specific documents mentioned.", fontSize = 14.sp, color = Color(0xFF64748B))
+                        Text(stringResource(R.string.no_specific_documents_mentioned), fontSize = 14.sp, color = Color(0xFF64748B))
                     }
                 }
             }
@@ -403,7 +403,7 @@ fun JobDetailsScreen(
             // --- Benefits ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Benefits", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                    Text(stringResource(R.string.benefits), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     if (job.benefits.isNotEmpty()) {
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -412,7 +412,7 @@ fun JobDetailsScreen(
                             }
                         }
                     } else {
-                        Text("No specific benefits mentioned.", fontSize = 14.sp, color = Color(0xFF64748B))
+                        Text(stringResource(R.string.no_specific_benefits_mentioned), fontSize = 14.sp, color = Color(0xFF64748B))
                     }
                 }
             }
@@ -422,7 +422,7 @@ fun JobDetailsScreen(
             // --- Employer Details ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Employer Details", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                    Text(stringResource(R.string.employer_details), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
@@ -438,7 +438,7 @@ fun JobDetailsScreen(
                                 Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color(0xFFFFB300))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("4.6", fontSize = 12.sp, color = Color(0xFF64748B))
-                                Text(" • 15 jobs posted", fontSize = 12.sp, color = Color(0xFF64748B))
+                                Text(stringResource(R.string.jobs_posted_15), fontSize = 12.sp, color = Color(0xFF64748B))
                             }
                         }
                     }
@@ -453,7 +453,7 @@ fun JobDetailsScreen(
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                        Text("Job Location", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+                        Text(stringResource(R.string.job_location), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
                         Box(
                             modifier = Modifier.background(Color(0xFFFFF7ED), RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
@@ -481,7 +481,7 @@ fun JobDetailsScreen(
                                 Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Filled.Map, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("View on Map", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
+                                    Text(stringResource(R.string.view_on_map), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
                                 }
                             }
                         }
@@ -493,7 +493,7 @@ fun JobDetailsScreen(
             
             // --- Similar Jobs ---
             Column(modifier = Modifier.padding(vertical = 24.dp)) {
-                Text("Similar Jobs", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 16.dp))
+                Text(stringResource(R.string.similar_jobs), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 16.dp))
                 
                 Row(
                     modifier = Modifier
@@ -521,7 +521,7 @@ fun JobDetailsScreen(
                                         color = Color(0xFFF1F5F9),
                                         shape = RoundedCornerShape(50)
                                     ) {
-                                        Text("View", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155), modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                                        Text(stringResource(R.string.view), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155), modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
                                     }
                                 }
                             }

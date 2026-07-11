@@ -117,7 +117,7 @@ fun HomeScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = com.example.localconnect.ui.theme.OrangePrimary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Yes, Exit", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.yes_exit), color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -125,7 +125,7 @@ fun HomeScreen(
                     onClick = { showExitDialog = false },
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Cancel", color = Color(0xFF757575), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.cancel), color = Color(0xFF757575), fontWeight = FontWeight.Bold)
                 }
             }
         )
@@ -545,7 +545,7 @@ private fun PostActionSheet(
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Cancel", color = Color(0xFF1A1A1A), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.cancel), color = Color(0xFF1A1A1A), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
             
             Spacer(modifier = Modifier.height(32.dp))
@@ -576,7 +576,7 @@ fun NotificationsBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Notifications", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                Text(stringResource(R.string.notifications), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Filled.Close, contentDescription = "Close", tint = Color.Gray)
                 }
@@ -589,7 +589,7 @@ fun NotificationsBottomSheet(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Outlined.Notifications, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color.LightGray)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("No notifications yet", fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.no_notifications_yet), fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
                 }
             } else {

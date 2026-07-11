@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import com.example.localconnect.ui.theme.*
 
 import androidx.compose.material.icons.Icons
@@ -234,7 +237,7 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    placeholder = { Text("Enter your name", color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.enter_your_name), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
@@ -252,7 +255,7 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    placeholder = { Text("Enter phone number", color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.enter_phone_number), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
@@ -273,7 +276,7 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = altPhone,
                     onValueChange = { altPhone = it },
-                    placeholder = { Text("Enter alternate number", color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.enter_alternate_number), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
@@ -300,7 +303,7 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
-                    placeholder = { Text("Enter house / room / shop address", color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.enter_house_room_shop_address), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth().height(80.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -319,7 +322,7 @@ fun CustomerDetailsScreen(
                         OutlinedTextField(
                             value = landmark,
                             onValueChange = { landmark = it },
-                            placeholder = { Text("Nearby landmark", color = Color.Gray, fontSize = 14.sp) },
+                            placeholder = { Text(stringResource(R.string.nearby_landmark), color = Color.Gray, fontSize = 14.sp) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
                             singleLine = true,
@@ -360,7 +363,7 @@ fun CustomerDetailsScreen(
                 ) {
                     Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = Primary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Use Current Location", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.use_current_location), fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -377,7 +380,7 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = instructions,
                     onValueChange = { instructions = it },
-                    placeholder = { Text("Write any extra instructions here...", color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.write_any_extra_instructions_here), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth().height(100.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -446,22 +449,22 @@ fun CustomerDetailsScreen(
                         val displayDate = if (selectedDate.contains("Choose Date")) "Not Selected" else selectedDate
                         
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Service:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(stringResource(R.string.service), color = Color(0xFF94A3B8), fontSize = 14.sp)
                             Text(service.category, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Work:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(stringResource(R.string.work), color = Color(0xFF94A3B8), fontSize = 14.sp)
                             Text(selectedServices.joinToString(", ").ifEmpty { "N/A" }, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(0.6f), textAlign = TextAlign.End)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Date & Time:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(stringResource(R.string.date_time), color = Color(0xFF94A3B8), fontSize = 14.sp)
                             Text("$displayDate, $selectedTimeSlot", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Address:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(stringResource(R.string.address), color = Color(0xFF94A3B8), fontSize = 14.sp)
                             Text(city, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
 

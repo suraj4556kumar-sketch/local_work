@@ -306,7 +306,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         if (photoUri != null) {
                             Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color(0xFFF97316))
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Photo Selected", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316), textAlign = TextAlign.Center)
+                            Text(stringResource(R.string.photo_selected), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316), textAlign = TextAlign.Center)
                         } else {
                             Surface(shape = CircleShape, color = Color.White, shadowElevation = 1.dp) {
                                 Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(24.dp).padding(4.dp), tint = Color.Gray)
@@ -331,7 +331,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         if (videoUri != null) {
                             Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color(0xFFF97316))
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Video Selected", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316), textAlign = TextAlign.Center)
+                            Text(stringResource(R.string.video_selected), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316), textAlign = TextAlign.Center)
                         } else {
                             Surface(shape = CircleShape, color = Color.White, shadowElevation = 1.dp) {
                                 Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(24.dp).padding(4.dp), tint = Color.Gray)
@@ -505,20 +505,20 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
     if (showPhotoUploadDialog) {
         AlertDialog(
             onDismissRequest = { showPhotoUploadDialog = false },
-            title = { Text("Upload Photo") },
-            text = { Text("Choose an option to upload your photo") },
+            title = { Text(stringResource(R.string.upload_photo)) },
+            text = { Text(stringResource(R.string.choose_an_option_to_upload_your_photo)) },
             confirmButton = {
                 TextButton(onClick = { 
                     showPhotoUploadDialog = false
                     tempImageUri = createTempFileUri(false)
                     takePhotoLauncher.launch(tempImageUri!!)
-                }) { Text("Camera") }
+                }) { Text(stringResource(R.string.camera)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showPhotoUploadDialog = false
                     pickPhotoLauncher.launch("image/*")
-                }) { Text("Gallery") }
+                }) { Text(stringResource(R.string.gallery)) }
             }
         )
     }
@@ -526,20 +526,20 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
     if (showVideoUploadDialog) {
         AlertDialog(
             onDismissRequest = { showVideoUploadDialog = false },
-            title = { Text("Upload Video") },
-            text = { Text("Choose an option to upload your video") },
+            title = { Text(stringResource(R.string.upload_video)) },
+            text = { Text(stringResource(R.string.choose_an_option_to_upload_your_video)) },
             confirmButton = {
                 TextButton(onClick = { 
                     showVideoUploadDialog = false
                     tempVideoUri = createTempFileUri(true)
                     takeVideoLauncher.launch(tempVideoUri!!)
-                }) { Text("Camera") }
+                }) { Text(stringResource(R.string.camera)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showVideoUploadDialog = false
                     pickVideoLauncher.launch("video/*")
-                }) { Text("Gallery") }
+                }) { Text(stringResource(R.string.gallery)) }
             }
         )
     }
@@ -548,10 +548,10 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("OK") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)

@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -113,13 +116,13 @@ fun PostJobScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Post Job", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                        Text("Create a job post to hire workers", fontSize = 12.sp, color = Color.White.copy(alpha=0.8f))
+                        Text(stringResource(R.string.post_job), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                        Text(stringResource(R.string.create_a_job_post_to_hire_workers), fontSize = 12.sp, color = Color.White.copy(alpha=0.8f))
                     }
                 },
                 actions = {
                     TextButton(onClick = onBack) {
-                        Text("Back", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.back), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color(0xFFF97316), titleContentColor = androidx.compose.ui.graphics.Color.White, navigationIconContentColor = androidx.compose.ui.graphics.Color.White, actionIconContentColor = androidx.compose.ui.graphics.Color.White)
@@ -145,7 +148,7 @@ fun PostJobScreen(
                         contentPadding = PaddingValues(0.dp),
                         border = BorderStroke(1.dp, borderColor)
                     ) {
-                        Text("Save Draft", color = textSecondary, fontWeight = FontWeight.SemiBold, maxLines = 1, fontSize = 14.sp)
+                        Text(stringResource(R.string.save_draft), color = textSecondary, fontWeight = FontWeight.SemiBold, maxLines = 1, fontSize = 14.sp)
                     }
                     Button(
                         onClick = {
@@ -210,7 +213,7 @@ fun PostJobScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = orangePrimary),
                         enabled = !isPosting
                     ) {
-                        Text("Post Job", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.post_job), color = Color.White, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(16.dp))
                     }
@@ -231,19 +234,19 @@ fun PostJobScreen(
             FormSection("1. Employer Info") {
                 OutlinedTextField(
                     value = employerName, onValueChange = { employerName = it },
-                    label = { Text("Employer / Company Name *") },
+                    label = { Text(stringResource(R.string.employer_company_name)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = contactPersonName, onValueChange = { contactPersonName = it },
-                    label = { Text("Contact Person Name *") },
+                    label = { Text(stringResource(R.string.contact_person_name)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = phoneNumber, onValueChange = { phoneNumber = it },
-                    label = { Text("Phone Number *") },
+                    label = { Text(stringResource(R.string.phone_number)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     leadingIcon = { Text("+91", modifier = Modifier.padding(start = 12.dp)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
@@ -255,7 +258,7 @@ fun PostJobScreen(
             FormSection("2. Job Details") {
                 OutlinedTextField(
                     value = jobTitle, onValueChange = { jobTitle = it },
-                    label = { Text("Job Title *") },
+                    label = { Text(stringResource(R.string.job_title)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -267,7 +270,7 @@ fun PostJobScreen(
                         value = jobCategory,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Category *") },
+                        label = { Text(stringResource(R.string.category)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                         shape = RoundedCornerShape(8.dp),
@@ -294,7 +297,7 @@ fun PostJobScreen(
             // 3. Location
             FormSection("3. Location") {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Location Details", fontSize = 14.sp, color = textSecondary)
+                    Text(stringResource(R.string.location_details), fontSize = 14.sp, color = textSecondary)
                     TextButton(onClick = { 
                         city = "Kharagpur" // Simulated location
                         state = "West Bengal"
@@ -302,39 +305,39 @@ fun PostJobScreen(
                     }) {
                         Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Use Current Location")
+                        Text(stringResource(R.string.use_current_location))
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = workAddress, onValueChange = { workAddress = it },
-                    label = { Text("Work Address / Building") },
+                    label = { Text(stringResource(R.string.work_address_building)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
                         value = city, onValueChange = { city = it },
-                        label = { Text("City / Area *") },
+                        label = { Text(stringResource(R.string.city_area)) },
                         modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
                     )
                     OutlinedTextField(
                         value = state, onValueChange = { state = it },
-                        label = { Text("State") },
+                        label = { Text(stringResource(R.string.state)) },
                         modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = pincode, onValueChange = { pincode = it },
-                    label = { Text("Pincode") },
+                    label = { Text(stringResource(R.string.pincode)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = landmark, onValueChange = { landmark = it },
-                    label = { Text("Landmark (Optional)") },
+                    label = { Text(stringResource(R.string.landmark_optional)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
             }
@@ -343,7 +346,7 @@ fun PostJobScreen(
             FormSection("4. Salary") {
                 OutlinedTextField(
                     value = salaryMin, onValueChange = { salaryMin = it },
-                    label = { Text("Monthly Salary (₹)") },
+                    label = { Text(stringResource(R.string.monthly_salary)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
@@ -360,7 +363,7 @@ fun PostJobScreen(
                         value = experienceRequired,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Experience Required") },
+                        label = { Text(stringResource(R.string.experience_required)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expExpanded) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                         shape = RoundedCornerShape(8.dp)
@@ -392,7 +395,7 @@ fun PostJobScreen(
                         value = educationRequired,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Education Required") },
+                        label = { Text(stringResource(R.string.education_required)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = eduExpanded) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                         shape = RoundedCornerShape(8.dp)
@@ -424,7 +427,7 @@ fun PostJobScreen(
                         value = genderPreference,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Gender Preference") },
+                        label = { Text(stringResource(R.string.gender_preference)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                         shape = RoundedCornerShape(8.dp)
@@ -452,14 +455,14 @@ fun PostJobScreen(
             FormSection("7. Description") {
                 OutlinedTextField(
                     value = jobDescription, onValueChange = { jobDescription = it },
-                    label = { Text("Describe the job role, environment...") },
+                    label = { Text(stringResource(R.string.describe_the_job_role_environment)) },
                     modifier = Modifier.fillMaxWidth().height(120.dp), shape = RoundedCornerShape(8.dp)
                 )
             }
 
             // 8. Skills & Responsibilities
             FormSection("8. Skills & Responsibilities") {
-                Text("Key Responsibilities & Skills", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
+                Text(stringResource(R.string.key_responsibilities_skills), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
                 responsibilities.forEach { res ->
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
@@ -474,20 +477,20 @@ fun PostJobScreen(
                 Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = newRespInput, onValueChange = { newRespInput = it },
-                        placeholder = { Text("Add skill or responsibility") },
+                        placeholder = { Text(stringResource(R.string.add_skill_or_responsibility)) },
                         modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = { if(newRespInput.isNotBlank()) { responsibilities.add(newRespInput); newRespInput = "" } },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
-                    ) { Text("Add", color = textPrimary) }
+                    ) { Text(stringResource(R.string.add), color = textPrimary) }
                 }
             }
 
             // 9. Documents Required
             FormSection("9. Documents Required") {
-                Text("Documents Required", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
+                Text(stringResource(R.string.documents_required), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                     CheckboxOption("Aadhaar Card", documentsRequired.contains("Aadhaar Card"), modifier = Modifier.fillMaxWidth()) { if(it) documentsRequired.add("Aadhaar Card") else documentsRequired.remove("Aadhaar Card") }
@@ -499,7 +502,7 @@ fun PostJobScreen(
 
             // 10. Perks & Preferences
             FormSection("10. Perks & Preferences") {
-                Text("Benefits Offered", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
+                Text(stringResource(R.string.benefits_offered), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column {
                     listOf("Free Food", "Accommodation", "Weekly Off", "Travel Allowance").forEach { ben ->
@@ -510,7 +513,7 @@ fun PostJobScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Preferred Language", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
+                Text(stringResource(R.string.preferred_language), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CheckboxOption("Hindi", languagesPref.contains("Hindi")) { if(it) languagesPref.add("Hindi") else languagesPref.remove("Hindi") }
@@ -529,17 +532,17 @@ fun PostJobScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.Top) {
                         Checkbox(checked = isGenuineConfirmed, onCheckedChange = { isGenuineConfirmed = it })
-                        Text("I confirm this is a genuine job posting representing an actual vacancy. *", fontSize = 13.sp, color = textSecondary, modifier = Modifier.padding(top = 12.dp))
+                        Text(stringResource(R.string.i_confirm_this_is_a_genuine_job_posting_representing_an_actual_vacancy), fontSize = 13.sp, color = textSecondary, modifier = Modifier.padding(top = 12.dp))
                     }
                     Row(verticalAlignment = Alignment.Top) {
                         Checkbox(checked = termsAccepted, onCheckedChange = { termsAccepted = it })
-                        Text("I agree that fake or misleading job posts may result in account suspension. *", fontSize = 13.sp, color = textSecondary, modifier = Modifier.padding(top = 12.dp))
+                        Text(stringResource(R.string.i_agree_that_fake_or_misleading_job_posts_may_result_in_account_suspension), fontSize = 13.sp, color = textSecondary, modifier = Modifier.padding(top = 12.dp))
                     }
                 }
             }
 
             // 13. Live Preview
-            Text("Live Preview", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = textSecondary, modifier = Modifier.padding(start = 4.dp))
+            Text(stringResource(R.string.live_preview), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = textSecondary, modifier = Modifier.padding(start = 4.dp))
             Surface(
                 shape = RoundedCornerShape(12.dp),
                 color = Color.White,
@@ -555,7 +558,7 @@ fun PostJobScreen(
                                 Text(employerName.ifBlank { "Company Name" }, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                             }
                             Surface(color = Color(0xFFFFF7ED), shape = RoundedCornerShape(4.dp)) {
-                                Text("VERIFIED", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF97316), modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                                Text(stringResource(R.string.verified), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF97316), modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))

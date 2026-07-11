@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -43,8 +46,7 @@ fun getDummyServices(langCode: String): List<ServiceTask> {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceSearchScreen(session: UserSession) {
-    val strings = getStrings(session.language.code)
-    var dummyServices by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
+        var dummyServices by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
     val coroutineScope = rememberCoroutineScope()
     
     LaunchedEffect(Unit) {
@@ -60,22 +62,25 @@ fun ServiceSearchScreen(session: UserSession) {
     var expanded by remember { mutableStateOf(false) }
     var showAdvancedFilters by remember { mutableStateOf(false) }
     var showSortByBottomSheet by remember { mutableStateOf(false) }
-    var activeSort by remember { mutableStateOf(strings.distance) }
+    val default_activeSort = stringResource(R.string.distance)
+    var activeSort by remember { mutableStateOf(default_activeSort) }
     
     var showServiceFilterDropdown by remember { mutableStateOf(false) }
-    var selectedServiceFilter by remember { mutableStateOf(strings.allServices) }
+    val default_selectedServiceFilter = stringResource(R.string.all_services)
+    var selectedServiceFilter by remember { mutableStateOf(default_selectedServiceFilter) }
     
     var maxDistance by remember { mutableDoubleStateOf(50.0) }
     var maxRate by remember { mutableIntStateOf(2000) }
     var minRating by remember { mutableDoubleStateOf(0.0) }
 
     val allCategories = remember(dummyServices) { dummyServices.map { it.category }.distinct() }
-    val serviceFilterOptions = remember(allCategories, strings.allServices) { listOf(strings.allServices) + allCategories }
+    val allServicesStr = stringResource(R.string.all_services)
+    val serviceFilterOptions = remember(allCategories, allServicesStr) { listOf(allServicesStr) + allCategories }
     val suggestions = allCategories.filter { it.contains(searchQuery, ignoreCase = true) }
     
     val sortedServices = when (activeSort) {
-        strings.ratingHighToLow -> dummyServices.sortedByDescending { it.rating }
-        strings.salaryHighToLow -> dummyServices.sortedBy { it.price }
+        stringResource(R.string.rating_high_to_low) -> dummyServices.sortedByDescending { it.rating }
+        stringResource(R.string.salary_high_to_low) -> dummyServices.sortedBy { it.price }
         else -> dummyServices.sortedBy { it.distanceKm }
     }
 
@@ -83,7 +88,7 @@ fun ServiceSearchScreen(session: UserSession) {
         it.distanceKm <= maxDistance &&
         it.price <= maxRate &&
         it.rating >= minRating &&
-        (selectedServiceFilter == strings.allServices || it.category == selectedServiceFilter)
+        (selectedServiceFilter == stringResource(R.string.all_services) || it.category == selectedServiceFilter)
     }
 
     val displayedServices = if (searchQuery.isBlank()) {
@@ -129,7 +134,7 @@ fun ServiceSearchScreen(session: UserSession) {
                             searchQuery = it
                             expanded = it.isNotEmpty() && suggestions.isNotEmpty()
                         },
-                        placeholder = { Text(strings.searchServiceHint) },
+                        placeholder = { Text(stringResource(R.string.search_service_hint)) },
                         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp)) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
@@ -225,7 +230,7 @@ fun ServiceSearchScreen(session: UserSession) {
                         ) {
                             Icon(Icons.Filled.Tune, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(strings.filters, color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            Text(stringResource(R.string.filters), color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         }
                     }
                     
@@ -240,7 +245,7 @@ fun ServiceSearchScreen(session: UserSession) {
                         ) {
                             Icon(Icons.Filled.Sort, contentDescription = null, modifier = Modifier.size(16.dp), tint = com.example.localconnect.ui.theme.Primary)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(strings.sortBy, color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            Text(stringResource(R.string.sort_by), color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         }
                     }
                 }
@@ -255,7 +260,7 @@ fun ServiceSearchScreen(session: UserSession) {
             if (displayedServices.isEmpty()) {
                 item {
                     Text(
-                        text = "${strings.noJobsFound} \"$searchQuery\"",
+                        text = "${stringResource(R.string.no_jobs_found)} \"$searchQuery\"",
                         modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                         color = Color.Gray,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -264,7 +269,7 @@ fun ServiceSearchScreen(session: UserSession) {
                 }
             } else {
                 items(displayedServices) { svc ->
-                    ServiceCard(svc, strings, onClick = { selectedService = svc })
+                    ServiceCard(svc, onClick = { selectedService = svc })
                 }
             }
         }
@@ -277,8 +282,8 @@ fun ServiceSearchScreen(session: UserSession) {
             containerColor = Color.White
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
-                Text(strings.sortBy, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
-                val sortOptions = listOf(strings.distance, strings.ratingHighToLow, "Price (Low to High)")
+                Text(stringResource(R.string.sort_by), fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
+                val sortOptions = listOf(stringResource(R.string.distance), stringResource(R.string.rating_high_to_low), "Price (Low to High)")
                 sortOptions.forEach { option ->
                     Row(
                         modifier = Modifier.fillMaxWidth().clickable { 
@@ -308,9 +313,9 @@ fun ServiceSearchScreen(session: UserSession) {
             containerColor = Color.White
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
-                Text(strings.filters, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
+                Text(stringResource(R.string.filters), fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
                 
-                Text("${strings.maxDistance}: ${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.max_distance)}: ${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = maxDistance.toFloat(),
                     onValueChange = { maxDistance = it.toDouble() },
@@ -320,7 +325,7 @@ fun ServiceSearchScreen(session: UserSession) {
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("${strings.maxRate}: ₹$maxRate/hr", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.max_rate)}: ₹$maxRate/hr", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = maxRate.toFloat(),
                     onValueChange = { maxRate = it.toInt() },
@@ -330,7 +335,7 @@ fun ServiceSearchScreen(session: UserSession) {
 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("${strings.minRating}: ${String.format("%.1f", minRating)} ★", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.min_rating)}: ${String.format("%.1f", minRating)} ★", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = minRating.toFloat(),
                     onValueChange = { minRating = it.toDouble() },
@@ -347,7 +352,7 @@ fun ServiceSearchScreen(session: UserSession) {
                     colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(strings.applyFilters, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.apply_filters), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -356,7 +361,7 @@ fun ServiceSearchScreen(session: UserSession) {
 }
 
 @Composable
-fun ServiceCard(svc: ServiceTask, strings: AppStrings, onClick: () -> Unit) {
+fun ServiceCard(svc: ServiceTask, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
@@ -396,11 +401,11 @@ fun ServiceCard(svc: ServiceTask, strings: AppStrings, onClick: () -> Unit) {
             
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column {
-                    Text(strings.ratePerHour, fontSize = 12.sp, color = Color.Gray)
+                    Text(stringResource(R.string.rate_per_hour), fontSize = 12.sp, color = Color.Gray)
                     Text("₹${svc.price}/hr", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Column {
-                    Text(strings.serviceCategory, fontSize = 12.sp, color = Color.Gray)
+                    Text(stringResource(R.string.service_category), fontSize = 12.sp, color = Color.Gray)
                     Text(svc.category, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
             }

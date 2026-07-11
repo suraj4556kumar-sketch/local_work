@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import com.example.localconnect.ui.theme.*
 import com.example.localconnect.data.FirebaseRepository
 import kotlinx.coroutines.launch
@@ -49,8 +52,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
     val context = LocalContext.current
     var filter by remember { mutableStateOf("All") }
     var applicationToDelete by remember { mutableStateOf<JobApplication?>(null) }
-    val strings = getStrings(session.language.code)
-    var selectedApp by remember { mutableStateOf<JobApplication?>(null) }
+        var selectedApp by remember { mutableStateOf<JobApplication?>(null) }
     var selectedJob by remember { mutableStateOf<com.example.localconnect.data.Job?>(null) }
     
     LaunchedEffect(selectedApp) {
@@ -93,8 +95,8 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp).statusBarsPadding()) {
-                    Text(strings.myAppsTitle, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
-                    Text(strings.trackApps, fontSize = 14.sp, color = Color(0xFF6B7280))
+                    Text(stringResource(R.string.my_apps_title), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
+                    Text(stringResource(R.string.track_apps), fontSize = 14.sp, color = Color(0xFF6B7280))
                 }
             }
         }
@@ -130,8 +132,8 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                         Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(32.dp), tint = Color.Gray)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(strings.noAppsFound, fontWeight = FontWeight.Bold, color = Color(0xFF1F2937), fontSize = 16.sp)
-                    Text(strings.noAppsDesc, color = Color(0xFF6B7280), fontSize = 14.sp)
+                    Text(stringResource(R.string.no_apps_found), fontWeight = FontWeight.Bold, color = Color(0xFF1F2937), fontSize = 16.sp)
+                    Text(stringResource(R.string.no_apps_desc), color = Color(0xFF6B7280), fontSize = 14.sp)
                 }
             } else {
                 LazyColumn(
@@ -215,7 +217,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(bottom = 32.dp)) {
                     Surface(color = Color(0xFFF9FAFB), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(strings.appliedOn, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF9CA3AF))
+                            Text(stringResource(R.string.applied_on), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF9CA3AF))
                             Spacer(modifier = Modifier.height(4.dp))
                             val formattedDate = if (selectedApp!!.appliedOnDate.isNotEmpty()) selectedApp!!.appliedOnDate 
                             else if (selectedApp!!.appliedOn > 0L) java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault()).format(java.util.Date(selectedApp!!.appliedOn))
@@ -225,7 +227,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                     }
                     Surface(color = Color(0xFFF9FAFB), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(strings.currentStatus, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF9CA3AF))
+                            Text(stringResource(R.string.current_status), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF9CA3AF))
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(selectedApp!!.status, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Primary)
                         }
@@ -240,7 +242,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                         modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(strings.empFeedback, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = OnPrimaryContainer)
+                            Text(stringResource(R.string.emp_feedback), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = OnPrimaryContainer)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text("\"${selectedApp!!.feedback}\"", fontSize = 14.sp, color = PrimaryDark)
                         }

@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import com.example.localconnect.ui.theme.*
 import com.example.localconnect.data.FirebaseRepository
 import kotlinx.coroutines.launch
@@ -42,8 +45,7 @@ fun JobApplicationScreen(
     onSubmit: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val strings = getStrings(session.language.code)
-    val coroutineScope = rememberCoroutineScope()
+        val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var isSubmitting by remember { mutableStateOf(false) }
 
@@ -234,9 +236,9 @@ fun JobApplicationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(strings.personalDetails, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
+                    Text(stringResource(R.string.personal_details), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
-                    Text(strings.fullName, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                    Text(stringResource(R.string.full_name), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
                         value = fullName,
                         onValueChange = { fullName = it },
@@ -251,7 +253,7 @@ fun JobApplicationScreen(
                         )
                     )
                     
-                    Text(strings.phoneNumber, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                    Text(stringResource(R.string.phone_number), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
@@ -269,7 +271,7 @@ fun JobApplicationScreen(
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(strings.age, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                            Text(stringResource(R.string.age), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                             OutlinedTextField(
                                 value = age,
                                 onValueChange = { age = it },
@@ -287,7 +289,7 @@ fun JobApplicationScreen(
                         }
                         
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(strings.gender, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                            Text(stringResource(R.string.gender), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                             ExposedDropdownMenuBox(
                                 expanded = expandedGender,
                                 onExpandedChange = { expandedGender = it }
@@ -334,7 +336,7 @@ fun JobApplicationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(strings.workExp, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
+                    Text(stringResource(R.string.work_exp), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 16.dp)) {
                         Button(
@@ -409,7 +411,7 @@ fun JobApplicationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(strings.documents, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
+                    Text(stringResource(R.string.documents), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
                     val requiredDocs = if (job.documentsRequired.isNotEmpty()) job.documentsRequired else listOf("Resume", "ID Proof")
                     
@@ -441,7 +443,7 @@ fun JobApplicationScreen(
                         }
                     }
                     
-                    Text(strings.prefLang, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(top = 24.dp, bottom = 16.dp))
+                    Text(stringResource(R.string.pref_lang), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(top = 24.dp, bottom = 16.dp))
                     
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -468,7 +470,7 @@ fun JobApplicationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(strings.introduction, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
+                    Text(stringResource(R.string.introduction), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
                     OutlinedTextField(
                         value = introduction,

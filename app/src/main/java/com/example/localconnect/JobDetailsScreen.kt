@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -39,8 +42,7 @@ fun JobDetailsScreen(
     onSimilarJobClick: (Job) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val strings = getStrings(session.language.code)
-    var hasApplied by remember { mutableStateOf(false) }
+        var hasApplied by remember { mutableStateOf(false) }
     var checkingApplication by remember { mutableStateOf(true) }
 
     LaunchedEffect(job.id, session.firebaseUid) {
@@ -69,14 +71,14 @@ fun JobDetailsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = strings.jobDetails,
+                        text = stringResource(R.string.job_details),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                     
                     Text(
-                        text = strings.back,
+                        text = stringResource(R.string.back),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,

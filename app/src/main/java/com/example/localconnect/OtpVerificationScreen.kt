@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -34,8 +37,7 @@ fun OtpVerificationScreen(
     onVerified: (firebaseUid: String) -> Unit,
     onBack: () -> Unit
 ) {
-    val strings = getStrings(session.language.code)
-    var otpValue by remember { mutableStateOf("") }
+        var otpValue by remember { mutableStateOf("") }
     var secondsLeft by remember { mutableIntStateOf(60) }
     var canResend by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
@@ -99,9 +101,9 @@ fun OtpVerificationScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            Text(strings.verifyTitle, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A1A))
+            Text(stringResource(R.string.verify_title), fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A1A))
             Spacer(modifier = Modifier.height(8.dp))
-            Text(strings.otpSentTo, fontSize = 14.sp, color = Color(0xFF9E9E9E))
+            Text(stringResource(R.string.otp_sent_to), fontSize = 14.sp, color = Color(0xFF9E9E9E))
             Spacer(modifier = Modifier.height(4.dp))
             Text("+91 ${session.phone}", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = OrangePrimary)
 
@@ -113,7 +115,7 @@ fun OtpVerificationScreen(
 
             if (isError) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(strings.incorrectOtp, fontSize = 13.sp, color = Color(0xFFF97316))
+                Text(stringResource(R.string.incorrect_otp), fontSize = 13.sp, color = Color(0xFFF97316))
             }
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -134,7 +136,7 @@ fun OtpVerificationScreen(
                 if (isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                 } else {
-                    Text(strings.verifyBtn, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                    Text(stringResource(R.string.verify_btn), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                 }
             }
 
@@ -142,10 +144,10 @@ fun OtpVerificationScreen(
 
             if (canResend) {
                 TextButton(onClick = { otpValue = ""; isError = false; canResend = false }) {
-                    Text(strings.resendOtp, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = OrangePrimary)
+                    Text(stringResource(R.string.resend_otp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = OrangePrimary)
                 }
             } else {
-                Text("${strings.resendIn}  ${secondsLeft}s", fontSize = 14.sp, color = Color(0xFF9E9E9E))
+                Text("${stringResource(R.string.resend_in)}  ${secondsLeft}s", fontSize = 14.sp, color = Color(0xFF9E9E9E))
             }
         }
     }

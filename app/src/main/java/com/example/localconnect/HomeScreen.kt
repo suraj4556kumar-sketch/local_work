@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.AddCircle
@@ -58,10 +61,7 @@ fun HomeScreen(
     var selectedJobId by remember { mutableStateOf<String?>(null) }
     var selectedServiceId by remember { mutableStateOf<String?>(null) }
 
-    val strings = getStrings(session.language.code)
-
-
-    val context = LocalContext.current
+        val context = LocalContext.current
     var showExitDialog by remember { mutableStateOf(false) }
 
     fun navigateTo(tab: Int) {
@@ -133,14 +133,14 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = Color(0xFFF5F5F5),
-        bottomBar = { BottomNavBar(selectedTab, strings) { tab -> if (tab == 0) tabStack = listOf(0) else navigateTo(tab) } }
+        bottomBar = { BottomNavBar(selectedTab) { tab -> if (tab == 0) tabStack = listOf(0) else navigateTo(tab) } }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
                 0 -> HomeContent(session, onNavigateToJobs = { navigateTo(1) }, onNavigateToServices = { navigateTo(2) }, onNavigateToPostJob = { navigateTo(7) }, onNavigateToPostService = { navigateTo(6) }) { navigateTo(4) }
                 1 -> JobSearchScreen(session = session)
                 2 -> ServiceSearchScreen(session = session)
-                3 -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("${strings.chatsTab} Screen (${strings.comingSoon})") }
+                3 -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("${stringResource(R.string.chats_tab)} Screen (${stringResource(R.string.coming_soon)})") }
                 4 -> ProfileScreen(session, onUpdateSession = { session = it }, onLogout, onNavigateToPostJob = { navigateTo(5) }, onNavigateToPostService = { navigateTo(6) })
                 5 -> PostJobScreen(session = session, onBack = { popBack() }, onJobPosted = { popBack() })
                 6 -> MyPostedServicesScreen(session = session, onBack = { popBack() }, onNavigateToPostNew = { navigateTo(9) }, onServiceClick = { serviceId -> selectedServiceId = serviceId; navigateTo(10) })
@@ -158,9 +158,7 @@ fun HomeScreen(
 private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNavigateToServices: () -> Unit, onNavigateToPostJob: () -> Unit, onNavigateToPostService: () -> Unit, onProfileClick: () -> Unit) {
     var showPostActionSheet by remember { mutableStateOf(false) }
     var showNotifications by remember { mutableStateOf(false) }
-    val strings = getStrings(session.language.code)
-    
-    val notifications by FirebaseRepository.getNotificationsFlow(session.firebaseUid).collectAsState(initial = emptyList())
+        val notifications by FirebaseRepository.getNotificationsFlow(session.firebaseUid).collectAsState(initial = emptyList())
     val unreadCount = notifications.count { !it.isRead }
     val coroutineScope = rememberCoroutineScope()
     val initial = session.name.firstOrNull()?.uppercaseChar()?.toString()
@@ -267,14 +265,14 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
         ) {
             Column {
                 Text(
-                    text = "${strings.greeting}, ${session.name.ifBlank { session.phone }}!",
+                    text = "${stringResource(R.string.greeting)}, ${session.name.ifBlank { session.phone }}!",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1A1A1A)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = strings.homeSubtitle,
+                    text = stringResource(R.string.home_subtitle),
                     fontSize = 13.sp,
                     color = Color(0xFF757575)
                 )
@@ -290,7 +288,7 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
         ) {
             MainTile(
                 icon = Icons.Filled.Search,
-                title = strings.seekerCardTitle, // "I want Work" or "Find Jobs"
+                title = stringResource(R.string.seeker_card_title), // "I want Work" or "Find Jobs"
                 description = "Find available jobs in your area",
                 gradientColors = listOf(OrangePrimary, Color(0xFFFB923C)),
                 onClick = onNavigateToJobs
@@ -318,7 +316,7 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
 
     if (showPostActionSheet) {
         PostActionSheet(
-            strings = strings,
+            
             onDismiss = { showPostActionSheet = false },
             onPostJob = {
                 showPostActionSheet = false
@@ -450,12 +448,12 @@ private fun MainTile(
 }
 
 @Composable
-private fun BottomNavBar(selectedTab: Int, strings: AppStrings, onTabSelected: (Int) -> Unit) {
+private fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     val items = listOf(
-        Triple(Icons.Filled.Home, strings.homeTab, 0),
+        Triple(Icons.Filled.Home, stringResource(R.string.home_tab), 0),
         Triple(Icons.Filled.Work, "My Jobs", 7),
         Triple(Icons.Filled.Build, "My Services", 6),
-        Triple(Icons.Filled.Person, strings.profileTab, 4)
+        Triple(Icons.Filled.Person, stringResource(R.string.profile_tab), 4)
     )
 
     NavigationBar(
@@ -500,7 +498,7 @@ fun HomePreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PostActionSheet(
-    strings: AppStrings,
+    
     onDismiss: () -> Unit,
     onPostJob: () -> Unit,
     onPostService: () -> Unit

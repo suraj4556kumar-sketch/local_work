@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -102,8 +105,7 @@ fun JobSearchScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
-    val strings = getStrings(session.language.code)
-    val dummyJobs = remember(session.language.code) { getDummyJobs(session.language.code) }
+        val dummyJobs = remember(session.language.code) { getDummyJobs(session.language.code) }
     
     val firebaseJobs by FirebaseRepository.getJobsFlow().collectAsState(initial = emptyList())
 
@@ -113,23 +115,26 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var showAdvancedFilters by remember { mutableStateOf(false) }
     var showSortByBottomSheet by remember { mutableStateOf(false) }
-    var activeSort by remember { mutableStateOf(strings.distance) }
+    val default_activeSort = stringResource(R.string.distance)
+    var activeSort by remember { mutableStateOf(default_activeSort) }
     
     var showJobFilterDropdown by remember { mutableStateOf(false) }
-    var selectedJobFilter by remember { mutableStateOf(strings.allJobs) }
+    val default_selectedJobFilter = stringResource(R.string.all_jobs)
+    var selectedJobFilter by remember { mutableStateOf(default_selectedJobFilter) }
     
     var maxDistance by remember { mutableDoubleStateOf(50.0) }
     var minSalary by remember { mutableIntStateOf(0) }
     var minExperience by remember { mutableIntStateOf(0) }
 
     val allRoles = remember(allJobs) { allJobs.map { it.title }.distinct() }
-    val jobFilterOptions = remember(allRoles, strings.allJobs) { listOf(strings.allJobs) + allRoles }
+    val allJobsStr = stringResource(R.string.all_jobs)
+    val jobFilterOptions = remember(allRoles, allJobsStr) { listOf(allJobsStr) + allRoles }
     val suggestions = allRoles.filter { it.contains(searchQuery, ignoreCase = true) }
     
     val sortedJobs = when (activeSort) {
-        strings.salaryHighToLow -> allJobs.sortedByDescending { it.salaryValue }
-        strings.experienceLowToHigh -> allJobs.sortedBy { it.experienceYears }
-        strings.recent -> allJobs.sortedByDescending { it.timestamp }
+        stringResource(R.string.salary_high_to_low) -> allJobs.sortedByDescending { it.salaryValue }
+        stringResource(R.string.experience_low_to_high) -> allJobs.sortedBy { it.experienceYears }
+        stringResource(R.string.recent) -> allJobs.sortedByDescending { it.timestamp }
         else -> allJobs.sortedBy { it.distanceKm } // Distance
     }
 
@@ -137,7 +142,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
         it.distanceKm <= maxDistance &&
         it.salaryValue >= minSalary &&
         it.experienceYears >= minExperience &&
-        (selectedJobFilter == strings.allJobs || it.title == selectedJobFilter)
+        (selectedJobFilter == stringResource(R.string.all_jobs) || it.title == selectedJobFilter)
     }
 
     val displayedJobs = if (searchQuery.isBlank()) {
@@ -168,7 +173,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                             searchQuery = it
                             expanded = it.isNotEmpty() && suggestions.isNotEmpty()
                         },
-                        placeholder = { Text(strings.searchHint) },
+                        placeholder = { Text(stringResource(R.string.search_hint)) },
                         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp)) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
@@ -262,7 +267,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                         ) {
                             Icon(Icons.Filled.Tune, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(strings.filters, color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            Text(stringResource(R.string.filters), color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         }
                     }
                     
@@ -277,7 +282,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                         ) {
                             Icon(Icons.Filled.Sort, contentDescription = null, modifier = Modifier.size(16.dp), tint = com.example.localconnect.ui.theme.Primary)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(strings.sortBy, color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            Text(stringResource(R.string.sort_by), color = OrangePrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         }
                     }
                 }
@@ -294,7 +299,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
             if (displayedJobs.isEmpty()) {
                 item {
                     Text(
-                        "${strings.noJobsFound} '$searchQuery'.",
+                        "${stringResource(R.string.no_jobs_found)} '$searchQuery'.",
                         modifier = Modifier.fillMaxWidth().padding(32.dp),
                         color = Color.Gray,
                         fontWeight = FontWeight.SemiBold
@@ -318,10 +323,10 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                     .fillMaxWidth()
                     .padding(24.dp)
             ) {
-                Text(strings.filters, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                Text(stringResource(R.string.filters), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                Text("${strings.maxDistance}: ${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.max_distance)}: ${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = maxDistance.toFloat(),
                     onValueChange = { maxDistance = it.toDouble() },
@@ -331,7 +336,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("${strings.minSalary}: ₹$minSalary", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.min_salary)}: ₹$minSalary", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = minSalary.toFloat(),
                     onValueChange = { minSalary = it.toInt() },
@@ -342,7 +347,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("${strings.minExperience}: $minExperience yrs", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.min_experience)}: $minExperience yrs", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = minExperience.toFloat(),
                     onValueChange = { minExperience = it.toInt() },
@@ -358,7 +363,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary)
                 ) {
-                    Text(strings.applyFilters, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.apply_filters), fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -375,10 +380,10 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                     .fillMaxWidth()
                     .padding(24.dp)
             ) {
-                Text(strings.sortBy, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                Text(stringResource(R.string.sort_by), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val sortOptions = listOf(strings.distance, strings.salaryHighToLow, strings.experienceLowToHigh, strings.recent)
+                val sortOptions = listOf(stringResource(R.string.distance), stringResource(R.string.salary_high_to_low), stringResource(R.string.experience_low_to_high), stringResource(R.string.recent))
                 sortOptions.forEach { option ->
                     Row(
                         modifier = Modifier
@@ -410,8 +415,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
 
 @Composable
 fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
-    val strings = getStrings(session.language.code)
-    Card(
+        Card(
         modifier = Modifier.fillMaxWidth().clickable { onJobClick(job) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -443,11 +447,11 @@ fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
             
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column {
-                    Text(strings.salary, fontSize = 12.sp, color = Color.Gray)
+                    Text(stringResource(R.string.salary), fontSize = 12.sp, color = Color.Gray)
                     Text(job.salary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Column {
-                    Text(strings.experience, fontSize = 12.sp, color = Color.Gray)
+                    Text(stringResource(R.string.experience), fontSize = 12.sp, color = Color.Gray)
                     Text(job.experienceReq, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
             }

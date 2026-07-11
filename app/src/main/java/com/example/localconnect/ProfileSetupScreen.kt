@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -31,12 +34,11 @@ fun ProfileSetupScreen(
     onBack: () -> Unit,
     onContinue: (name: String, dob: String, gender: String) -> Unit
 ) {
-    val strings = getStrings(session.language.code)
-    var name by remember { mutableStateOf("") }
+        var name by remember { mutableStateOf("") }
     var dob by remember { mutableStateOf("") }
     var selectedGender by remember { mutableStateOf("") }
 
-    val genders = listOf(strings.male, strings.female, strings.other)
+    val genders = listOf(stringResource(R.string.male), stringResource(R.string.female), stringResource(R.string.other))
     val canContinue = name.isNotBlank() && dob.isNotBlank() && selectedGender.isNotBlank()
 
     Box(
@@ -76,9 +78,9 @@ fun ProfileSetupScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(strings.profileTitle, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A1A))
+            Text(stringResource(R.string.profile_title), fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A1A))
             Spacer(modifier = Modifier.height(6.dp))
-            Text(strings.profileSubtitle, fontSize = 14.sp, color = Color(0xFF9E9E9E))
+            Text(stringResource(R.string.profile_subtitle), fontSize = 14.sp, color = Color(0xFF9E9E9E))
 
             Spacer(modifier = Modifier.height(36.dp))
 
@@ -86,7 +88,7 @@ fun ProfileSetupScreen(
             OnboardingTextField(
                 value = name,
                 onValueChange = { name = it },
-                placeholder = strings.namePlaceholder,
+                placeholder = stringResource(R.string.name_placeholder),
                 keyboardType = KeyboardType.Text,
                 capitalization = KeyboardCapitalization.Words
             )
@@ -97,7 +99,7 @@ fun ProfileSetupScreen(
             OnboardingTextField(
                 value = dob,
                 onValueChange = { dob = it },
-                placeholder = strings.dobPlaceholder,
+                placeholder = stringResource(R.string.dob_placeholder),
                 keyboardType = KeyboardType.Text
             )
 
@@ -106,7 +108,7 @@ fun ProfileSetupScreen(
             // ---- Gender selection ----
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    strings.selectGender,
+                    stringResource(R.string.select_gender),
                     fontSize = 14.sp,
                     color = Color(0xFF9E9E9E),
                     fontWeight = FontWeight.Medium
@@ -139,7 +141,7 @@ fun ProfileSetupScreen(
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = if (canContinue) 4.dp else 0.dp)
             ) {
-                Text(strings.continueBtn, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.continue_btn), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(32.dp))

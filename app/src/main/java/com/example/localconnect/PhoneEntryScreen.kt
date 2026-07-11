@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -36,8 +39,7 @@ fun PhoneEntryScreen(
     onBack: () -> Unit,
     onGetOtp: (phone: String, verificationId: String) -> Unit
 ) {
-    val strings = getStrings(session.language.code)
-    var phoneNumber by remember { mutableStateOf("") }
+        var phoneNumber by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -125,7 +127,7 @@ fun PhoneEntryScreen(
 
             // ---- Title ----
             Text(
-                text = strings.enterMobile,
+                text = stringResource(R.string.enter_mobile),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFF1A1A1A),
@@ -133,7 +135,7 @@ fun PhoneEntryScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = strings.otpSubtitle,
+                text = stringResource(R.string.otp_subtitle),
                 fontSize = 14.sp,
                 color = Color(0xFF9E9E9E),
                 textAlign = TextAlign.Center
@@ -169,7 +171,7 @@ fun PhoneEntryScreen(
                     value = phoneNumber,
                     onValueChange = { if (it.length <= 10 && it.all { c -> c.isDigit() }) phoneNumber = it },
                     modifier = Modifier.weight(1f).focusRequester(focusRequester),
-                    placeholder = { Text(strings.digitsHint, color = Color(0xFFCCCCCC), fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.digits_hint), color = Color(0xFFCCCCCC), fontSize = 14.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); if (isValid) handleGetOtp() }),
@@ -214,7 +216,7 @@ fun PhoneEntryScreen(
                 if (isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                 } else {
-                    Text(strings.getOtp, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
+                    Text(stringResource(R.string.get_otp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
                 }
             }
 

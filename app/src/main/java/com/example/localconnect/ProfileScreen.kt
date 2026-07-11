@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -37,8 +40,7 @@ fun ProfileScreen(
     onNavigateToPostJob: () -> Unit = {},
     onNavigateToPostService: () -> Unit = {}
 ) {
-    val strings = getStrings(session.language.code)
-    var showLanguageSheet by remember { mutableStateOf(false) }
+        var showLanguageSheet by remember { mutableStateOf(false) }
     var showNameDialog by remember { mutableStateOf(false) }
 
     val initial = session.name.firstOrNull()?.uppercaseChar()?.toString()
@@ -54,7 +56,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
-            text = strings.profileTabTitle,
+            text = stringResource(R.string.profile_tab_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1A1A1A)
@@ -98,13 +100,13 @@ fun ProfileScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                ProfileRow(icon = Icons.Filled.Phone, label = strings.phoneLabel, value = session.phone)
+                ProfileRow(icon = Icons.Filled.Phone, label = stringResource(R.string.phone_label), value = session.phone)
                 HorizontalDivider(color = Color(0xFFF0F0F0))
-                ProfileRow(icon = Icons.Filled.Cake, label = strings.dobLabel, value = session.dob)
+                ProfileRow(icon = Icons.Filled.Cake, label = stringResource(R.string.dob_label), value = session.dob)
                 HorizontalDivider(color = Color(0xFFF0F0F0))
-                ProfileRow(icon = Icons.Filled.Person, label = strings.genderLabel, value = session.gender)
+                ProfileRow(icon = Icons.Filled.Person, label = stringResource(R.string.gender_label), value = session.gender)
                 HorizontalDivider(color = Color(0xFFF0F0F0))
-                ProfileRow(icon = Icons.Filled.LocationOn, label = strings.locationLabel, value = session.location)
+                ProfileRow(icon = Icons.Filled.LocationOn, label = stringResource(R.string.location_label), value = session.location)
             }
         }
 
@@ -128,7 +130,7 @@ fun ProfileScreen(
                     Icon(Icons.Filled.Language, contentDescription = null, modifier = Modifier.size(20.dp), tint = Color.Gray)
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
-                        text = strings.changeLanguage,
+                        text = stringResource(R.string.change_language),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.weight(1f)
@@ -160,7 +162,7 @@ fun ProfileScreen(
             ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
         ) {
-            Text(strings.logout, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.logout), fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -177,7 +179,7 @@ fun ProfileScreen(
                     .padding(24.dp)
             ) {
                 Text(
-                    text = strings.changeLanguage,
+                    text = stringResource(R.string.change_language),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)

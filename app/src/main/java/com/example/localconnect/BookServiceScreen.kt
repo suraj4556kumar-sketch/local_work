@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import com.example.localconnect.ui.theme.*
 import com.example.localconnect.data.FirebaseRepository
 import kotlinx.coroutines.launch
@@ -47,12 +50,12 @@ import com.example.localconnect.data.ServiceRequest
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> Unit) {
-    val strings = getStrings(session.language.code)
-    val coroutineScope = rememberCoroutineScope()
+        val coroutineScope = rememberCoroutineScope()
     var isBooking by remember { mutableStateOf(false) }
     var selectedServices by remember { mutableStateOf(setOf<String>()) }
     var problemDescription by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf(strings.today) }
+    val default_selectedDate = stringResource(R.string.today)
+    var selectedDate by remember { mutableStateOf(default_selectedDate) }
     var selectedTimeSlot by remember { mutableStateOf("") }
     var showCustomerDetails by remember { mutableStateOf(false) }
     
@@ -119,7 +122,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
         "Kitchen Sink Repair", "Drainage Blockage", "Water Tank Pipe Repair", "Other"
     )
 
-    val dates = listOf(strings.today, strings.tomorrow, strings.chooseDate)
+    val dates = listOf(stringResource(R.string.today), stringResource(R.string.tomorrow), stringResource(R.string.choose_date))
     val timeSlots = listOf("9 AM - 11 AM", "11 AM - 1 PM", "2 PM - 4 PM", "4 PM - 6 PM", "6 PM - 8 PM")
 
     fun toggleService(serviceName: String) {
@@ -135,7 +138,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             TopAppBar(
                 title = { 
                     Text(
-                        text = strings.bookServiceTitle, 
+                        text = stringResource(R.string.book_service_title), 
                         fontWeight = FontWeight.Bold, 
                         fontSize = 20.sp, 
                         color = androidx.compose.ui.graphics.Color.White
@@ -143,7 +146,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                 },
                 actions = {
                     TextButton(onClick = onBack) {
-                        Text(strings.back, fontWeight = FontWeight.SemiBold, color = androidx.compose.ui.graphics.Color.White, fontSize = 14.sp)
+                        Text(stringResource(R.string.back), fontWeight = FontWeight.SemiBold, color = androidx.compose.ui.graphics.Color.White, fontSize = 14.sp)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color(0xFFF97316), titleContentColor = androidx.compose.ui.graphics.Color.White, navigationIconContentColor = androidx.compose.ui.graphics.Color.White, actionIconContentColor = androidx.compose.ui.graphics.Color.White)
@@ -165,7 +168,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.DarkGray)
                     ) {
-                        Text(strings.cancel, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.cancel), fontWeight = FontWeight.Bold)
                     }
                     Button(
                         onClick = { showCustomerDetails = true },
@@ -173,7 +176,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Primary) // Blue-600
                     ) {
-                        Text(strings.bookServiceBtn, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(stringResource(R.string.book_service_btn), fontWeight = FontWeight.Bold, color = Color.White)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("→", fontSize = 20.sp, color = Color.White)
                     }
@@ -192,7 +195,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             
             // 1. Booking For
             Column(modifier = Modifier.background(PrimaryContainer).padding(16.dp)) { // bg-blue-50/50 roughly
-                Text(strings.bookingFor.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, letterSpacing = 1.sp)
+                Text(stringResource(R.string.booking_for).uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, letterSpacing = 1.sp)
                 Spacer(modifier = Modifier.height(12.dp))
                 Surface(
                     shape = RoundedCornerShape(16.dp),
@@ -234,7 +237,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFF3F4F6))
                             
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(strings.visitCharge, fontSize = 14.sp, color = Color.Gray)
+                                Text(stringResource(R.string.visit_charge), fontSize = 14.sp, color = Color.Gray)
                                 Text("₹${service.price}", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)
                             }
                         }
@@ -245,13 +248,13 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             
             // 3. Problem Details
             Column(modifier = Modifier.background(Color.White).padding(20.dp).fillMaxWidth()) {
-                Text(strings.problemDetails.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
-                Text(strings.describeProblem, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
+                Text(stringResource(R.string.problem_details).uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
+                Text(stringResource(R.string.describe_problem), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
                 
                 OutlinedTextField(
                     value = problemDescription,
                     onValueChange = { problemDescription = it },
-                    placeholder = { Text(strings.writeIssueHint, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.write_issue_hint), fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -272,7 +275,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(16.dp).padding(top = 2.dp), tint = OnPrimaryContainer)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "${strings.example} ${strings.exampleDesc}",
+                            text = "${stringResource(R.string.example)} ${stringResource(R.string.example_desc)}",
                             fontSize = 12.sp,
                             color = OnPrimaryContainer, // text-blue-800
                             lineHeight = 18.sp
@@ -285,7 +288,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             
             // 4. Upload Photo / Video
             Column(modifier = Modifier.background(Color.White).padding(20.dp).fillMaxWidth()) {
-                Text(strings.uploadMedia.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 12.dp))
+                Text(stringResource(R.string.upload_media).uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 12.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     // Photo Upload (Dummy)
@@ -309,7 +312,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                                 Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(24.dp).padding(4.dp), tint = Color.Gray)
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(strings.uploadPhoto, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, textAlign = TextAlign.Center)
+                            Text(stringResource(R.string.upload_photo), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, textAlign = TextAlign.Center)
                         }
                     }
                     
@@ -334,7 +337,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                                 Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(24.dp).padding(4.dp), tint = Color.Gray)
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("${strings.uploadVideo}\n${strings.optional}", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, textAlign = TextAlign.Center)
+                            Text("${stringResource(R.string.upload_video)}\n${stringResource(R.string.optional)}", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, textAlign = TextAlign.Center)
                         }
                     }
                 }
@@ -344,16 +347,17 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
 
             // 5. Select Date
             Column(modifier = Modifier.background(Color.White).padding(20.dp).fillMaxWidth()) {
-                Text(strings.selectDate.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
-                Text(strings.whenNeedService, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 16.dp))
+                Text(stringResource(R.string.select_date).uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
+                Text(stringResource(R.string.when_need_service), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 16.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    val strings_choose_date = stringResource(R.string.choose_date)
                     dates.forEach { date ->
                         val isSelected = selectedDate == date
                         Surface(
                             modifier = Modifier.weight(1f).height(60.dp).clickable { 
                                 selectedDate = date 
-                                if (date == strings.chooseDate) {
+                                if (date == strings_choose_date) {
                                     showDatePicker = true
                                 }
                             },
@@ -366,7 +370,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                if (date == strings.chooseDate) {
+                                if (date == strings_choose_date) {
                                     Icon(Icons.Filled.DateRange, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.Gray)
                                     Spacer(modifier = Modifier.height(2.dp))
                                 }
@@ -386,15 +390,15 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.DateRange, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.Gray)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(strings.selectedDateLabel, fontSize = 14.sp, color = Color.DarkGray)
+                            Text(stringResource(R.string.selected_date_label), fontSize = 14.sp, color = Color.DarkGray)
                         }
-                        val dateText = if (selectedDate == strings.chooseDate) {
+                        val dateText = if (selectedDate == stringResource(R.string.choose_date)) {
                             if (datePickerState.selectedDateMillis != null) {
                                 dateFormatter.format(java.util.Date(datePickerState.selectedDateMillis!!))
                             } else {
-                                strings.notSelected
+                                stringResource(R.string.not_selected)
                             }
-                        } else if (selectedDate == strings.today) {
+                        } else if (selectedDate == stringResource(R.string.today)) {
                             dateFormatter.format(java.util.Date(todayMillis))
                         } else {
                             dateFormatter.format(java.util.Date(todayMillis + 86400000L))
@@ -413,8 +417,8 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             
             // 6. Select Time Slot
             Column(modifier = Modifier.background(Color.White).padding(20.dp).fillMaxWidth()) {
-                Text(strings.selectTimeSlot.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
-                Text(strings.availableTimeSlots, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 16.dp))
+                Text(stringResource(R.string.select_time_slot).uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
+                Text(stringResource(R.string.available_time_slots), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 16.dp))
                 
                 @OptIn(ExperimentalLayoutApi::class)
                 FlowRow(
@@ -447,7 +451,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             
             // 7. Price Details
             Column(modifier = Modifier.background(Color(0xFFF9FAFB)).padding(20.dp).fillMaxWidth()) {
-                Text(strings.priceDetails.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 16.dp))
+                Text(stringResource(R.string.price_details).uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 16.dp))
                 
                 Surface(
                     color = Color.White,
@@ -458,22 +462,22 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(strings.visitCharge, fontSize = 14.sp, color = Color.DarkGray)
+                            Text(stringResource(R.string.visit_charge), fontSize = 14.sp, color = Color.DarkGray)
                             Text("₹${service.price}", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(strings.serviceCharge, fontSize = 14.sp, color = Color.DarkGray)
-                            Text(strings.decidedAfterInspection, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.Gray, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+                            Text(stringResource(R.string.service_charge), fontSize = 14.sp, color = Color.DarkGray)
+                            Text(stringResource(R.string.decided_after_inspection), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.Gray, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(strings.materialCost, fontSize = 14.sp, color = Color.DarkGray)
-                            Text(strings.extraIfRequired, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.Gray)
+                            Text(stringResource(R.string.material_cost), fontSize = 14.sp, color = Color.DarkGray)
+                            Text(stringResource(R.string.extra_if_required), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.Gray)
                         }
                         
                         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = Color(0xFFE5E7EB)) // border-dashed effectively
                         
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(strings.totalPayableNow, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text(stringResource(R.string.total_payable_now), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                             Text("₹${service.price}", fontSize = 18.sp, fontWeight = FontWeight.Black, color = Primary)
                         }
                     }
@@ -486,7 +490,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
                 ) {
                     Text(
-                        text = "${strings.note} ${strings.priceNoteDesc}",
+                        text = "${stringResource(R.string.note)} ${stringResource(R.string.price_note_desc)}",
                         fontSize = 12.sp,
                         color = Color.Gray,
                         textAlign = TextAlign.Center,

@@ -1,5 +1,8 @@
 package com.example.localconnect
 
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -41,8 +44,7 @@ fun LocationSetupScreen(
     onBack: () -> Unit,
     onContinue: (location: String) -> Unit
 ) {
-    val strings = getStrings(session.language.code)
-    var city by remember { mutableStateOf("") }
+        var city by remember { mutableStateOf("") }
     val canContinue = city.isNotBlank()
 
     Box(
@@ -82,9 +84,9 @@ fun LocationSetupScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(strings.locationTitle, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A1A))
+            Text(stringResource(R.string.location_title), fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A1A))
             Spacer(modifier = Modifier.height(6.dp))
-            Text(strings.locationSubtitle, fontSize = 14.sp, color = Color(0xFF9E9E9E))
+            Text(stringResource(R.string.location_subtitle), fontSize = 14.sp, color = Color(0xFF9E9E9E))
 
             Spacer(modifier = Modifier.height(36.dp))
 
@@ -92,7 +94,7 @@ fun LocationSetupScreen(
             OnboardingTextField(
                 value = city,
                 onValueChange = { city = it },
-                placeholder = strings.cityPlaceholder
+                placeholder = stringResource(R.string.city_placeholder)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -105,7 +107,7 @@ fun LocationSetupScreen(
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = OrangePrimary),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, OrangePrimary)
             ) {
-                Text(strings.useCurrentLocation, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.use_current_location), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -113,7 +115,7 @@ fun LocationSetupScreen(
             // ---- Popular cities ----
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    strings.popularCities,
+                    stringResource(R.string.popular_cities),
                     fontSize = 14.sp,
                     color = Color(0xFF9E9E9E),
                     fontWeight = FontWeight.Medium
@@ -157,7 +159,7 @@ fun LocationSetupScreen(
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = if (canContinue) 4.dp else 0.dp)
             ) {
-                Text(strings.continueBtn, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.continue_btn), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(32.dp))

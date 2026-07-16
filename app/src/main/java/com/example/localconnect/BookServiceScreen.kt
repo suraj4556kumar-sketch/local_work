@@ -132,6 +132,8 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             selectedServices + serviceName
         }
     }
+    
+    val chooseDateStr = stringResource(R.string.choose_date)
 
     Scaffold(
         topBar = {
@@ -171,14 +173,19 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         Text(stringResource(R.string.cancel), fontWeight = FontWeight.Bold)
                     }
                     Button(
-                        onClick = { showCustomerDetails = true },
+                        onClick = {
+                            val isDateValid = selectedDate != chooseDateStr || datePickerState.selectedDateMillis != null
+                            if (problemDescription.isBlank() || !isDateValid || selectedTimeSlot.isBlank()) {
+                                Toast.makeText(context, "Please fill all details (Problem, Date, Time)", Toast.LENGTH_SHORT).show()
+                            } else {
+                                showCustomerDetails = true
+                            }
+                        },
                         modifier = Modifier.weight(2f).height(50.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Primary) // Blue-600
                     ) {
                         Text(stringResource(R.string.book_service_btn), fontWeight = FontWeight.Bold, color = Color.White)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("→", fontSize = 20.sp, color = Color.White)
                     }
                 }
             }
@@ -261,7 +268,9 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         focusedBorderColor = Color(0xFFF97316),
                         unfocusedBorderColor = Color(0xFFE5E7EB),
                         focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color(0xFFF9FAFB)
+                        unfocusedContainerColor = Color(0xFFF9FAFB),
+                        focusedTextColor = Color(0xFF111827),
+                        unfocusedTextColor = Color(0xFF111827)
                     )
                 )
                 
@@ -316,30 +325,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                         }
                     }
                     
-                    // Video Upload (Dummy)
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(110.dp)
-                            .background(Color(0xFFF9FAFB), RoundedCornerShape(12.dp))
-                            .border(2.dp, if(videoUri != null) Color(0xFFF97316) else Color(0xFFD1D5DB), RoundedCornerShape(12.dp))
-                            .clickable { showVideoUploadDialog = true }
-                            .padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        if (videoUri != null) {
-                            Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color(0xFFF97316))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(stringResource(R.string.video_selected), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316), textAlign = TextAlign.Center)
-                        } else {
-                            Surface(shape = CircleShape, color = Color.White, shadowElevation = 1.dp) {
-                                Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(24.dp).padding(4.dp), tint = Color.Gray)
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("${stringResource(R.string.upload_video)}\n${stringResource(R.string.optional)}", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, textAlign = TextAlign.Center)
-                        }
-                    }
+
                 }
             }
             
@@ -506,19 +492,19 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
         AlertDialog(
             onDismissRequest = { showPhotoUploadDialog = false },
             title = { Text(stringResource(R.string.upload_photo)) },
-            text = { Text(stringResource(R.string.choose_an_option_to_upload_your_photo)) },
+            text = { Text(stringResource(R.string.choose_photo_upload)) },
             confirmButton = {
                 TextButton(onClick = { 
                     showPhotoUploadDialog = false
                     tempImageUri = createTempFileUri(false)
                     takePhotoLauncher.launch(tempImageUri!!)
-                }) { Text(stringResource(R.string.camera)) }
+                }) { Text(stringResource(R.string.camera_opt)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showPhotoUploadDialog = false
                     pickPhotoLauncher.launch("image/*")
-                }) { Text(stringResource(R.string.gallery)) }
+                }) { Text(stringResource(R.string.gallery_opt)) }
             }
         )
     }
@@ -527,19 +513,19 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
         AlertDialog(
             onDismissRequest = { showVideoUploadDialog = false },
             title = { Text(stringResource(R.string.upload_video)) },
-            text = { Text(stringResource(R.string.choose_an_option_to_upload_your_video)) },
+            text = { Text(stringResource(R.string.choose_video_upload)) },
             confirmButton = {
                 TextButton(onClick = { 
                     showVideoUploadDialog = false
                     tempVideoUri = createTempFileUri(true)
                     takeVideoLauncher.launch(tempVideoUri!!)
-                }) { Text(stringResource(R.string.camera)) }
+                }) { Text(stringResource(R.string.camera_opt)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showVideoUploadDialog = false
                     pickVideoLauncher.launch("video/*")
-                }) { Text(stringResource(R.string.gallery)) }
+                }) { Text(stringResource(R.string.gallery_opt)) }
             }
         )
     }
@@ -548,7 +534,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.ok)) }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.ok_btn)) }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.cancel)) }
@@ -565,6 +551,8 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
             selectedDate = selectedDate,
             selectedTimeSlot = selectedTimeSlot,
             selectedServices = selectedServices,
+            problemDescription = problemDescription,
+            photoUri = photoUri,
             onBack = { showCustomerDetails = false },
             onConfirm = { showCustomerDetails = false }
         )

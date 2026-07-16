@@ -59,7 +59,7 @@ fun PhoneEntryScreen(
             },
             onVerificationFailed = { exception ->
                 isLoading = false
-                Toast.makeText(context, "Verification failed: ${exception.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context.applicationContext, "Verification failed: ${exception.message}", Toast.LENGTH_LONG).show()
             },
             onVerificationCompleted = {
                 // Auto verification success. You can handle this by jumping to Home, but for now we'll rely on the OTP screen.

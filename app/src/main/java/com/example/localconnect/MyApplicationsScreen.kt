@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -166,7 +167,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
     if (applicationToDelete != null) {
         AlertDialog(
             onDismissRequest = { applicationToDelete = null },
-            title = { Text(stringResource(R.string.remove_application)) },
+            title = { Text(stringResource(R.string.remove_app)) },
             text = { Text("Are you sure you want to remove your application for ${applicationToDelete!!.jobTitle}?") },
             confirmButton = {
                 Button(
@@ -176,9 +177,9 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                             val success = FirebaseRepository.deleteJobApplication(app.id)
                             if (success) {
                                 myApplications = myApplications.filter { it.id != app.id }
-                                Toast.makeText(context, "Application removed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context.applicationContext, "Application removed", Toast.LENGTH_SHORT).show()
                             } else {
-                                Toast.makeText(context, "Failed to remove application", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context.applicationContext, "Failed to remove application", Toast.LENGTH_SHORT).show()
                             }
                         }
                         applicationToDelete = null
@@ -198,6 +199,8 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
 
     if (selectedApp != null) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(),
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { selectedApp = null },
             containerColor = Color.White,
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
@@ -310,8 +313,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(
                                 onClick = {
-                                    val callIntent = android.content.Intent(android.content.Intent.ACTION_DIAL, android.net.Uri.parse("tel:${selectedJob!!.contactPhone}"))
-                                    context.startActivity(callIntent)
+                                    try { val callIntent = android.content.Intent(android.content.Intent.ACTION_DIAL, android.net.Uri.parse("tel:${selectedJob!!.contactPhone}")); callIntent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(callIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "Cannot open dialer", android.widget.Toast.LENGTH_SHORT).show() }
                                 },
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
@@ -327,14 +329,14 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                                     try {
                                         context.startActivity(waIntent)
                                     } catch(e: Exception) {
-                                        Toast.makeText(context, "WhatsApp not installed", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context.applicationContext, "WhatsApp not installed", Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))
                             ) {
-                                Text(stringResource(R.string.whatsapp), fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(stringResource(R.string.whatsapp_opt), fontWeight = FontWeight.Bold, color = Color.White)
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
@@ -358,7 +360,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF1F2937))
                 ) {
-                    Text(stringResource(R.string.close), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.close_btn), fontWeight = FontWeight.Bold)
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -469,7 +471,7 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF374151))
                 ) {
-                    Text(stringResource(R.string.view_details), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.view_details_btn), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 }
                 if (app.status == "Selected") {
                     Button(

@@ -1,7 +1,6 @@
 package com.example.localconnect
 
 import androidx.compose.ui.res.stringResource
-import com.example.localconnect.R
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -127,87 +126,131 @@ fun AppNavigation() {
         }
     }
 
-    AnimatedContent(
-        targetState = currentScreen,
-        transitionSpec = {
-            when (targetState) {
-                is Screen.Home ->
-                    slideInVertically(initialOffsetY = { it }, animationSpec = tween(380)) +
-                    fadeIn(tween(380)) togetherWith fadeOut(tween(200))
-                is Screen.LanguageSelection ->
-                    slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(300)) togetherWith
-                    slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
-                else ->
-                    slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) togetherWith
-                    slideOutHorizontally(targetOffsetX = { -it / 3 }, animationSpec = tween(300))
-            }
-        },
-        label = "app_nav"
-    ) { screen ->
-        when (screen) {
+    val currentLanguageCode = when (val screen = currentScreen) {
+        is Screen.PhoneEntry -> screen.session.language.code
+        is Screen.OtpVerification -> screen.session.language.code
+        is Screen.ProfileSetup -> screen.session.language.code
+        is Screen.LocationSetup -> screen.session.language.code
+        is Screen.Home -> screen.session.language.code
+        else -> "en"
+    }
 
-            is Screen.Splash -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(color = OrangePrimary)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(stringResource(R.string.loading_localconnect), color = Color.Gray)
+    val locale = java.util.Locale(currentLanguageCode)
+    java.util.Locale.setDefault(locale)
+    val configuration = android.content.res.Configuration(androidx.compose.ui.platform.LocalConfiguration.current)
+    configuration.setLocale(locale)
+    val originalContext = androidx.compose.ui.platform.LocalContext.current
+    @Suppress("DEPRECATION")
+    originalContext.resources.updateConfiguration(configuration, originalContext.resources.displayMetrics)
+    val context = originalContext.createConfigurationContext(configuration)
+    
+    var registryOwner: androidx.activity.result.ActivityResultRegistryOwner? = null
+    var ctx: android.content.Context? = originalContext
+    while (ctx != null) {
+        if (ctx is androidx.activity.result.ActivityResultRegistryOwner) {
+            registryOwner = ctx
+            break
+        }
+        if (ctx is android.content.ContextWrapper) {
+            ctx = ctx.baseContext
+        } else {
+            break
+        }
+    }
+    
+    val currentOwner = androidx.activity.compose.LocalActivityResultRegistryOwner.current
+    val finalOwner = currentOwner ?: registryOwner
+
+    androidx.compose.runtime.CompositionLocalProvider(
+        androidx.compose.ui.platform.LocalContext provides context,
+        androidx.compose.ui.platform.LocalConfiguration provides configuration,
+        androidx.activity.compose.LocalActivityResultRegistryOwner provides finalOwner!!
+    ) {
+        AnimatedContent(
+            targetState = currentScreen,
+            transitionSpec = {
+                when (targetState) {
+                    is Screen.Home ->
+                        slideInVertically(initialOffsetY = { it }, animationSpec = tween(380)) +
+                        fadeIn(tween(380)) togetherWith fadeOut(tween(200))
+                    is Screen.LanguageSelection ->
+                        slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(300)) togetherWith
+                        slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
+                    else ->
+                        slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) togetherWith
+                        slideOutHorizontally(targetOffsetX = { -it / 3 }, animationSpec = tween(300))
+                }
+            },
+            label = "app_nav"
+        ) { screen ->
+            when (screen) {
+
+                is Screen.Splash -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = OrangePrimary)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(stringResource(R.string.loading_localconnect), color = Color.Gray)
+                        }
                     }
                 }
+
+                // 1 — Language
+                is Screen.LanguageSelection -> LanguageSelectionScreen(
+                    onLanguageSelected = { lang ->
+                        currentScreen = Screen.PhoneEntry(UserSession(language = lang))
+                    }
+                )
+
+                // 2 — Phone
+                is Screen.PhoneEntry -> PhoneEntryScreen(
+                    session = screen.session,
+                    onBack = { currentScreen = Screen.LanguageSelection },
+                    onGetOtp = { phone, verificationId ->
+                        currentScreen = Screen.OtpVerification(screen.session.copy(phone = phone, verificationId = verificationId))
+                    }
+                )
+
+                // 3 — OTP
+                is Screen.OtpVerification -> OtpVerificationScreen(
+                    session = screen.session,
+                    onVerified = { firebaseUid -> 
+                        currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = firebaseUid)) 
+                    },
+                    onBack = { currentScreen = Screen.PhoneEntry(screen.session) }
+                )
+
+                // 4 — Profile (name / dob / gender)
+                is Screen.ProfileSetup -> ProfileSetupScreen(
+                    session = screen.session,
+                    onBack = { currentScreen = Screen.OtpVerification(screen.session) },
+                    onContinue = { name, dob, gender ->
+                        currentScreen = Screen.LocationSetup(
+                            screen.session.copy(name = name, dob = dob, gender = gender)
+                        )
+                    }
+                )
+
+                // 5 — Location
+                is Screen.LocationSetup -> LocationSetupScreen(
+                    session = screen.session,
+                    onBack = { currentScreen = Screen.ProfileSetup(screen.session) },
+                    onContinue = { location ->
+                        currentScreen = Screen.Home(screen.session.copy(location = location))
+                    }
+                )
+
+                // 7 — Personalised Home
+                is Screen.Home -> HomeScreen(
+                    initialSession = screen.session,
+                    onLogout = {
+                        currentScreen = Screen.LanguageSelection
+                    },
+                    onSessionUpdate = { newSession ->
+                        currentScreen = Screen.Home(newSession)
+                    }
+                )
             }
-
-            // 1 — Language
-            is Screen.LanguageSelection -> LanguageSelectionScreen(
-                onLanguageSelected = { lang ->
-                    currentScreen = Screen.PhoneEntry(UserSession(language = lang))
-                }
-            )
-
-            // 2 — Phone
-            is Screen.PhoneEntry -> PhoneEntryScreen(
-                session = screen.session,
-                onBack = { currentScreen = Screen.LanguageSelection },
-                onGetOtp = { phone, verificationId ->
-                    currentScreen = Screen.OtpVerification(screen.session.copy(phone = phone, verificationId = verificationId))
-                }
-            )
-
-            // 3 — OTP
-            is Screen.OtpVerification -> OtpVerificationScreen(
-                session = screen.session,
-                onVerified = { firebaseUid -> 
-                    currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = firebaseUid)) 
-                },
-                onBack = { currentScreen = Screen.PhoneEntry(screen.session) }
-            )
-
-            // 4 — Profile (name / dob / gender)
-            is Screen.ProfileSetup -> ProfileSetupScreen(
-                session = screen.session,
-                onBack = { currentScreen = Screen.OtpVerification(screen.session) },
-                onContinue = { name, dob, gender ->
-                    currentScreen = Screen.LocationSetup(
-                        screen.session.copy(name = name, dob = dob, gender = gender)
-                    )
-                }
-            )
-
-            // 5 — Location
-            is Screen.LocationSetup -> LocationSetupScreen(
-                session = screen.session,
-                onBack = { currentScreen = Screen.ProfileSetup(screen.session) },
-                onContinue = { location ->
-                    currentScreen = Screen.Home(screen.session.copy(location = location))
-                }
-            )
-
-            // 7 — Personalised Home
-            is Screen.Home -> HomeScreen(
-                initialSession = screen.session,
-                onLogout = {
-                    currentScreen = Screen.LanguageSelection
-                }
-            )
         }
     }
 }

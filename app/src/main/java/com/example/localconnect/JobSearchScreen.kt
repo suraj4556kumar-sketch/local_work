@@ -21,6 +21,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +32,18 @@ import com.example.localconnect.data.FirebaseRepository
 import com.example.localconnect.ui.theme.OrangePrimary
 import androidx.compose.runtime.collectAsState
 
+import android.Manifest
+import android.widget.Toast
+import android.content.pm.PackageManager
+import android.location.Location
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import androidx.compose.ui.platform.LocalContext
+import kotlin.math.round
+
 
 
 
@@ -38,9 +51,10 @@ import androidx.compose.runtime.collectAsState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobSearchScreen(
-    session: UserSession
+    session: UserSession,
+    initialTab: Int = 0
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(initialTab) }
     var showProfileSetup by remember { mutableStateOf(false) }
     var selectedJob by remember { mutableStateOf<Job?>(null) }
 
@@ -80,14 +94,14 @@ fun JobSearchScreen(
             Tab(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
-                text = { Text(stringResource(R.string.find_jobs), fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                text = { Text(stringResource(R.string.find_jobs_tab), fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(alpha = 0.7f)
             )
             Tab(
                 selected = selectedTab == 1,
                 onClick = { selectedTab = 1 },
-                text = { Text(stringResource(R.string.my_applications), fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                text = { Text(stringResource(R.string.my_apps_title), fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(alpha = 0.7f)
             )
@@ -105,11 +119,84 @@ fun JobSearchScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
+    val context = LocalContext.current
+    var userLat by remember { mutableStateOf<Double?>(null) }
+    var userLon by remember { mutableStateOf<Double?>(null) }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            val granted = permissions.values.all { it }
+            if (granted) {
+                try {
+                    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
+                        if (location != null) {
+                            userLat = location.latitude
+                            userLon = location.longitude
+                        } else {
+                            userLat = 19.0760
+                            userLon = 72.8777
+                        }
+                    }.addOnFailureListener {
+                        userLat = 19.0760
+                        userLon = 72.8777
+                    }
+                } catch (e: SecurityException) {
+                }
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (hasFineLocation || hasCoarseLocation) {
+            try {
+                val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
+                    if (location != null) {
+                        userLat = location.latitude
+                        userLon = location.longitude
+                    } else {
+                        // Fallback to Mumbai for emulator if location is null
+                        userLat = 19.0760
+                        userLon = 72.8777
+                        Toast.makeText(context, "Using fallback location (Mumbai). Please enable GPS.", Toast.LENGTH_SHORT).show()
+                    }
+                }.addOnFailureListener {
+                    userLat = 19.0760
+                    userLon = 72.8777
+                    Toast.makeText(context, "Failed to get location. Using fallback (Mumbai).", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: SecurityException) {
+                userLat = 19.0760
+                userLon = 72.8777
+            }
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+            )
+        }
+    }
+
+    fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val results = FloatArray(1)
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+        val distKm = results[0] / 1000.0
+        return round(distKm * 10.0) / 10.0
+    }
+
         val dummyJobs = remember(session.language.code) { getDummyJobs(session.language.code) }
     
     val firebaseJobs by FirebaseRepository.getJobsFlow().collectAsState(initial = emptyList())
 
-    val allJobs = remember(dummyJobs, firebaseJobs) { firebaseJobs + dummyJobs }
+    val rawJobs = remember(dummyJobs, firebaseJobs) { firebaseJobs + dummyJobs }
+    val allJobs = remember(rawJobs, userLat, userLon) { 
+        rawJobs.map { 
+            it.copy(distanceKm = if (userLat != null && userLon != null && it.latitude != 0.0 && it.longitude != 0.0) calculateDistance(userLat!!, userLon!!, it.latitude, it.longitude) else if (it.latitude == 0.0 && it.longitude == 0.0) -1.0 else it.distanceKm)
+        } 
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
@@ -139,7 +226,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
     }
 
     val advancedFiltered = sortedJobs.filter {
-        it.distanceKm <= maxDistance &&
+        (maxDistance >= 50.0 || it.distanceKm <= maxDistance) &&
         it.salaryValue >= minSalary &&
         it.experienceYears >= minExperience &&
         (selectedJobFilter == stringResource(R.string.all_jobs) || it.title == selectedJobFilter)
@@ -315,6 +402,8 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
 
     if (showAdvancedFilters) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(),
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showAdvancedFilters = false },
             containerColor = Color.White
         ) {
@@ -326,7 +415,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                 Text(stringResource(R.string.filters), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                Text("${stringResource(R.string.max_distance)}: ${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.max_distance)}: " + if(maxDistance >= 50.0) "Any" else "${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = maxDistance.toFloat(),
                     onValueChange = { maxDistance = it.toDouble() },
@@ -372,6 +461,8 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
 
     if (showSortByBottomSheet) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(),
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showSortByBottomSheet = false },
             containerColor = Color.White
         ) {
@@ -436,8 +527,10 @@ fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
                         Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp).padding(top = 2.dp), tint = Color.Gray)
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(job.location, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Text(" • ", fontSize = 13.sp, color = Color.Gray)
-                        Text("${job.distanceKm} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.SemiBold)
+                        if (job.distanceKm >= 0.0) {
+                            Text(" • ", fontSize = 13.sp, color = Color.Gray)
+                            Text("${job.distanceKm} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
                 Text(job.postingDate, fontSize = 12.sp, color = Color.Gray, maxLines = 1)

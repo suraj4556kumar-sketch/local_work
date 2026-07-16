@@ -25,6 +25,7 @@ import android.net.Uri
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -228,9 +229,9 @@ fun ApplicantListScreen(
                                     val mutable = applications.toMutableList()
                                     mutable[index] = updated
                                     applications = mutable
-                                    coroutineScope.launch { FirebaseRepository.applyForJob(updated) }
+                                    coroutineScope.launch { FirebaseRepository.updateApplicationStatus(updated, newStatus) }
                                 }
-                                Toast.makeText(context, "Applicant marked as $newStatus", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context.applicationContext, "Applicant marked as $newStatus", Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
@@ -252,10 +253,10 @@ fun ApplicantListScreen(
                         mutable[index] = updated
                         applications = mutable
                         selectedApplicant = updated
-                        coroutineScope.launch { FirebaseRepository.applyForJob(updated) }
+                        coroutineScope.launch { FirebaseRepository.updateApplicationStatus(updated, newStatus) }
                 }
                 showProfileSheet = false
-                Toast.makeText(context, "Applicant marked as $newStatus", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context.applicationContext, "Applicant marked as $newStatus", Toast.LENGTH_SHORT).show()
             }
         )
     }
@@ -332,16 +333,14 @@ fun ApplicantCard(
                     Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.profile), fontSize = 14.sp)
                 }
                 Button(onClick = {
-                    val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${app.applicantPhone}"))
-                    context.startActivity(callIntent)
+                    try { val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${app.applicantPhone}")); callIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(callIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "Cannot open dialer", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1f).height(40.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)), shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(0.dp)) {
                     Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.call), fontSize = 14.sp, color = Color.White)
                 }
                 Button(onClick = {
                     var waPhone = app.applicantPhone
                     if (waPhone.length == 10 && !waPhone.startsWith("+")) waPhone = "+91$waPhone"
-                    val waIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$waPhone")).apply { setPackage("com.whatsapp") }
-                    try { context.startActivity(waIntent) } catch(e: Exception) { Toast.makeText(context, "WhatsApp not installed", Toast.LENGTH_SHORT).show() }
+                    try { val waIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$waPhone")).apply { setPackage("com.whatsapp") }; waIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(waIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "WhatsApp not installed", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1.2f).height(40.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)), shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(0.dp)) {
                     Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.whatsapp), fontSize = 14.sp, color = Color.White)
                 }
@@ -392,7 +391,8 @@ fun ApplicantCard(
 @Composable
 fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatusChange: (String) -> Unit) {
     ModalBottomSheet(
-    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    modifier = Modifier.fillMaxHeight(),
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         onDismissRequest = onDismiss,
         containerColor = Color.White
     ) {
@@ -416,16 +416,14 @@ fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatu
             Row(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 val context = LocalContext.current
                 Button(onClick = {
-                    val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${applicant.applicantPhone}"))
-                    context.startActivity(callIntent)
+                    try { val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${applicant.applicantPhone}")); callIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(callIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "Cannot open dialer", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1f).height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)), shape = RoundedCornerShape(12.dp)) {
                     Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.call_applicant), fontSize = 14.sp, color = Color.White)
                 }
                 Button(onClick = {
                     var waPhone = applicant.applicantPhone
                     if (waPhone.length == 10 && !waPhone.startsWith("+")) waPhone = "+91$waPhone"
-                    val waIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$waPhone")).apply { setPackage("com.whatsapp") }
-                    try { context.startActivity(waIntent) } catch(e: Exception) { Toast.makeText(context, "WhatsApp not installed", Toast.LENGTH_SHORT).show() }
+                    try { val waIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$waPhone")).apply { setPackage("com.whatsapp") }; waIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(waIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "WhatsApp not installed", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1f).height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)), shape = RoundedCornerShape(12.dp)) {
                     Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.whatsapp), fontSize = 14.sp, color = Color.White)
                 }
@@ -503,10 +501,10 @@ fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatu
                                     val chooser = Intent.createChooser(intent, "Open $docName")
                                     context.startActivity(chooser)
                                 } else {
-                                    Toast.makeText(context, "Invalid document format", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context.applicationContext, "Invalid document format", Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Cannot open $docName: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context.applicationContext, "Cannot open $docName: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
                             }
                         },
                         modifier = Modifier.fillMaxWidth().height(48.dp).padding(bottom = 8.dp),
@@ -515,7 +513,7 @@ fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatu
                     ) {
                         Icon(Icons.Filled.Description, contentDescription = null, tint = Color(0xFF4B5563), modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.view_docname), color = Color(0xFF4B5563), fontWeight = FontWeight.Medium)
+                        Text("View $docName", color = Color(0xFF4B5563), fontWeight = FontWeight.Medium)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))

@@ -1,7 +1,6 @@
 package com.example.localconnect
 
 import androidx.compose.ui.res.stringResource
-import com.example.localconnect.R
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -51,7 +50,7 @@ fun JobProfileSetupScreen(
         containerColor = Color.White,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.build_your_work_profile), fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.build_work_profile), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color(0xFFF97316), titleContentColor = androidx.compose.ui.graphics.Color.White, navigationIconContentColor = androidx.compose.ui.graphics.Color.White, actionIconContentColor = androidx.compose.ui.graphics.Color.White)
             )
         }
@@ -64,8 +63,7 @@ fun JobProfileSetupScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                "Tell us about your experience to find the best jobs.",
+            Text(stringResource(R.string.tell_us_experience_best),
                 color = Color.Gray,
                 fontSize = 15.sp
             )
@@ -109,7 +107,7 @@ fun JobProfileSetupScreen(
 
             // Experience Years
             Column {
-                Text(stringResource(R.string.prior_experience_years), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.prior_exp_years), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = experienceYears,
                     onValueChange = { experienceYears = it },
@@ -126,11 +124,11 @@ fun JobProfileSetupScreen(
 
             // Prior Job Description
             Column {
-                Text(stringResource(R.string.description_of_prior_job), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.desc_prior_job), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = priorJobDesc,
                     onValueChange = { priorJobDesc = it },
-                    placeholder = { Text(stringResource(R.string.describe_your_past_work_responsibilities)) },
+                    placeholder = { Text(stringResource(R.string.describe_past_work)) },
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     shape = RoundedCornerShape(12.dp),
                     maxLines = 4,
@@ -143,7 +141,7 @@ fun JobProfileSetupScreen(
 
             // Expected Compensation
             Column {
-                Text(stringResource(R.string.expected_compensation_month), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.expected_comp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = expectedCompensation,
                     onValueChange = { expectedCompensation = it },
@@ -171,8 +169,8 @@ fun JobProfileSetupScreen(
                         Text("📄", fontSize = 24.sp)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text(stringResource(R.string.upload_cv_or_certificate), fontWeight = FontWeight.SemiBold)
-                            Text(stringResource(R.string.pdf_or_image_max_5mb), fontSize = 12.sp, color = Color.Gray)
+                            Text(stringResource(R.string.upload_cv_cert), fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.pdf_image_max), fontSize = 12.sp, color = Color.Gray)
                         }
                     }
                 }

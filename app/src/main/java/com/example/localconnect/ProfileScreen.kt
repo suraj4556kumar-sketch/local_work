@@ -21,6 +21,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -170,6 +171,8 @@ fun ProfileScreen(
 
     if (showLanguageSheet) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(),
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showLanguageSheet = false },
             containerColor = Color.White
         ) {
@@ -225,13 +228,13 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { showNameDialog = false },
             containerColor = Color.White,
-            title = { Text(stringResource(R.string.change_name), fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.change_name_title), fontWeight = FontWeight.Bold) },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
                     singleLine = true,
-                    label = { Text(stringResource(R.string.new_name)) },
+                    label = { Text(stringResource(R.string.new_name_label)) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = OrangePrimary,
                         focusedLabelColor = OrangePrimary
@@ -258,7 +261,7 @@ fun ProfileScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary)
                 ) {
-                    Text(stringResource(R.string.save), color = Color.White)
+                    Text(stringResource(R.string.save_btn), color = Color.White)
                 }
             },
             dismissButton = {

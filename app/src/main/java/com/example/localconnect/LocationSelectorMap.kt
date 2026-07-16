@@ -1,24 +1,38 @@
 package com.example.localconnect
 
-import android.content.Context
-import android.location.Address
+import androidx.compose.ui.res.stringResource
+
 import android.location.Geocoder
-import android.preference.PreferenceManager
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.size
+import com.example.localconnect.ui.theme.Primary
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.views.overlay.MapEventsOverlay
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
 import java.util.Locale
 
 @Composable
@@ -26,85 +40,148 @@ fun LocationSelectorMap(
     addressQuery: String, 
     currentLat: Double?,
     currentLon: Double?,
-    onLocationSelected: (lat: Double, lon: Double, address: String, city: String, state: String, pin: String) -> Unit
+    onMapTouch: (Boolean) -> Unit = {},
+    onLocationSelected: (lat: Double, lon: Double, address: String, city: String, state: String, pin: String, forceOverwrite: Boolean) -> Unit
 ) {
     val context = LocalContext.current
-    var mapView by remember { mutableStateOf<MapView?>(null) }
-    var marker by remember { mutableStateOf<Marker?>(null) }
-
-    LaunchedEffect(Unit) {
-        Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
-        Configuration.getInstance().userAgentValue = context.packageName
+    
+    // Default to Kharagpur or somewhere in India if null
+    val defaultLocation = LatLng(22.3365, 87.3228) 
+    
+    var markerPosition by remember { 
+        mutableStateOf(
+            if (currentLat != null && currentLon != null && (currentLat != 0.0 || currentLon != 0.0)) LatLng(currentLat, currentLon) 
+            else defaultLocation
+        ) 
     }
 
-    AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp),
-        factory = { ctx ->
-            MapView(ctx).apply {
-                setMultiTouchControls(true)
-                controller.setZoom(15.0)
-                
-                val newMarker = Marker(this).apply {
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                }
-                overlays.add(newMarker)
-                marker = newMarker
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(markerPosition, 15f)
+    }
 
-                val mapEventsOverlay = MapEventsOverlay(object : MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                        p?.let {
-                            newMarker.position = it
-                            controller.animateTo(it)
-                            Thread {
-                                try {
-                                    val geocoder = Geocoder(ctx, Locale.getDefault())
-                                    val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                                    if (!addresses.isNullOrEmpty()) {
-                                        val addr = addresses[0]
-                                        val street = addr.thoroughfare ?: addr.featureName ?: ""
-                                        val city = addr.locality ?: addr.subAdminArea ?: ""
-                                        val state = addr.adminArea ?: ""
-                                        val pin = addr.postalCode ?: ""
-                                        onLocationSelected(it.latitude, it.longitude, street, city, state, pin)
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-                            }.start()
+    // React to addressQuery changes
+    LaunchedEffect(addressQuery) {
+        if (addressQuery.isNotBlank() && addressQuery.length > 5) {
+            kotlinx.coroutines.delay(1000) // Debounce typing
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    val addresses = geocoder.getFromLocationName(addressQuery, 1)
+                    if (!addresses.isNullOrEmpty()) {
+                        val pt = LatLng(addresses[0].latitude, addresses[0].longitude)
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            markerPosition = pt
+                            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(pt, 15f))
+                            onLocationSelected(pt.latitude, pt.longitude, "", "", "", "", false)
                         }
-                        return true
+                    } else {
+                        val pt = when {
+                            addressQuery.lowercase().contains("bhiwadi") -> LatLng(28.21, 76.84)
+                            addressQuery.lowercase().contains("delhi") -> LatLng(28.70, 77.10)
+                            addressQuery.lowercase().contains("mumbai") -> LatLng(19.07, 72.87)
+                            addressQuery.lowercase().contains("noida") -> LatLng(28.53, 77.39)
+                            else -> null
+                        }
+                        if (pt != null) {
+                            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                markerPosition = pt
+                                cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(pt, 15f))
+                                onLocationSelected(pt.latitude, pt.longitude, "", "", "", "", false)
+                            }
+                        }
                     }
-
-                    override fun longPressHelper(p: GeoPoint?): Boolean = false
-                })
-                overlays.add(0, mapEventsOverlay)
-                mapView = this
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                        val pt = when {
+                            addressQuery.lowercase().contains("bhiwadi") -> LatLng(28.21, 76.84)
+                            addressQuery.lowercase().contains("delhi") -> LatLng(28.70, 77.10)
+                            addressQuery.lowercase().contains("mumbai") -> LatLng(19.07, 72.87)
+                            addressQuery.lowercase().contains("noida") -> LatLng(28.53, 77.39)
+                            else -> null
+                        }
+                        if (pt != null) {
+                            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                markerPosition = pt
+                                cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(pt, 15f))
+                                onLocationSelected(pt.latitude, pt.longitude, "", "", "", "", false)
+                            }
+                        }
+                }
             }
-        },
-        update = { view ->
-            if (currentLat != null && currentLon != null) {
-                val pt = GeoPoint(currentLat, currentLon)
-                marker?.position = pt
-                view.controller.setCenter(pt)
-            } else if (addressQuery.isNotBlank() && addressQuery.length > 5) {
+        }
+    }
+
+    // React to currentLat/currentLon changes
+    LaunchedEffect(currentLat, currentLon) {
+        if (currentLat != null && currentLon != null && (currentLat != 0.0 || currentLon != 0.0)) {
+            val pt = LatLng(currentLat, currentLon)
+            markerPosition = pt
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(pt, 15f))
+        }
+    }
+
+    // Update marker position when map is dragged
+    LaunchedEffect(cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving) {
+            markerPosition = cameraPositionState.position.target
+        }
+    }
+
+    Column {
+        val requestDisallowInterceptTouchEvent = remember { RequestDisallowInterceptTouchEvent() }
+        @OptIn(ExperimentalComposeUiApi::class)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+                .pointerInteropFilter(requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent) { false }
+        ) {
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                onMapClick = { latLng ->
+                    markerPosition = latLng
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, cameraPositionState.position.zoom)
+                }
+            ) {
+                Marker(
+                    state = MarkerState(position = markerPosition),
+                    title = stringResource(R.string.selected_loc),
+                    draggable = true
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = {
+                val latLng = markerPosition
                 Thread {
                     try {
                         val geocoder = Geocoder(context, Locale.getDefault())
-                        val addresses = geocoder.getFromLocationName(addressQuery, 1)
+                        val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
                         if (!addresses.isNullOrEmpty()) {
-                            val pt = GeoPoint(addresses[0].latitude, addresses[0].longitude)
-                            view.post {
-                                marker?.position = pt
-                                view.controller.setCenter(pt)
-                            }
+                            val addr = addresses[0]
+                            val street = addr.thoroughfare ?: addr.featureName ?: ""
+                            val city = addr.locality ?: addr.subAdminArea ?: ""
+                            val state = addr.adminArea ?: ""
+                            val pin = addr.postalCode ?: ""
+                            onLocationSelected(latLng.latitude, latLng.longitude, street, city, state, pin, true)
+                        Toast.makeText(context, "Location Saved!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            onLocationSelected(latLng.latitude, latLng.longitude, "", "", "", "", true)
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
+                        onLocationSelected(latLng.latitude, latLng.longitude, "", "", "", "", true)
                     }
                 }.start()
-            }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = Color.White)
+        ) {
+            Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Save Pin Location", fontWeight = FontWeight.Bold)
         }
-    )
+    }
 }

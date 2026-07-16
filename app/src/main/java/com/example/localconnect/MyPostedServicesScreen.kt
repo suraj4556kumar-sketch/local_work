@@ -15,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -99,7 +101,18 @@ fun MyPostedServicesScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(services) { service ->
-                    PostedServiceCard(service, onClick = { onServiceClick(service.id) })
+                    PostedServiceCard(
+                        service = service, 
+                        onClick = { onServiceClick(service.id) },
+                        onDelete = {
+                            scope.launch {
+                                val success = FirebaseRepository.deleteService(service.id)
+                                if (success) {
+                                    services = FirebaseRepository.getMyPostedServices(session.phone)
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -107,7 +120,7 @@ fun MyPostedServicesScreen(
 }
 
 @Composable
-fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit) {
+fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -> Unit)? = null, buttonText: String = "View Bookings", isButtonEnabled: Boolean = true) {
     val primaryColor = Color(0xFFF97316)
     val primaryDarkColor = Color(0xFFEA580C)
     val lightOrangeColor = Color(0xFFFFF7ED)
@@ -118,14 +131,30 @@ fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit) {
         border = BorderStroke(1.dp, Color(0xFFFED7AA)),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable(enabled = isButtonEnabled) { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-                Text(service.serviceTitle.ifBlank { "Service Title" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F2937), modifier = Modifier.weight(1f))
-                Spacer(modifier = Modifier.width(8.dp))
-                Surface(color = primaryColor, shape = CircleShape) {
-                    Text(service.category, color = Color.White, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(service.serviceTitle.ifBlank { "Service Title" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F2937))
+                    Text(service.providerName.ifBlank { "Provider Name" }, fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = Color(0xFFFFF8E1),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                            Icon(androidx.compose.material.icons.Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp).padding(end = 2.dp), tint = Color(0xFFFFB300))
+                            Text("${service.rating}", fontWeight = FontWeight.Bold, color = Color(0xFFFFB300), fontSize = 14.sp)
+                        }
+                    }
+                    if (onDelete != null) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
+                            Icon(androidx.compose.material.icons.Icons.Filled.Delete, contentDescription = "Delete Service", tint = Color.Red)
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -142,6 +171,21 @@ fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("⭐ Exp: ${service.experience}", fontSize = 12.sp, color = Color.Gray)
                 Text("🕒 ${service.availableDays.joinToString(", ").takeIf { it.isNotBlank() } ?: "None"}", fontSize = 12.sp, color = Color.Gray)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onClick,
+                enabled = isButtonEnabled,
+                modifier = Modifier.fillMaxWidth().height(40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isButtonEnabled) Color(0xFFF3F4F6) else Color.LightGray,
+                    contentColor = if (isButtonEnabled) Color(0xFF374151) else Color.White,
+                    disabledContainerColor = Color.LightGray,
+                    disabledContentColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(buttonText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

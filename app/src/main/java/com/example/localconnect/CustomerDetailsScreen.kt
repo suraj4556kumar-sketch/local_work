@@ -1,7 +1,13 @@
 package com.example.localconnect
 
 import androidx.compose.ui.res.stringResource
-import com.example.localconnect.R
+
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.draw.clip
+import android.net.Uri
+import coil.compose.AsyncImage
+
 
 import com.example.localconnect.ui.theme.*
 
@@ -10,8 +16,18 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.coroutines.launch
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
+import androidx.activity.compose.rememberLauncherForActivityResult
 
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import java.util.Locale
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,6 +58,8 @@ fun CustomerDetailsScreen(
     selectedDate: String,
     selectedTimeSlot: String,
     selectedServices: Set<String>,
+    problemDescription: String,
+    photoUri: Uri? = null,
     onBack: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -76,7 +94,7 @@ fun CustomerDetailsScreen(
     val agreeShareDetailsStr = if (isHi) "मैं सेवा प्रदाता के साथ अपना फोन नंबर और पता साझा करने के लिए सहमत हूं।" else if (isBn) "আমি পরিষেবা প্রদানকারীর সাথে আমার ফোন নম্বর এবং ঠিকানা শেয়ার করতে সম্মত।" else "I agree to share my phone number and address with the service provider."
     val agreeFinalPriceStr = if (isHi) "मैं समझता/समझती हूं कि अंतिम मूल्य काम की स्थिति पर निर्भर हो सकता है।" else if (isBn) "আমি বুঝতে পেরেছি যে চূড়ান্ত মূল্য কাজের অবস্থার উপর নির্ভর করতে পারে।" else "I understand that final price may depend on work condition."
     val finalConfStr = if (isHi) "अंतिम पुष्टि" else if (isBn) "চূড়ান্ত নিশ্চিতকরণ" else "Final Confirmation"
-    val payNowStr = if (isHi) "अभी भुगतान करें" else if (isBn) "এখন পেমেন্ট করুন" else "Pay Now"
+    val payNowStr = if (isHi) "न्यूनतम भुगतान" else if (isBn) "ন্যূনতম পেমেন্ট" else "Min Pay"
 
     var name by remember { mutableStateOf(session.name) }
     var phone by remember { mutableStateOf(session.phone) }
@@ -84,6 +102,8 @@ fun CustomerDetailsScreen(
     var address by remember { mutableStateOf(session.location) }
     var landmark by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("Kharagpur") }
+    var latitude by remember { mutableDoubleStateOf(0.0) }
+    var longitude by remember { mutableDoubleStateOf(0.0) }
 
 
     var langPref by remember { mutableStateOf("Hindi") }
@@ -91,6 +111,110 @@ fun CustomerDetailsScreen(
 
     var agreeShare by remember { mutableStateOf(false) }
     var agreePrice by remember { mutableStateOf(false) }
+    
+    val coroutineScope = rememberCoroutineScope()
+    var isBooking by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    
+val settingResultRequest = rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()
+    ) { activityResult ->
+        if (activityResult.resultCode == android.app.Activity.RESULT_OK) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                try {
+                    fusedLocationClient.getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location: Location? ->
+                        if (location != null) {
+                            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                try {
+                                    val geocoder = Geocoder(context, Locale.getDefault())
+                                    val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                                    if (!addresses.isNullOrEmpty()) {
+                                        val addr = addresses[0]
+                                        val fullAddress = addr.getAddressLine(0) ?: ""
+                                        val cityName = addr.locality ?: addr.subAdminArea ?: ""
+                                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                            address = fullAddress
+                                            city = cityName
+                                            latitude = location.latitude
+                                            longitude = location.longitude
+                                            Toast.makeText(context, "Location updated!", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } catch (e: Exception) { e.printStackTrace() }
+                            }
+                        } else {
+                            Toast.makeText(context, "Could not fetch location", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: SecurityException) { e.printStackTrace() }
+            }
+        } else {
+            Toast.makeText(context, "GPS is required for current location", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun checkGpsAndFetchLocation() {
+        val locationRequest = com.google.android.gms.location.LocationRequest.Builder(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
+        val builder = com.google.android.gms.location.LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val client = com.google.android.gms.location.LocationServices.getSettingsClient(context)
+        client.checkLocationSettings(builder.build()).addOnSuccessListener {
+            try {
+                fusedLocationClient.getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                            try {
+                                val geocoder = Geocoder(context, Locale.getDefault())
+                                val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                                if (!addresses.isNullOrEmpty()) {
+                                    val addr = addresses[0]
+                                    val fullAddress = addr.getAddressLine(0) ?: ""
+                                    val cityName = addr.locality ?: addr.subAdminArea ?: ""
+                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                        address = fullAddress
+                                        city = cityName
+                                        latitude = location.latitude
+                                        longitude = location.longitude
+                                        Toast.makeText(context, "Location updated!", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            } catch (e: Exception) { e.printStackTrace() }
+                        }
+                    } else {
+                        Toast.makeText(context, "Could not fetch location", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: SecurityException) { e.printStackTrace() }
+        }.addOnFailureListener { exception ->
+            if (exception is com.google.android.gms.common.api.ResolvableApiException) {
+                try {
+                    settingResultRequest.launch(androidx.activity.result.IntentSenderRequest.Builder(exception.resolution).build())
+                } catch (sendEx: Exception) { }
+            } else {
+                Toast.makeText(context, "Please enable location services", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                checkGpsAndFetchLocation()
+            } else {
+                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    fun requestLocation() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            checkGpsAndFetchLocation()
+        } else {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
 
     val contactOptions: List<Pair<String, androidx.compose.ui.graphics.vector.ImageVector>> = listOf(
         Pair("Call", Icons.Filled.Phone),
@@ -111,9 +235,9 @@ fun CustomerDetailsScreen(
                         color = androidx.compose.ui.graphics.Color.White
                     )
                 },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Text("←", fontSize = 24.sp, color = androidx.compose.ui.graphics.Color.White)
+                actions = {
+                    TextButton(onClick = onBack) {
+                        Text(stringResource(R.string.back), fontWeight = FontWeight.SemiBold, color = androidx.compose.ui.graphics.Color.White, fontSize = 14.sp)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color(0xFFF97316), titleContentColor = androidx.compose.ui.graphics.Color.White, navigationIconContentColor = androidx.compose.ui.graphics.Color.White, actionIconContentColor = androidx.compose.ui.graphics.Color.White)
@@ -138,8 +262,64 @@ fun CustomerDetailsScreen(
                         Text(cancelStr, fontWeight = FontWeight.Bold)
                     }
                     Button(
-                        onClick = onConfirm,
-                        enabled = agreeShare && agreePrice,
+                        onClick = {
+                            isBooking = true
+                            coroutineScope.launch {
+                                // One booking per user check
+                                val seekerIdentifier = session.phone.takeIf { it.isNotBlank() } ?: session.firebaseUid
+                                val existingBookings = com.example.localconnect.data.FirebaseRepository.getMyServiceBookings(seekerIdentifier)
+                                val hasActiveBooking = existingBookings.any { it.serviceId == service.id && it.status.lowercase() != "rejected" && it.status.lowercase() != "completed" }
+                                
+                                if (hasActiveBooking) {
+                                    android.widget.Toast.makeText(context, "You already have an active booking for this service.", android.widget.Toast.LENGTH_LONG).show()
+                                    isBooking = false
+                                    return@launch
+                                }
+                                
+                                var finalImageUrl = ""
+                                if (photoUri != null) {
+                                    val uploadedUrl = com.example.localconnect.data.FirebaseRepository.uploadServiceImage(photoUri, context)
+                                    if (uploadedUrl != null) {
+                                        finalImageUrl = uploadedUrl
+                                    } else {
+                                        android.widget.Toast.makeText(context, "Failed to upload image. Check Firebase Storage rules or try again.", android.widget.Toast.LENGTH_LONG).show()
+                                        isBooking = false
+                                        return@launch
+                                    }
+                                }
+
+                                val request = ServiceRequest(
+                                    seekerId = seekerIdentifier,
+                                    providerId = service.providerId,
+                                    serviceId = service.id,
+                                    serviceTitle = service.serviceTitle,
+                                    status = "Pending",
+                                    scheduledDate = selectedDate,
+                                    scheduledTime = selectedTimeSlot,
+                                    problemDescription = problemDescription, // Separated out instructions
+                                    appliedOn = System.currentTimeMillis(),
+                                    customerName = name,
+                                    customerPhone = phone,
+                                    customerAltPhone = altPhone,
+                                    customerAddress = address,
+                                    customerLandmark = landmark,
+                                    customerCity = city,
+                                    latitude = latitude,
+                                    longitude = longitude,
+                                    instructions = instructions,
+                                    imageUrl = finalImageUrl
+                                )
+                                val success = com.example.localconnect.data.FirebaseRepository.bookService(request)
+                                if (success) {
+                                    android.widget.Toast.makeText(context, "Service Booked Successfully!", android.widget.Toast.LENGTH_SHORT).show()
+                                    onConfirm()
+                                } else {
+                                    android.widget.Toast.makeText(context, "Failed to book service.", android.widget.Toast.LENGTH_SHORT).show()
+                                    isBooking = false
+                                }
+                            }
+                        },
+                        enabled = agreeShare && agreePrice && !isBooking,
                         modifier = Modifier.weight(2f).height(50.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -147,7 +327,13 @@ fun CustomerDetailsScreen(
                             disabledContainerColor = Primary.copy(alpha = 0.5f) // Blue-300
                         )
                     ) {
-                        Text(confirmBookingStr, fontWeight = FontWeight.Bold, color = Color.White)
+                        if (isBooking) {
+                            androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Booking...", fontWeight = FontWeight.Bold, color = Color.White)
+                        } else {
+                            Text(confirmBookingStr, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
                     }
                 }
             }
@@ -181,17 +367,6 @@ fun CustomerDetailsScreen(
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(service.category, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                                 }
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(selectedWork, fontSize = 12.sp, color = Color.Gray)
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    selectedServices.joinToString(", ").ifEmpty { "N/A" }, 
-                                    fontSize = 14.sp, 
-                                    fontWeight = FontWeight.Medium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
                             }
                         }
                         
@@ -245,7 +420,9 @@ fun CustomerDetailsScreen(
                         focusedBorderColor = Color(0xFFF97316),
                         unfocusedBorderColor = Color(0xFFE5E7EB),
                         unfocusedContainerColor = Color(0xFFF9FAFB),
-                        focusedContainerColor = Color.White
+                        focusedContainerColor = Color.White,
+                        focusedTextColor = Color(0xFF111827),
+                        unfocusedTextColor = Color(0xFF111827)
                     )
                 )
 
@@ -255,7 +432,7 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    placeholder = { Text(stringResource(R.string.enter_phone_number), color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.enter_phone), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
@@ -263,7 +440,9 @@ fun CustomerDetailsScreen(
                         focusedBorderColor = Color(0xFFF97316),
                         unfocusedBorderColor = Color(0xFFE5E7EB),
                         unfocusedContainerColor = Color(0xFFF9FAFB),
-                        focusedContainerColor = Color.White
+                        focusedContainerColor = Color.White,
+                        focusedTextColor = Color(0xFF111827),
+                        unfocusedTextColor = Color(0xFF111827)
                     )
                 )
 
@@ -276,7 +455,7 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = altPhone,
                     onValueChange = { altPhone = it },
-                    placeholder = { Text(stringResource(R.string.enter_alternate_number), color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.enter_alt_number), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
@@ -284,7 +463,9 @@ fun CustomerDetailsScreen(
                         focusedBorderColor = Color(0xFFF97316),
                         unfocusedBorderColor = Color(0xFFE5E7EB),
                         unfocusedContainerColor = Color(0xFFF9FAFB),
-                        focusedContainerColor = Color.White
+                        focusedContainerColor = Color.White,
+                        focusedTextColor = Color(0xFF111827),
+                        unfocusedTextColor = Color(0xFF111827)
                     )
                 )
             }
@@ -299,18 +480,39 @@ fun CustomerDetailsScreen(
                     Text(serviceLocationStr.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, letterSpacing = 1.sp)
                 }
 
+                LocationSelectorMap(
+                    addressQuery = "$landmark $address $city",
+                    currentLat = latitude,
+                    currentLon = longitude,
+                    onLocationSelected = { lat, lon, street, newCity, newState, pin, forceOverwrite ->
+                        latitude = lat
+                        longitude = lon
+                        if (forceOverwrite) {
+                            if (street.isNotBlank()) address = street
+                            if (newCity.isNotBlank()) city = newCity
+                        } else {
+                            if (address.isBlank() && street.isNotBlank()) address = street
+                            if (city.isBlank() && newCity.isNotBlank()) city = newCity
+                        }
+                    }
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(addressLabelStr, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
-                    placeholder = { Text(stringResource(R.string.enter_house_room_shop_address), color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.enter_house_address), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth().height(80.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFFF97316),
                         unfocusedBorderColor = Color(0xFFE5E7EB),
                         unfocusedContainerColor = Color(0xFFF9FAFB),
-                        focusedContainerColor = Color.White
+                        focusedContainerColor = Color.White,
+                        focusedTextColor = Color(0xFF111827),
+                        unfocusedTextColor = Color(0xFF111827)
                     )
                 )
 
@@ -330,7 +532,9 @@ fun CustomerDetailsScreen(
                                 focusedBorderColor = Color(0xFFF97316),
                                 unfocusedBorderColor = Color(0xFFE5E7EB),
                                 unfocusedContainerColor = Color(0xFFF9FAFB),
-                                focusedContainerColor = Color.White
+                                focusedContainerColor = Color.White,
+                                focusedTextColor = Color(0xFF111827),
+                                unfocusedTextColor = Color(0xFF111827)
                             )
                         )
                     }
@@ -356,14 +560,14 @@ fun CustomerDetailsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Button(
-                    onClick = { /* TODO: GPS integration */ },
+                    onClick = { requestLocation() },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFF7ED), contentColor = Primary)
                 ) {
                     Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = Primary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.use_current_location), fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.use_current_loc), fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -380,14 +584,16 @@ fun CustomerDetailsScreen(
                 OutlinedTextField(
                     value = instructions,
                     onValueChange = { instructions = it },
-                    placeholder = { Text(stringResource(R.string.write_any_extra_instructions_here), color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.write_extra_inst), color = Color.Gray, fontSize = 14.sp) },
                     modifier = Modifier.fillMaxWidth().height(100.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFFF97316),
                         unfocusedBorderColor = Color(0xFFE5E7EB),
                         unfocusedContainerColor = Color(0xFFF9FAFB),
-                        focusedContainerColor = Color.White
+                        focusedContainerColor = Color.White,
+                        focusedTextColor = Color(0xFF111827),
+                        unfocusedTextColor = Color(0xFF111827)
                     )
                 )
 
@@ -449,22 +655,17 @@ fun CustomerDetailsScreen(
                         val displayDate = if (selectedDate.contains("Choose Date")) "Not Selected" else selectedDate
                         
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(stringResource(R.string.service), color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(stringResource(R.string.service_label), color = Color(0xFF94A3B8), fontSize = 14.sp)
                             Text(service.category, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(stringResource(R.string.work), color = Color(0xFF94A3B8), fontSize = 14.sp)
-                            Text(selectedServices.joinToString(", ").ifEmpty { "N/A" }, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(0.6f), textAlign = TextAlign.End)
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(stringResource(R.string.date_time), color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(stringResource(R.string.date_time_label), color = Color(0xFF94A3B8), fontSize = 14.sp)
                             Text("$displayDate, $selectedTimeSlot", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(stringResource(R.string.address), color = Color(0xFF94A3B8), fontSize = 14.sp)
+                            Text(stringResource(R.string.address_label), color = Color(0xFF94A3B8), fontSize = 14.sp)
                             Text(city, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                         }
 

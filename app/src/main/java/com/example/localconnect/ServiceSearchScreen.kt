@@ -17,9 +17,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,27 +35,19 @@ import androidx.compose.runtime.LaunchedEffect
 
 
 
-fun getDummyServices(langCode: String): List<ServiceTask> {
-    return listOf(
-        ServiceTask(id = "S1", providerName = "Raju Plumber", serviceTitle = "Pipe & Leakage Repair", category = "Plumbing", location = "Kharagpur", distanceKm = 2.5, price = 300, rating = 4.8, completedJobs = 120, description = "Expert in fixing all kinds of pipe leakages and bathroom fittings."),
-        ServiceTask(id = "S2", providerName = "Sham Electrician", serviceTitle = "Wiring & Fan Repair", category = "Electrical", location = "Kharagpur", distanceKm = 4.1, price = 400, rating = 4.5, completedJobs = 85, description = "Quick and reliable electrical repairs including fan, lights, and switchboards."),
-        ServiceTask(id = "S3", providerName = "Anita Maid Service", serviceTitle = "Daily House Cleaning", category = "Cleaning", location = "Midnapore", distanceKm = 1.2, price = 150, rating = 4.9, completedJobs = 300, description = "Thorough sweeping, mopping, and utensil washing services."),
-        ServiceTask(id = "S4", providerName = "Ramesh Carpenter", serviceTitle = "Furniture Assembly & Repair", category = "Carpentry", location = "Kharagpur", distanceKm = 5.0, price = 500, rating = 4.6, completedJobs = 45, description = "Specialist in wooden furniture repair, door fixing, and custom beds."),
-        ServiceTask(id = "S5", providerName = "CoolTech AC Repair", serviceTitle = "AC Servicing & Gas Fill", category = "Appliance Repair", location = "Kharagpur", distanceKm = 3.2, price = 800, rating = 4.7, completedJobs = 210, description = "Complete AC servicing, cleaning, and gas refilling at affordable rates.")
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServiceSearchScreen(session: UserSession) {
-        var dummyServices by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
+fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
+    var selectedTab by remember { mutableIntStateOf(initialTab) }
+    var dummyServices by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
+    var bookedServiceIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     val coroutineScope = rememberCoroutineScope()
     
     LaunchedEffect(Unit) {
         dummyServices = FirebaseRepository.getServices()
-        if (dummyServices.isEmpty()) {
-            dummyServices = getDummyServices(session.language.code)
-        }
+        val myBookings = FirebaseRepository.getMyServiceBookings(session.phone)
+        bookedServiceIds = myBookings.map { it.serviceId }.toSet()
     }
 
     var selectedService by remember { mutableStateOf<ServiceTask?>(null) }
@@ -116,7 +110,36 @@ fun ServiceSearchScreen(session: UserSession) {
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
-        // Search & Filters Header
+        // Tab Row Header
+        TabRow(
+            selectedTabIndex = selectedTab,
+            containerColor = OrangePrimary,
+            contentColor = Color.White,
+            indicator = { tabPositions ->
+                TabRowDefaults.SecondaryIndicator(
+                    Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                    color = Color.White
+                )
+            }
+        ) {
+            Tab(
+                selected = selectedTab == 0,
+                onClick = { selectedTab = 0 },
+                text = { Text("Find Services", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                selectedContentColor = Color.White,
+                unselectedContentColor = Color.White.copy(alpha = 0.7f)
+            )
+            Tab(
+                selected = selectedTab == 1,
+                onClick = { selectedTab = 1 },
+                text = { Text("My Bookings", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                selectedContentColor = Color.White,
+                unselectedContentColor = Color.White.copy(alpha = 0.7f)
+            )
+        }
+
+        if (selectedTab == 0) {
+            // Search & Filters Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -269,7 +292,13 @@ fun ServiceSearchScreen(session: UserSession) {
                 }
             } else {
                 items(displayedServices) { svc ->
-                    ServiceCard(svc, onClick = { selectedService = svc })
+                    val isBooked = bookedServiceIds.contains(svc.id)
+                    PostedServiceCard(
+                        service = svc,
+                        onClick = { if (!isBooked) selectedService = svc },
+                        buttonText = if (isBooked) "Booked" else "Book Service",
+                        isButtonEnabled = !isBooked
+                    )
                 }
             }
         }
@@ -278,6 +307,8 @@ fun ServiceSearchScreen(session: UserSession) {
     // Sort By Bottom Sheet
     if (showSortByBottomSheet) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(),
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showSortByBottomSheet = false },
             containerColor = Color.White
         ) {
@@ -309,6 +340,8 @@ fun ServiceSearchScreen(session: UserSession) {
     // Advanced Filters Bottom Sheet
     if (showAdvancedFilters) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(),
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showAdvancedFilters = false },
             containerColor = Color.White
         ) {
@@ -357,58 +390,10 @@ fun ServiceSearchScreen(session: UserSession) {
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
-    }
-}
-
-@Composable
-fun ServiceCard(svc: ServiceTask, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column {
-                    Text(svc.serviceTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(svc.providerName, fontSize = 14.sp, color = OrangePrimary, fontWeight = FontWeight.Medium)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
-                        Text(svc.location, fontSize = 13.sp, color = Color.Gray)
-                        Text(" • ", fontSize = 13.sp, color = Color.Gray)
-                        Text("${svc.distanceKm} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-                Surface(
-                    color = Color(0xFFFFF8E1),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
-                        Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp).padding(end = 2.dp), tint = Color(0xFFFFB300))
-                        Text("${svc.rating}", fontWeight = FontWeight.Bold, color = Color(0xFFFFB300), fontSize = 14.sp)
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Column {
-                    Text(stringResource(R.string.rate_per_hour), fontSize = 12.sp, color = Color.Gray)
-                    Text("₹${svc.price}/hr", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Column {
-                    Text(stringResource(R.string.service_category), fontSize = 12.sp, color = Color.Gray)
-                    Text(svc.category, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                }
-            }
+        } else {
+            MyServiceBookingsScreen(session = session)
         }
     }
 }
+
+

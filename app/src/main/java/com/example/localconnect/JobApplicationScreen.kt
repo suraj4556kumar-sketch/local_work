@@ -50,8 +50,8 @@ fun JobApplicationScreen(
     var isSubmitting by remember { mutableStateOf(false) }
 
     // Form States
-    var fullName by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf(session.name) }
+    var phone by remember { mutableStateOf(session.phone) }
     var age by remember { mutableStateOf("") }
     
     // Gender Dropdown
@@ -74,6 +74,21 @@ fun JobApplicationScreen(
     var introduction by remember { mutableStateOf("") }
     var firstDocUri by remember { mutableStateOf<String>("") }
     var confirmed by remember { mutableStateOf(false) }
+
+    var currentPickingIndex by remember { mutableStateOf(-1) }
+    var docUris by remember { mutableStateOf<Map<Int, android.net.Uri>>(emptyMap()) }
+    val requiredDocs = remember(job.documentsRequired) {
+        if (job.documentsRequired.isNotEmpty()) job.documentsRequired else listOf("Resume", "ID Proof")
+    }
+    val docLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        if (uri != null && currentPickingIndex != -1) {
+            docUris = docUris + (currentPickingIndex to uri)
+            if (firstDocUri.isEmpty()) { firstDocUri = uri.toString() }
+        }
+        currentPickingIndex = -1
+    }
 
     Scaffold(
         containerColor = Color(0xFFF3F4F6),
@@ -116,8 +131,7 @@ fun JobApplicationScreen(
                             shape = RoundedCornerShape(4.dp),
                             modifier = Modifier.clickable { onBack() }.padding(start = 12.dp)
                         ) {
-                            Text(
-                                "Back",
+                            Text(stringResource(R.string.back),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Primary,
@@ -160,19 +174,34 @@ fun JobApplicationScreen(
                             coroutineScope.launch {
                                 isSubmitting = true
                                 
+                                if (docUris.size < requiredDocs.size) {
+                                    android.widget.Toast.makeText(context.applicationContext, "Please upload all required documents (${requiredDocs.size} required)", android.widget.Toast.LENGTH_SHORT).show()
+                                    isSubmitting = false
+                                    return@launch
+                                }
+                                val uploadedDocsMap = mutableMapOf<String, String>()
                                 var finalDocUrl = ""
-                                if (firstDocUri.isNotEmpty() && firstDocUri.startsWith("content://")) {
-                                    val uri = android.net.Uri.parse(firstDocUri)
-                                    try {
-                                        finalDocUrl = FirebaseRepository.uploadDocument(uri, context)
-                                    } catch (e: Exception) {
-                                        val errorMsg = e.localizedMessage ?: "Unknown Firebase Storage error"
-                                        Toast.makeText(context, "Upload failed: $errorMsg", Toast.LENGTH_LONG).show()
-                                        isSubmitting = false
-                                        return@launch
+
+                                for ((index, uri) in docUris) {
+                                    if (index < requiredDocs.size) {
+                                        val docName = requiredDocs[index]
+                                        val uriStr = uri.toString()
+                                        if (uriStr.startsWith("content://")) {
+                                            try {
+                                                val url = FirebaseRepository.uploadDocument(uri, context)
+                                                uploadedDocsMap[docName] = url
+                                                if (finalDocUrl.isEmpty()) finalDocUrl = url
+                                            } catch (e: Exception) {
+                                                val errorMsg = e.localizedMessage ?: "Unknown Firebase Storage error"
+                                                Toast.makeText(context.applicationContext, "Upload failed for $docName: $errorMsg", Toast.LENGTH_LONG).show()
+                                                isSubmitting = false
+                                                return@launch
+                                            }
+                                        } else {
+                                            uploadedDocsMap[docName] = uriStr
+                                            if (finalDocUrl.isEmpty()) finalDocUrl = uriStr
+                                        }
                                     }
-                                } else {
-                                    finalDocUrl = firstDocUri
                                 }
 
                                 val newApp = JobApplication(
@@ -190,16 +219,17 @@ fun JobApplicationScreen(
                                     applicantExperience = if (hasExperience) expYears else "No Experience",
                                     applicantIntro = introduction,
                                     uploadedDocumentUri = finalDocUrl,
+                                    uploadedDocuments = uploadedDocsMap,
                                     appliedOnDate = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault()).format(java.util.Date()),
                                     appliedOn = System.currentTimeMillis()
                                 )
                                 val success = FirebaseRepository.applyForJob(newApp)
                                 isSubmitting = false
                                 if (success) {
-                                    Toast.makeText(context, "Application submitted!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context.applicationContext, "Application submitted!", Toast.LENGTH_SHORT).show()
                                     onSubmit()
                                 } else {
-                                    Toast.makeText(context, "Failed to submit application", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context.applicationContext, "Failed to submit application", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
@@ -242,7 +272,7 @@ fun JobApplicationScreen(
                     OutlinedTextField(
                         value = fullName,
                         onValueChange = { fullName = it },
-                        placeholder = { Text(stringResource(R.string.enter_your_full_name), color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.enter_full_name), color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                         singleLine = true,
                         textStyle = androidx.compose.ui.text.TextStyle(color = Color(0xFF111827), fontWeight = FontWeight.Medium),
@@ -257,7 +287,7 @@ fun JobApplicationScreen(
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        placeholder = { Text(stringResource(R.string.enter_phone_number), color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.enter_phone), color = Color.Gray) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                         singleLine = true,
@@ -361,7 +391,7 @@ fun JobApplicationScreen(
                             ),
                             border = if (hasExperience) androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD1D5DB)) else null
                         ) {
-                            Text(stringResource(R.string.no), fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.no_btn), fontWeight = FontWeight.Medium)
                         }
                     }
 
@@ -413,29 +443,23 @@ fun JobApplicationScreen(
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(stringResource(R.string.documents), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
-                    val requiredDocs = if (job.documentsRequired.isNotEmpty()) job.documentsRequired else listOf("Resume", "ID Proof")
-                    
                     requiredDocs.forEachIndexed { index, docName ->
-                        var docUri by remember { mutableStateOf<android.net.Uri?>(null) }
-                        val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
-                            androidx.activity.result.contract.ActivityResultContracts.GetContent()
-                        ) { uri: android.net.Uri? ->
-                            docUri = uri
-                            if (uri != null && firstDocUri.isEmpty()) { firstDocUri = uri.toString() }
-                        }
-                        
+                        val docUri = docUris[index]
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .border(1.dp, if(docUri != null) Color(0xFF10B981) else Color(0xFFD1D5DB), RoundedCornerShape(8.dp))
                                 .padding(16.dp)
-                                .clickable { launcher.launch("image/*") }, 
+                                .clickable { 
+                                    currentPickingIndex = index
+                                    docLauncher.launch("image/*") 
+                                }, 
                             contentAlignment = Alignment.Center
                         ) {
                             if (docUri != null) {
-                                Text(stringResource(R.string.uploaded_docname), fontSize = 14.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
+                                Text("Uploaded: $docName", fontSize = 14.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
                             } else {
-                                Text(stringResource(R.string.upload_docname), fontSize = 14.sp, color = Color(0xFF6B7280))
+                                Text("Upload $docName", fontSize = 14.sp, color = Color(0xFF6B7280))
                             }
                         }
                         if (index < requiredDocs.size - 1) {
@@ -448,15 +472,15 @@ fun JobApplicationScreen(
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedLang == "Hindi", onClick = { selectedLang = "Hindi" }, modifier = Modifier.size(32.dp))
-                            Text(stringResource(R.string.hindi), fontSize = 13.sp, maxLines = 1)
+                            Text(stringResource(R.string.hindi_lang), fontSize = 13.sp, maxLines = 1)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedLang == "Bengali", onClick = { selectedLang = "Bengali" }, modifier = Modifier.size(32.dp))
-                            Text(stringResource(R.string.bengali), fontSize = 13.sp, maxLines = 1)
+                            Text(stringResource(R.string.bengali_lang), fontSize = 13.sp, maxLines = 1)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedLang == "English", onClick = { selectedLang = "English" }, modifier = Modifier.size(32.dp))
-                            Text(stringResource(R.string.english), fontSize = 13.sp, maxLines = 1)
+                            Text(stringResource(R.string.english_lang), fontSize = 13.sp, maxLines = 1)
                         }
                     }
                 }
@@ -475,7 +499,7 @@ fun JobApplicationScreen(
                     OutlinedTextField(
                         value = introduction,
                         onValueChange = { introduction = it },
-                        placeholder = { Text(stringResource(R.string.tell_us_about_your_experience), color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.tell_us_exp_dots), color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth().height(100.dp),
                         textStyle = androidx.compose.ui.text.TextStyle(color = Color(0xFF111827), fontWeight = FontWeight.Medium),
                         shape = RoundedCornerShape(8.dp),
@@ -491,8 +515,7 @@ fun JobApplicationScreen(
                             onCheckedChange = { confirmed = it },
                             modifier = Modifier.padding(end = 8.dp).size(24.dp)
                         )
-                        Text(
-                            "I confirm that the information provided in this application is correct and accurate to the best of my knowledge.",
+                        Text(stringResource(R.string.confirm_app_correct),
                             fontSize = 12.sp,
                             color = Color(0xFF4B5563),
                             lineHeight = 18.sp

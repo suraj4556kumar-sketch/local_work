@@ -1,7 +1,6 @@
 package com.example.localconnect
 
 import androidx.compose.ui.res.stringResource
-import com.example.localconnect.R
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -44,10 +43,19 @@ fun PostServiceScreen(
     val primaryDarkColor = Color(0xFFEA580C)
     val lightOrangeColor = Color(0xFFFFF7ED)
 
+    val predefinedDescriptions = mapOf(
+        "Plumber" to "Expert plumbing services including pipe leakage repair, tap installation, and bathroom fittings.",
+        "Electrician" to "Reliable electrical repairs for wiring, fans, lights, switchboards, and home appliances.",
+        "Mechanic" to "Professional mechanic services for two-wheelers and four-wheelers, regular servicing, and breakdown assistance.",
+        "Carpenter" to "Skilled carpentry for furniture assembly, door fixing, custom woodwork, and general repairs.",
+        "Painter" to "Quality painting services for interior and exterior walls, including touch-ups and fresh coats.",
+        "Cleaning" to "Thorough house cleaning, sweeping, mopping, and deep cleaning services."
+    )
+
     // Form States
+    var providerName by remember { mutableStateOf(session.name) }
     var category by remember { mutableStateOf("Plumber") }
-    var serviceTitle by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf(predefinedDescriptions["Plumber"] ?: "") }
     var visitingFees by remember { mutableStateOf("") }
     var hasFeesPerKm by remember { mutableStateOf(false) }
     var feesPerKm by remember { mutableStateOf("") }
@@ -59,9 +67,11 @@ fun PostServiceScreen(
     var availableTo by remember { mutableStateOf("18:00") }
     var experience by remember { mutableStateOf("3 Years") }
     var pincode by remember { mutableStateOf("") }
+    var latitude by remember { mutableDoubleStateOf(0.0) }
+    var longitude by remember { mutableDoubleStateOf(0.0) }
     
     var isPosting by remember { mutableStateOf(false) }
-
+        
     Scaffold(
         topBar = {
             Column(modifier = Modifier.background(primaryColor)) {
@@ -74,8 +84,8 @@ fun PostServiceScreen(
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text(stringResource(R.string.post_a_service), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
-                        Text(stringResource(R.string.offer_your_service_to_nearby_customers), fontSize = 12.sp, color = Color(0xFFFFEDD5))
+                        Text(stringResource(R.string.post_service_title), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
+                        Text(stringResource(R.string.offer_service_nearby), fontSize = 12.sp, color = Color(0xFFFFEDD5))
                     }
                 }
             }
@@ -91,26 +101,26 @@ fun PostServiceScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { Toast.makeText(context, "Draft Saved", Toast.LENGTH_SHORT).show() },
+                        onClick = { Toast.makeText(context.applicationContext, "Draft Saved", Toast.LENGTH_SHORT).show() },
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, primaryColor),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryColor)
                     ) {
-                        Text(stringResource(R.string.save_draft), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.save_draft_btn), fontWeight = FontWeight.Bold)
                     }
                     Button(
                         onClick = {
-                            if (serviceTitle.isBlank() || visitingFees.isBlank() || city.isBlank()) {
-                                Toast.makeText(context, "Please fill Title, Visiting Fees and City", Toast.LENGTH_SHORT).show()
+                            if (visitingFees.isBlank() || city.isBlank()) {
+                                Toast.makeText(context.applicationContext, "Please fill Visiting Fees and City", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
                             isPosting = true
                             coroutineScope.launch {
                                 val newService = ServiceTask(
                                     providerId = session.phone,
-                                    providerName = session.name,
-                                    serviceTitle = serviceTitle,
+                                    providerName = providerName.ifBlank { session.name },
+                                    serviceTitle = category,
                                     category = category,
                                     location = "$city, $locality",
                                     price = visitingFees.toIntOrNull() ?: 0,
@@ -119,6 +129,8 @@ fun PostServiceScreen(
                                     city = city,
                                     locality = locality,
                                     serviceRadius = serviceRadius,
+                                    latitude = latitude,
+                                    longitude = longitude,
                                     availableDays = availableDays.toList(),
                                     availableFrom = availableFrom,
                                     availableTo = availableTo,
@@ -130,10 +142,10 @@ fun PostServiceScreen(
                                 val success = FirebaseRepository.postService(newService)
                                 isPosting = false
                                 if (success) {
-                                    Toast.makeText(context, "Service Posted!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context.applicationContext, "Service Posted!", Toast.LENGTH_SHORT).show()
                                     onServicePosted()
                                 } else {
-                                    Toast.makeText(context, "Failed to post service", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context.applicationContext, "Failed to post service", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
@@ -160,11 +172,14 @@ fun PostServiceScreen(
             
             // 1. SERVICE DETAILS
             SectionGroup("SERVICE DETAILS", primaryColor, lightOrangeColor) {
+                // Provider Name
+                CustomTextField("Provider / Business Name", "e.g., Raju Plumbing Services", providerName) { providerName = it }
+
                 // Category
-                CustomDropdown("Service Category", listOf("Plumber", "Electrician", "Mechanic", "Carpenter", "Painter"), category) { category = it }
-                
-                // Title
-                CustomTextField("Service Title", "e.g., Kitchen Plumbing Repair", serviceTitle) { serviceTitle = it }
+                CustomDropdown("Service Category", listOf("Plumber", "Electrician", "Mechanic", "Carpenter", "Painter", "Cleaning"), category) { newCat -> 
+                    category = newCat 
+                    description = predefinedDescriptions[newCat] ?: ""
+                }
                 
                 // Description
                 CustomTextField("Short Description", "Pipe leakage, tap repair...", description, singleLine = false, lines = 3) { description = it }
@@ -175,15 +190,15 @@ fun PostServiceScreen(
                 CustomTextField("Visiting Fees (₹)", "e.g. 500", visitingFees, keyboardType = KeyboardType.Number) { visitingFees = it }
                 
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(stringResource(R.string.do_you_charge_fees_per_km), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+                Text(stringResource(R.string.charge_fees_km), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { hasFeesPerKm = true }) {
-                        RadioButton(selected = hasFeesPerKm, onClick = { hasFeesPerKm = true }, colors = RadioButtonDefaults.colors(selectedColor = primaryColor))
-                        Text(stringResource(R.string.yes), fontSize = 14.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = false, onClick = null, enabled = false, colors = RadioButtonDefaults.colors(disabledSelectedColor = Color.Gray, disabledUnselectedColor = Color.LightGray))
+                        Text(stringResource(R.string.yes), fontSize = 14.sp, color = Color.Gray)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { hasFeesPerKm = false }) {
                         RadioButton(selected = !hasFeesPerKm, onClick = { hasFeesPerKm = false }, colors = RadioButtonDefaults.colors(selectedColor = primaryColor))
-                        Text(stringResource(R.string.no), fontSize = 14.sp)
+                        Text(stringResource(R.string.no_btn), fontSize = 14.sp)
                     }
                 }
                 
@@ -195,6 +210,28 @@ fun PostServiceScreen(
 
             // 3. SERVICE LOCATION
             SectionGroup("SERVICE LOCATION", primaryColor, lightOrangeColor) {
+                Text(stringResource(R.string.select_loc_map), fontSize = 14.sp, color = Color.DarkGray)
+                Spacer(modifier = Modifier.height(8.dp))
+                LocationSelectorMap(
+                    addressQuery = "$locality $city $pincode",
+                    currentLat = latitude,
+                    currentLon = longitude,
+                    
+                    onLocationSelected = { lat, lon, street, newCity, newState, pin, forceOverwrite ->
+                        latitude = lat
+                        longitude = lon
+                        if (forceOverwrite) {
+                            if (street.isNotBlank()) locality = street
+                            if (newCity.isNotBlank()) city = newCity
+                            if (pin.isNotBlank()) pincode = pin
+                        } else {
+                            if (locality.isBlank()) locality = street
+                            if (city.isBlank()) city = newCity
+                            if (pincode.isBlank()) pincode = pin
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Box(modifier = Modifier.weight(1f)) {
                         CustomTextField("City", "Kolkata", city) { city = it }
@@ -242,11 +279,8 @@ fun PostServiceScreen(
             }
 
             // 5. EXPERIENCE & CONTACT
-            SectionGroup("EXPERIENCE & CONTACT", primaryColor, lightOrangeColor) {
+            SectionGroup("EXPERIENCE", primaryColor, lightOrangeColor) {
                 CustomDropdown("Experience", listOf("1 Year", "2 Years", "3 Years", "5+ Years"), experience) { experience = it }
-                CustomTextField("Phone Number (Disabled)", session.phone, session.phone, enabled = false) { }
-                
-
             }
 
             // 6. PREVIEW CARD
@@ -259,7 +293,7 @@ fun PostServiceScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-                            Text(serviceTitle.ifBlank { "Service Title" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F2937), modifier = Modifier.weight(1f))
+                            Text(category.ifBlank { "Service Category" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F2937), modifier = Modifier.weight(1f))
                             Spacer(modifier = Modifier.width(8.dp))
                             Surface(color = primaryColor, shape = CircleShape) {
                                 Text(category, color = Color.White, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
@@ -277,7 +311,7 @@ fun PostServiceScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Text(stringResource(R.string.exp_experience), fontSize = 12.sp, color = Color.Gray)
+                            Text("⭐ Exp: $experience", fontSize = 12.sp, color = Color.Gray)
                             Text("🕒 ${availableDays.joinToString(", ").takeIf { it.isNotBlank() } ?: "None"}", fontSize = 12.sp, color = Color.Gray)
                         }
                     }
@@ -351,8 +385,10 @@ fun CustomDropdown(
         ) {
             OutlinedTextField(
                 value = selectedOption,
-                onValueChange = {},
-                readOnly = true,
+                onValueChange = { 
+                    onOptionSelected(it)
+                    expanded = true 
+                },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -365,18 +401,21 @@ fun CustomDropdown(
                     unfocusedTextColor = Color.Black
                 )
             )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { selectionOption ->
-                    DropdownMenuItem(
-                        text = { Text(selectionOption) },
-                        onClick = {
-                            onOptionSelected(selectionOption)
-                            expanded = false
-                        }
-                    )
+            val filteredOptions = options.filter { it.contains(selectedOption, ignoreCase = true) }
+            if (filteredOptions.isNotEmpty()) {
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    filteredOptions.forEach { selectionOption ->
+                        DropdownMenuItem(
+                            text = { Text(selectionOption) },
+                            onClick = {
+                                onOptionSelected(selectionOption)
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }

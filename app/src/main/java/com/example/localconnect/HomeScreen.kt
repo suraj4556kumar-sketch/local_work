@@ -22,6 +22,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -53,13 +54,15 @@ import androidx.compose.foundation.lazy.items
 @Composable
 fun HomeScreen(
     initialSession: UserSession,
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onSessionUpdate: (UserSession) -> Unit = {}
 ) {
     var session by remember { mutableStateOf(initialSession) }
     var tabStack by remember { mutableStateOf(listOf(0)) }
     val selectedTab = tabStack.last()
     var selectedJobId by remember { mutableStateOf<String?>(null) }
     var selectedServiceId by remember { mutableStateOf<String?>(null) }
+    var jobSearchInitialTab by remember { mutableIntStateOf(0) }
 
         val context = LocalContext.current
     var showExitDialog by remember { mutableStateOf(false) }
@@ -96,8 +99,7 @@ fun HomeScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        "Exit App",
+                    Text(stringResource(R.string.exit_app),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = Color(0xFF1A1A1A)
@@ -105,8 +107,7 @@ fun HomeScreen(
                 }
             },
             text = {
-                Text(
-                    "Are you sure you want to exit LocalConnect?",
+                Text(stringResource(R.string.exit_confirm_msg),
                     fontSize = 15.sp,
                     color = Color(0xFF757575)
                 )
@@ -137,14 +138,14 @@ fun HomeScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
-                0 -> HomeContent(session, onNavigateToJobs = { navigateTo(1) }, onNavigateToServices = { navigateTo(2) }, onNavigateToPostJob = { navigateTo(7) }, onNavigateToPostService = { navigateTo(6) }) { navigateTo(4) }
-                1 -> JobSearchScreen(session = session)
+                0 -> HomeContent(session, onNavigateToJobs = { navigateTo(1) }, onNavigateToServices = { navigateTo(2) }, onNavigateToPostJob = { navigateTo(7) }, onNavigateToPostService = { navigateTo(6) }, onProfileClick = { navigateTo(4) }, onNavigateToApplicantList = { jobId -> selectedJobId = jobId; navigateTo(8) }, onNavigateToMyApplications = { jobSearchInitialTab = 1; navigateTo(1) })
+                1 -> JobSearchScreen(session = session, initialTab = jobSearchInitialTab)
                 2 -> ServiceSearchScreen(session = session)
                 3 -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("${stringResource(R.string.chats_tab)} Screen (${stringResource(R.string.coming_soon)})") }
-                4 -> ProfileScreen(session, onUpdateSession = { session = it }, onLogout, onNavigateToPostJob = { navigateTo(5) }, onNavigateToPostService = { navigateTo(6) })
+                4 -> ProfileScreen(session, onUpdateSession = { session = it; onSessionUpdate(it) }, onLogout, onNavigateToPostJob = { navigateTo(5) }, onNavigateToPostService = { navigateTo(6) })
                 5 -> PostJobScreen(session = session, onBack = { popBack() }, onJobPosted = { popBack() })
                 6 -> MyPostedServicesScreen(session = session, onBack = { popBack() }, onNavigateToPostNew = { navigateTo(9) }, onServiceClick = { serviceId -> selectedServiceId = serviceId; navigateTo(10) })
-                9 -> PostServiceScreen(session = session, onBack = { popBack() }, onServicePosted = { popBack() })
+                9 -> PostServiceScreen(session = session, onBack = { popBack() }, onServicePosted = { navigateTo(2) })
                 7 -> MyPostedJobsScreen(session = session, onBack = { popBack() }, onNavigateToPostNew = { navigateTo(5) }, onJobClick = { jobId -> selectedJobId = jobId; navigateTo(8) })
                 8 -> selectedJobId?.let { ApplicantListScreen(session = session, jobId = it, onBack = { popBack() }, onNavigateToPostNew = { navigateTo(5) }) }
                 10 -> selectedServiceId?.let { ServiceRequestListScreen(session = session, serviceId = it, onBack = { popBack() }) }
@@ -155,11 +156,47 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNavigateToServices: () -> Unit, onNavigateToPostJob: () -> Unit, onNavigateToPostService: () -> Unit, onProfileClick: () -> Unit) {
+private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNavigateToServices: () -> Unit, onNavigateToPostJob: () -> Unit, onNavigateToPostService: () -> Unit, onProfileClick: () -> Unit, onNavigateToApplicantList: (String) -> Unit, onNavigateToMyApplications: () -> Unit) {
     var showPostActionSheet by remember { mutableStateOf(false) }
     var showNotifications by remember { mutableStateOf(false) }
-        val notifications by FirebaseRepository.getNotificationsFlow(session.firebaseUid).collectAsState(initial = emptyList())
+        val userIds = listOfNotNull(
+        session.firebaseUid.takeIf { it.isNotBlank() },
+        session.phone.takeIf { it.isNotBlank() }
+    ).distinct()
+    val notifications by FirebaseRepository.getNotificationsFlow(userIds).collectAsState(initial = emptyList())
     val unreadCount = notifications.count { !it.isRead }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(context, "android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                permissionLauncher.launch("android.permission.POST_NOTIFICATIONS")
+            }
+        }
+    }
+
+    var previousNotificationCount by remember { mutableStateOf(-1) }
+
+    LaunchedEffect(notifications) {
+        if (previousNotificationCount != -1 && notifications.size > previousNotificationCount) {
+            // A new notification was added!
+            val latestNotification = notifications.firstOrNull() // assuming sorted descending by timestamp
+            if (latestNotification != null && !latestNotification.isRead) {
+                com.example.localconnect.utils.NotificationHelper.showNotification(context, latestNotification.title, latestNotification.message)
+            }
+        }
+        previousNotificationCount = notifications.size
+    }
+
     val coroutineScope = rememberCoroutineScope()
     val initial = session.name.firstOrNull()?.uppercaseChar()?.toString()
         ?: session.phone.firstOrNull()?.toString() ?: "U"
@@ -208,18 +245,23 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
                     Box(
                         modifier = Modifier
                             .size(44.dp)
-                            .clip(CircleShape)
-                            .clickable { 
-                                showNotifications = true 
-                                if (unreadCount > 0) {
-                                    coroutineScope.launch {
-                                        FirebaseRepository.markNotificationsAsRead(session.firebaseUid)
-                                    }
-                                }
-                            },
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(24.dp))
+                        IconButton(
+                            onClick = { 
+                                showNotifications = true
+                                if (unreadCount > 0) {
+                                    val userIdsList = listOfNotNull(
+                                        session.firebaseUid.takeIf { it.isNotBlank() },
+                                        session.phone.takeIf { it.isNotBlank() }
+                                    ).distinct()
+                                    coroutineScope.launch { FirebaseRepository.markNotificationsAsRead(userIdsList) }
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(24.dp))
+                        }
                         if (unreadCount > 0) {
                             Box(
                                 modifier = Modifier
@@ -296,16 +338,16 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
 
             MainTile(
                 icon = Icons.Filled.Build,
-                title = stringResource(R.string.find_services_title),
-                description = stringResource(R.string.find_services_desc),
+                title = stringResource(R.string.find_services_title), // Hardcoding as requested, can localize later
+                description = "Find local service providers",
                 gradientColors = listOf(Color(0xFFEA580C), OrangePrimary),
                 onClick = onNavigateToServices
             )
 
             MainTile(
                 icon = Icons.Filled.AddCircle,
-                title = stringResource(R.string.post_job_service_title),
-                description = stringResource(R.string.post_job_service_desc),
+                title = stringResource(R.string.post_job_service_card),
+                description = "Hire workers or provide a service",
                 gradientColors = listOf(Color(0xFFF59E0B), Color(0xFFFBBF24)),
                 onClick = { showPostActionSheet = true }
             )
@@ -332,7 +374,20 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
     if (showNotifications) {
         NotificationsBottomSheet(
             notifications = notifications,
-            onDismiss = { showNotifications = false }
+            onDismiss = { showNotifications = false },
+            onNotificationClick = { notif ->
+                showNotifications = false
+                when (notif.type) {
+                    "new_application", "application_status_employer" -> {
+                        if (notif.referenceId.isNotBlank()) {
+                            onNavigateToApplicantList(notif.referenceId)
+                        }
+                    }
+                    "application_status_applicant" -> {
+                        onNavigateToMyApplications()
+                    }
+                }
+            }
         )
     }
 }
@@ -451,8 +506,8 @@ private fun MainTile(
 private fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     val items = listOf(
         Triple(Icons.Filled.Home, stringResource(R.string.home_tab), 0),
-        Triple(Icons.Filled.Work, stringResource(R.string.my_jobs), 7),
-        Triple(Icons.Filled.Build, stringResource(R.string.my_services), 6),
+        Triple(Icons.Filled.Work, stringResource(R.string.tab_my_jobs), 7),
+        Triple(Icons.Filled.Build, stringResource(R.string.tab_my_services), 6),
         Triple(Icons.Filled.Person, stringResource(R.string.profile_tab), 4)
     )
 
@@ -504,6 +559,8 @@ private fun PostActionSheet(
     onPostService: () -> Unit
 ) {
     ModalBottomSheet(
+        modifier = Modifier.fillMaxHeight(),
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
         onDismissRequest = onDismiss,
         containerColor = Color.White
     ) {
@@ -521,7 +578,7 @@ private fun PostActionSheet(
             )
 
             ActionCard(
-                title = "Post a Job",
+                title = stringResource(R.string.post_job_title),
                 description = "Hire local workers for your needs",
                 icon = Icons.Filled.Work,
                 onClick = onPostJob
@@ -530,7 +587,7 @@ private fun PostActionSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             ActionCard(
-                title = "Post a Service",
+                title = stringResource(R.string.post_service_title),
                 description = "Offer your skills as a service provider",
                 icon = Icons.Filled.Build,
                 onClick = onPostService
@@ -558,16 +615,18 @@ private fun PostActionSheet(
 @Composable
 fun NotificationsBottomSheet(
     notifications: List<Notification>,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onNotificationClick: (Notification) -> Unit
 ) {
     ModalBottomSheet(
+        modifier = Modifier.fillMaxHeight(),
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
         onDismissRequest = onDismiss,
         containerColor = Color.White
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.85f)
         ) {
             Row(
                 modifier = Modifier
@@ -576,7 +635,7 @@ fun NotificationsBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.notifications), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                Text(stringResource(R.string.notifications_tab), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Filled.Close, contentDescription = "Close", tint = Color.Gray)
                 }
@@ -589,7 +648,7 @@ fun NotificationsBottomSheet(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Outlined.Notifications, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color.LightGray)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(stringResource(R.string.no_notifications_yet), fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.no_notifications), fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
                     }
                 }
             } else {
@@ -598,7 +657,7 @@ fun NotificationsBottomSheet(
                     contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
                     items(notifications) { notif ->
-                        NotificationItem(notif)
+                        NotificationItem(notif, onNotificationClick)
                     }
                 }
             }
@@ -607,7 +666,7 @@ fun NotificationsBottomSheet(
 }
 
 @Composable
-fun NotificationItem(notification: Notification) {
+fun NotificationItem(notification: Notification, onClick: (Notification) -> Unit) {
     val df = remember { SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault()) }
     val timeString = remember(notification.timestamp) { df.format(Date(notification.timestamp)) }
     val isUnread = !notification.isRead
@@ -618,6 +677,7 @@ fun NotificationItem(notification: Notification) {
         modifier = Modifier
             .fillMaxWidth()
             .background(bgColor)
+            .clickable { onClick(notification) }
             .padding(20.dp),
         verticalAlignment = Alignment.Top
     ) {

@@ -22,7 +22,21 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+
+import android.location.Geocoder
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -110,7 +124,7 @@ fun JobDetailsScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color.Gray),
                             enabled = false
                         ) {
-                            Text(stringResource(R.string.loading), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.loading_text), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
                     } else if (hasApplied) {
                         Button(
@@ -121,7 +135,7 @@ fun JobDetailsScreen(
                         ) {
                             Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.applied), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.applied_status), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
                     } else {
                         Button(
@@ -280,7 +294,7 @@ fun JobDetailsScreen(
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text(stringResource(R.string.education), fontSize = 12.sp, color = Color(0xFF64748B))
+                                Text(stringResource(R.string.education_label), fontSize = 12.sp, color = Color(0xFF64748B))
                                 Text(job.educationReq.ifBlank { "Not Required" }, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
                             }
                         }
@@ -299,7 +313,7 @@ fun JobDetailsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(stringResource(R.string.job_description), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                    Text(stringResource(R.string.job_desc_hint), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     // Audio Controls
                     Box(
@@ -310,7 +324,7 @@ fun JobDetailsScreen(
                             .padding(12.dp)
                     ) {
                         Column {
-                            Text(stringResource(R.string.audio_description), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B), letterSpacing = 0.5.sp)
+                            Text(stringResource(R.string.audio_desc), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFF64748B), letterSpacing = 0.5.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Button(
@@ -335,7 +349,7 @@ fun JobDetailsScreen(
                                 ) {
                                     Icon(Icons.Filled.Headphones, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(stringResource(R.string.hindi), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.hindi_lang), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                                 }
                                 Button(
                                     onClick = { },
@@ -347,25 +361,45 @@ fun JobDetailsScreen(
                                 ) {
                                     Icon(Icons.Filled.Headphones, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(stringResource(R.string.bengali), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.bengali_lang), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
                     }
                     
+                    val displayDescription = if (job.isCustomDescription) {
+                        when (session.language.code) {
+                            "hi" -> job.descriptionHi.ifEmpty { job.description }
+                            "bn" -> job.descriptionBn.ifEmpty { job.description }
+                            else -> job.descriptionEn.ifEmpty { job.description }
+                        }
+                    } else {
+                        job.description
+                    }
+                    
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        job.description,
+                        displayDescription,
                         fontSize = 14.sp,
                         color = Color(0xFF475569),
                         lineHeight = 22.sp
                     )
                     
+                    val displayResponsibilities = if (job.isCustomResponsibilities) {
+                        when (session.language.code) {
+                            "hi" -> job.responsibilitiesHi.ifEmpty { job.responsibilities }
+                            "bn" -> job.responsibilitiesBn.ifEmpty { job.responsibilities }
+                            else -> job.responsibilitiesEn.ifEmpty { job.responsibilities }
+                        }
+                    } else {
+                        job.responsibilities
+                    }
+                    
                     Spacer(modifier = Modifier.height(16.dp))
-                    if (job.responsibilities.isNotEmpty()) {
-                        Text(stringResource(R.string.skills_responsibilities), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                    if (displayResponsibilities.isNotEmpty()) {
+                        Text(stringResource(R.string.skills_resp), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            job.responsibilities.forEach { res ->
+                            displayResponsibilities.forEach { res ->
                                 Row(verticalAlignment = Alignment.Top) {
                                     Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(14.dp).padding(top = 4.dp), tint = com.example.localconnect.ui.theme.Primary)
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -382,7 +416,7 @@ fun JobDetailsScreen(
             // --- Documents Required ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(stringResource(R.string.documents_required), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
+                    Text(stringResource(R.string.docs_required), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     val reqs = job.requirements + job.documentsRequired
                     
@@ -393,7 +427,7 @@ fun JobDetailsScreen(
                             }
                         }
                     } else {
-                        Text(stringResource(R.string.no_specific_documents_mentioned), fontSize = 14.sp, color = Color(0xFF64748B))
+                        Text(stringResource(R.string.no_docs_mentioned), fontSize = 14.sp, color = Color(0xFF64748B))
                     }
                 }
             }
@@ -412,7 +446,7 @@ fun JobDetailsScreen(
                             }
                         }
                     } else {
-                        Text(stringResource(R.string.no_specific_benefits_mentioned), fontSize = 14.sp, color = Color(0xFF64748B))
+                        Text(stringResource(R.string.no_benefits_mentioned), fontSize = 14.sp, color = Color(0xFF64748B))
                     }
                 }
             }
@@ -438,7 +472,7 @@ fun JobDetailsScreen(
                                 Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color(0xFFFFB300))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("4.6", fontSize = 12.sp, color = Color(0xFF64748B))
-                                Text(stringResource(R.string.jobs_posted_15), fontSize = 12.sp, color = Color(0xFF64748B))
+                                Text(" • 15 jobs posted", fontSize = 12.sp, color = Color(0xFF64748B))
                             }
                         }
                     }
@@ -461,7 +495,19 @@ fun JobDetailsScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(job.location, fontSize = 14.sp, color = Color(0xFF475569), modifier = Modifier.padding(bottom = 12.dp))
+                    Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                        Row { Text("Work address : ", fontSize = 14.sp, color = Color(0xFF64748B)); Text(job.workAddress.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Row(modifier = Modifier.weight(1f)) { Text("City : ", fontSize = 14.sp, color = Color(0xFF64748B)); Text(job.city.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                            Row(modifier = Modifier.weight(1f)) { Text("State : ", fontSize = 14.sp, color = Color(0xFF64748B)); Text(job.state.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Row(modifier = Modifier.weight(1f)) { Text("Pincode : ", fontSize = 14.sp, color = Color(0xFF64748B)); Text(job.pincode.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                            Row(modifier = Modifier.weight(1f)) { Text("Landmark : ", fontSize = 14.sp, color = Color(0xFF64748B)); Text(job.landmark.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                        }
+                    }
                     
                     Box(
                         modifier = Modifier
@@ -471,12 +517,96 @@ fun JobDetailsScreen(
                             .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Mock Map
-                        Box(modifier = Modifier.fillMaxSize().background(Color(0x1A000000)), contentAlignment = Alignment.Center) {
+                        // Inline Map with Clickable Intent
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            val context = LocalContext.current
+                            var markerPosition by remember { mutableStateOf<LatLng?>(null) }
+                            val cameraPositionState = rememberCameraPositionState {
+                                position = CameraPosition.fromLatLngZoom(LatLng(20.5937, 78.9629), 5f) // Default India
+                            }
+                            val mapAddress = job.workAddress.ifBlank { job.location }
+                            
+                            LaunchedEffect(mapAddress, job.latitude, job.longitude) {
+                                if (job.latitude != 0.0 && job.longitude != 0.0) {
+                                    val pt = LatLng(job.latitude, job.longitude)
+                                    markerPosition = pt
+                                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(pt, 14f))
+                                } else if (mapAddress.isNotBlank()) {
+                                    var pt: LatLng? = null
+                                    var showNotFound = false
+                                    var showEmulatorFallback = false
+                                    
+                                    withContext(Dispatchers.IO) {
+                                        try {
+                                            val geocoder = Geocoder(context, Locale.getDefault())
+                                            val addresses = geocoder.getFromLocationName(mapAddress, 1)
+                                            if (!addresses.isNullOrEmpty()) {
+                                                pt = LatLng(addresses[0].latitude, addresses[0].longitude)
+                                            } else {
+                                                showNotFound = true
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                            pt = LatLng(19.0760, 72.8777) // Mumbai default
+                                            showEmulatorFallback = true
+                                        }
+                                    }
+                                    
+                                    if (pt != null) {
+                                        markerPosition = pt
+                                        cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(pt!!, 14f))
+                                    }
+                                    if (showNotFound) {
+                                        android.widget.Toast.makeText(context, "Location not found on map", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                    if (showEmulatorFallback) {
+                                        android.widget.Toast.makeText(context, "Using Mumbai fallback for Emulator", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                            
+                            GoogleMap(
+                                modifier = Modifier.fillMaxSize(),
+                                cameraPositionState = cameraPositionState,
+                                uiSettings = com.google.maps.android.compose.MapUiSettings(
+                                    zoomControlsEnabled = false, 
+                                    scrollGesturesEnabled = false, 
+                                    zoomGesturesEnabled = false,
+                                    rotationGesturesEnabled = false,
+                                    tiltGesturesEnabled = false
+                                )
+                            ) {
+                                markerPosition?.let { pt ->
+                                    Marker(
+                                        state = MarkerState(position = pt),
+                                        title = mapAddress
+                                    )
+                                }
+                            }
+
                             Surface(
                                 shape = RoundedCornerShape(50),
                                 color = Color.White.copy(alpha = 0.9f),
-                                shadowElevation = 2.dp
+                                shadowElevation = 2.dp,
+                                modifier = Modifier.clickable {
+                                    val encodedLocation = java.net.URLEncoder.encode(mapAddress, "UTF-8")
+                                    val geoUri = android.net.Uri.parse("geo:0,0?q=$encodedLocation")
+                                    val mapIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, geoUri)
+                                    mapIntent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                    
+                                    try {
+                                        context.startActivity(mapIntent)
+                                    } catch (e: Exception) {
+                                        try {
+                                            val webUri = android.net.Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedLocation")
+                                            val webIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, webUri)
+                                            webIntent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                            context.startActivity(webIntent)
+                                        } catch (innerException: Exception) {
+                                            android.widget.Toast.makeText(context, "No application found to open maps.", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
                             ) {
                                 Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Filled.Map, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
@@ -521,7 +651,7 @@ fun JobDetailsScreen(
                                         color = Color(0xFFF1F5F9),
                                         shape = RoundedCornerShape(50)
                                     ) {
-                                        Text(stringResource(R.string.view), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155), modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                                        Text(stringResource(R.string.view_btn), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155), modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
                                     }
                                 }
                             }

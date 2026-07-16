@@ -35,6 +35,8 @@ data class ServiceTask(
     val city: String = "",
     val locality: String = "",
     val serviceRadius: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
     val availableDays: List<String> = emptyList(),
     val availableFrom: String = "",
     val availableTo: String = "",
@@ -56,7 +58,17 @@ data class ServiceRequest(
     val scheduledDate: String = "",
     val scheduledTime: String = "",
     val problemDescription: String = "",
-    val appliedOn: Long = 0L
+    val appliedOn: Long = 0L,
+    val customerName: String = "",
+    val customerPhone: String = "",
+    val customerAltPhone: String = "",
+    val customerAddress: String = "",
+    val customerLandmark: String = "",
+    val customerCity: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val instructions: String = "",
+    val imageUrl: String = ""
 )
 
 data class Job(

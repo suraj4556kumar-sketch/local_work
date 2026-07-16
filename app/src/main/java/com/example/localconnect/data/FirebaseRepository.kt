@@ -2,12 +2,15 @@ package com.example.localconnect.data
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 import android.net.Uri
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.channels.awaitClose
 
 object FirebaseRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
 
     private val usersRef = db.collection("users")
     private val jobsRef = db.collection("jobs")
@@ -141,6 +144,16 @@ object FirebaseRepository {
         }
     }
 
+    suspend fun getServiceTask(serviceId: String): ServiceTask? {
+        return try {
+            val snapshot = servicesRef.document(serviceId).get().await()
+            snapshot.toObject(ServiceTask::class.java)
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error getting service task", e)
+            null
+        }
+    }
+
     // --- Job Applications ---
     suspend fun uploadDocument(uri: android.net.Uri, context: android.content.Context): String {
         return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -271,6 +284,55 @@ object FirebaseRepository {
         }
     }
 
+    suspend fun getServiceRequestsForService(serviceId: String): List<ServiceRequest> {
+        return try {
+            val snapshot = serviceBookingsRef.whereEqualTo("serviceId", serviceId).get().await()
+            snapshot.toObjects(ServiceRequest::class.java)
+        } catch (e: Exception) {
+            android.util.Log.e("FirebaseRepo", "Error getting requests for service", e)
+            emptyList()
+        }
+    }
+
+    suspend fun updateServiceRequestStatus(requestId: String, newStatus: String): Boolean {
+        return try {
+            serviceBookingsRef.document(requestId).update("status", newStatus).await()
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("FirebaseRepo", "Error updating request status", e)
+            false
+        }
+    }
+
+
+    suspend fun updateApplicationStatus(application: JobApplication, status: String): Boolean {
+        return try {
+            jobAppsRef.document(application.id).update("status", status).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun deleteService(serviceId: String): Boolean {
+        return try {
+            servicesRef.document(serviceId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+
+    suspend fun deleteServiceRequest(requestId: String): Boolean {
+        return try {
+            serviceBookingsRef.document(requestId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     // Notifications
     suspend fun createNotification(notification: Notification) {
         try {
@@ -281,9 +343,14 @@ object FirebaseRepository {
         }
     }
 
-    fun getNotificationsFlow(userId: String): kotlinx.coroutines.flow.Flow<List<Notification>> = kotlinx.coroutines.flow.callbackFlow {
+    fun getNotificationsFlow(userIds: List<String>): kotlinx.coroutines.flow.Flow<List<Notification>> = kotlinx.coroutines.flow.callbackFlow {
+        if (userIds.isEmpty()) {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
         val subscription = notificationsRef
-            .whereEqualTo("userId", userId)
+            .whereIn("userId", userIds)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
                     val notifications = snapshot.documents.mapNotNull { it.toObject(Notification::class.java) }
@@ -294,10 +361,11 @@ object FirebaseRepository {
         awaitClose { subscription.remove() }
     }
 
-    suspend fun markNotificationsAsRead(userId: String) {
+    suspend fun markNotificationsAsRead(userIds: List<String>) {
+        if (userIds.isEmpty()) return
         try {
             val unread = notificationsRef
-                .whereEqualTo("userId", userId)
+                .whereIn("userId", userIds)
                 .whereEqualTo("isRead", false)
                 .get()
                 .await()
@@ -309,6 +377,59 @@ object FirebaseRepository {
             }.await()
         } catch (e: Exception) {
             Log.e("FirebaseRepo", "Error marking notifications read", e)
+        }
+    }
+
+    suspend fun uploadServiceImage(uri: Uri, context: android.content.Context): String? {
+        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val contentResolver = context.contentResolver
+                val mimeType = contentResolver.getType(uri) ?: ""
+                
+                val inputStream = contentResolver.openInputStream(uri)
+                    ?: throw Exception("Could not open file stream from device.")
+                var bytes = inputStream.readBytes()
+                inputStream.close()
+                
+                if (bytes.isEmpty()) {
+                    throw Exception("Selected file is empty or unreadable.")
+                }
+                
+                if (mimeType.startsWith("image/")) {
+                    val bitmap = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    if (bitmap != null) {
+                        val maxDim = 800f
+                        val ratio = java.lang.Math.min(maxDim / bitmap.width, maxDim / bitmap.height)
+                        val scaledBitmap = if (ratio < 1f) {
+                            android.graphics.Bitmap.createScaledBitmap(bitmap, (bitmap.width * ratio).toInt(), (bitmap.height * ratio).toInt(), true)
+                        } else {
+                            bitmap
+                        }
+                        
+                        val outputStream = java.io.ByteArrayOutputStream()
+                        scaledBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 60, outputStream)
+                        bytes = outputStream.toByteArray()
+                        
+                        val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+                        return@withContext "data:image/jpeg;name=doc.jpg;base64,$base64"
+                    }
+                }
+                
+                if (bytes.size > 800 * 1024) {
+                    throw Exception("File is too large. Please select a file under 800 KB.")
+                }
+                
+                var ext = android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+                if (ext.isNullOrEmpty()) {
+                    ext = if (mimeType.contains("pdf")) "pdf" else if (mimeType.contains("word")) "docx" else "bin"
+                }
+                val finalMime = if (mimeType.isNotEmpty()) mimeType else "application/octet-stream"
+                val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+                return@withContext "data:$finalMime;name=doc.$ext;base64,$base64"
+            } catch (e: Exception) {
+                android.util.Log.e("FirebaseRepo", "Error uploading image", e)
+                null
+            }
         }
     }
 }

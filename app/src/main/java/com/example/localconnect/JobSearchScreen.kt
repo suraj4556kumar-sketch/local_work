@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import com.example.localconnect.ui.TranslatedText
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -519,21 +520,21 @@ fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
                 verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                    Text(job.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    TranslatedText(job.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Spacer(modifier = Modifier.height(2.dp))
-                    Text(job.companyName, fontSize = 14.sp, color = OrangePrimary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    TranslatedText(job.companyName, fontSize = 14.sp, color = OrangePrimary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(verticalAlignment = Alignment.Top) {
                         Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp).padding(top = 2.dp), tint = Color.Gray)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(job.location, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        TranslatedText(job.location, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
                         if (job.distanceKm >= 0.0) {
                             Text(" • ", fontSize = 13.sp, color = Color.Gray)
                             Text("${job.distanceKm} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
-                Text(job.postingDate, fontSize = 12.sp, color = Color.Gray, maxLines = 1)
+                TranslatedText(job.postingDate, fontSize = 12.sp, color = Color.Gray, maxLines = 1)
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -541,11 +542,11 @@ fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column {
                     Text(stringResource(R.string.salary), fontSize = 12.sp, color = Color.Gray)
-                    Text(job.salary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    TranslatedText(job.salary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Column {
                     Text(stringResource(R.string.experience), fontSize = 12.sp, color = Color.Gray)
-                    Text(job.experienceReq, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    TranslatedText(job.experienceReq, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

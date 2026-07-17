@@ -1,5 +1,6 @@
 package com.example.localconnect
 
+import com.example.localconnect.ui.TranslatedText
 import androidx.compose.ui.res.stringResource
 import com.example.localconnect.R
 
@@ -400,11 +401,11 @@ fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatu
             // Header
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 24.dp)) {
                 Box(modifier = Modifier.size(64.dp).clip(CircleShape).background(Color(0xFFFFEDD5)), contentAlignment = Alignment.Center) {
-                    Text(applicant.applicantName.first().toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = OrangePrimary)
+                    TranslatedText(applicant.applicantName.first().toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = OrangePrimary)
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(applicant.applicantName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    TranslatedText(applicant.applicantName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     val statusCfg = getStatusConfig(applicant.status)
                     Surface(color = statusCfg.bgColor, shape = RoundedCornerShape(4.dp), modifier = Modifier.padding(top = 4.dp)) {
                         Text(androidx.compose.ui.res.stringResource(statusCfg.labelId), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = statusCfg.textColor, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))

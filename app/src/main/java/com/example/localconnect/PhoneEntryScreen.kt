@@ -4,6 +4,8 @@ import androidx.compose.ui.res.stringResource
 import com.example.localconnect.R
 
 import android.app.Activity
+import android.content.ContextWrapper
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,8 +35,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.localconnect.ui.theme.*
 
+
+fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
+}
+
 @Composable
 fun PhoneEntryScreen(
+    activity: android.app.Activity?,
     session: UserSession,
     onBack: () -> Unit,
     onGetOtp: (phone: String, verificationId: String) -> Unit
@@ -49,9 +62,10 @@ fun PhoneEntryScreen(
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
     fun handleGetOtp() {
+        if (activity == null) return
         isLoading = true
         AuthManager.sendOtp(
-            activity = context as Activity,
+            activity = activity,
             phoneNumber = phoneNumber,
             onCodeSent = { verificationId ->
                 isLoading = false
@@ -239,6 +253,6 @@ fun PhoneEntryScreen(
 @Composable
 fun PhoneEntryPreview() {
     com.example.localconnect.ui.theme.LocalConnectTheme {
-        PhoneEntryScreen(session = UserSession(), onBack = {}, onGetOtp = { _, _ -> })
+        PhoneEntryScreen(activity = null, session = UserSession(), onBack = {}, onGetOtp = { _, _ -> })
     }
 }

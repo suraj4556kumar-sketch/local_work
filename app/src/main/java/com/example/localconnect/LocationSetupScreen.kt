@@ -1,13 +1,17 @@
 package com.example.localconnect
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import com.example.localconnect.R
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.vector.ImageVector
 
 
 import androidx.compose.animation.animateColorAsState
@@ -27,7 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +38,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import com.example.localconnect.ui.theme.*
+import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 private val popularCities = listOf("Delhi", "Mumbai", "Kolkata", "Bangalore", "Chennai", "Hyderabad", "Pune", "Jaipur")
 
@@ -44,8 +52,57 @@ fun LocationSetupScreen(
     onBack: () -> Unit,
     onContinue: (location: String) -> Unit
 ) {
-        var city by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("") }
     val canContinue = city.isNotBlank()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var isFetchingLocation by remember { mutableStateOf(false) }
+    var isSaving by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+            // Permission granted, let them click again
+        } else {
+            android.widget.Toast.makeText(context, "Location permission is required.", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun requestLocation() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            isFetchingLocation = true
+            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+                if (loc != null) {
+                    scope.launch(Dispatchers.IO) {
+                        val geocoder = Geocoder(context, Locale.getDefault())
+                        try {
+                            val addresses = geocoder.getFromLocation(loc.latitude, loc.longitude, 1)
+                            if (!addresses.isNullOrEmpty()) {
+                                val fetchedCity = addresses[0].locality ?: addresses[0].subAdminArea ?: addresses[0].adminArea ?: "Unknown"
+                                withContext(Dispatchers.Main) {
+                                    city = fetchedCity
+                                    isFetchingLocation = false
+                                }
+                            } else {
+                                withContext(Dispatchers.Main) { isFetchingLocation = false }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) { isFetchingLocation = false }
+                        }
+                    }
+                } else {
+                    android.widget.Toast.makeText(context, "Ensure GPS is on", android.widget.Toast.LENGTH_SHORT).show()
+                    isFetchingLocation = false
+                }
+            }.addOnFailureListener {
+                isFetchingLocation = false
+            }
+        } else {
+            locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -63,12 +120,19 @@ fun LocationSetupScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ---- Top bar ----
-            Row(modifier = Modifier.fillMaxWidth().background(com.example.localconnect.ui.theme.OrangePrimary).padding(bottom=8.dp, top=8.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) {
-                    Text("←", fontSize = 22.sp, color = androidx.compose.ui.graphics.Color.White, fontWeight = FontWeight.Bold)
-                }
-                Spacer(modifier = Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom=8.dp, top=8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 StepIndicator(current = 2, total = 2)
+                Text(
+                    text = "Back",
+                    fontSize = 16.sp,
+                    color = com.example.localconnect.ui.theme.OrangePrimary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable { onBack() }.padding(8.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -100,14 +164,18 @@ fun LocationSetupScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ---- Use current location button ----
-            OutlinedButton(
-                onClick = { city = "Current Location" },
+            Button(
+                onClick = { requestLocation() },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = OrangePrimary),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, OrangePrimary)
             ) {
-                Text(stringResource(R.string.use_current_location), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                if (isFetchingLocation) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = OrangePrimary, strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.use_current_location), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                }
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -132,6 +200,7 @@ fun LocationSetupScreen(
 
             Button(
                 onClick = { 
+                    isSaving = true
                     val finalCity = city.trim()
                     val finalSession = session.copy(location = finalCity)
                     val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
@@ -145,10 +214,15 @@ fun LocationSetupScreen(
                     )
                     db.collection("users").document(finalSession.firebaseUid).set(userData)
                         .addOnSuccessListener {
+                            isSaving = false
                             onContinue(finalCity)
                         }
+                        .addOnFailureListener { e ->
+                            isSaving = false
+                            android.widget.Toast.makeText(context, "Error saving profile: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                        }
                 },
-                enabled = canContinue,
+                enabled = canContinue && !isSaving,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -157,9 +231,13 @@ fun LocationSetupScreen(
                     contentColor = Color.White,
                     disabledContentColor = Color(0xFFB0B0B0)
                 ),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = if (canContinue) 4.dp else 0.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = if (canContinue && !isSaving) 4.dp else 0.dp)
             ) {
-                Text(stringResource(R.string.continue_btn), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                if (isSaving) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.continue_btn), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))

@@ -1,5 +1,6 @@
 package com.example.localconnect
 
+import com.example.localconnect.R
 import androidx.compose.ui.res.stringResource
 
 import androidx.activity.compose.rememberLauncherForActivityResult

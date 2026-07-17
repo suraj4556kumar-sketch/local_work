@@ -161,7 +161,12 @@ fun LocationSelectorMap(
                         val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
                         if (!addresses.isNullOrEmpty()) {
                             val addr = addresses[0]
-                            val street = addr.thoroughfare ?: addr.featureName ?: ""
+                            val rawFeature = addr.featureName ?: ""
+                            val feature = if (rawFeature.contains("+") || rawFeature.matches(Regex("^[0-9]+$"))) "" else rawFeature
+                            val street = listOfNotNull(feature, addr.thoroughfare, addr.subLocality)
+                                .filter { it.isNotBlank() }
+                                .distinct()
+                                .joinToString(", ")
                             val city = addr.locality ?: addr.subAdminArea ?: ""
                             val state = addr.adminArea ?: ""
                             val pin = addr.postalCode ?: ""

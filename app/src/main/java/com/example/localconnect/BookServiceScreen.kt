@@ -237,7 +237,7 @@ fun BookServiceScreen(session: UserSession, service: ServiceTask, onBack: () -> 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("${service.distanceKm} km away", fontSize = 12.sp, color = Color.DarkGray)
+                                    Text("${String.format("%.1f", service.distanceKm)} km away", fontSize = 12.sp, color = Color.DarkGray)
                                 }
                             }
                             

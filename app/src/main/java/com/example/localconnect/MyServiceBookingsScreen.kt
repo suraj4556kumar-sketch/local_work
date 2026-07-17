@@ -1,6 +1,9 @@
 package com.example.localconnect
 
 
+import com.example.localconnect.ui.TranslatedText
+import androidx.compose.ui.res.stringResource
+import com.example.localconnect.R
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import android.widget.Toast
@@ -70,8 +73,8 @@ fun MyServiceBookingsScreen(session: UserSession) {
     if (requestToRemove != null) {
         AlertDialog(
             onDismissRequest = { requestToRemove = null },
-            title = { Text("Cancel Booking") },
-            text = { Text("Are you sure you want to remove this booking?") },
+            title = { Text(stringResource(R.string.cancel_booking_title)) },
+            text = { Text(stringResource(R.string.cancel_booking_msg)) },
             confirmButton = {
                 TextButton(onClick = {
                     val reqId = requestToRemove!!.id
@@ -146,7 +149,7 @@ fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
                 verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(request.serviceTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
+                    TranslatedText(request.serviceTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
                     Text(request.customerCity, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF6B7280))
                 }
                 Surface(
@@ -184,19 +187,19 @@ fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
                     Button(onClick = {
                         try { val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${request.providerId}")); callIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(callIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "Cannot open dialer", android.widget.Toast.LENGTH_SHORT).show() }
                     }, modifier = Modifier.weight(1f).height(40.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)), shape = RoundedCornerShape(8.dp)) {
-                        Text("Call", fontSize = 12.sp, color = Color.White)
+                        Text(stringResource(R.string.call_btn), fontSize = 12.sp, color = Color.White)
                     }
                     Button(onClick = {
                         var waPhone = request.providerId
                         if (waPhone.length == 10 && !waPhone.startsWith("+")) waPhone = "+91$waPhone"
                         try { val waIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$waPhone")).apply { setPackage("com.whatsapp") }; waIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(waIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "WhatsApp not installed", android.widget.Toast.LENGTH_SHORT).show() }
                     }, modifier = Modifier.weight(1f).height(40.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)), shape = RoundedCornerShape(8.dp)) {
-                        Text("WhatsApp", fontSize = 12.sp, color = Color.White)
+                        Text(stringResource(R.string.whatsapp_btn), fontSize = 12.sp, color = Color.White)
                     }
                     Button(onClick = {
                         showDetails = true
                     }, modifier = Modifier.weight(1f).height(40.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF374151)), shape = RoundedCornerShape(8.dp)) {
-                        Text("Details", fontSize = 12.sp)
+                        Text(stringResource(R.string.details_btn), fontSize = 12.sp)
                     }
                 }
             }
@@ -206,7 +209,7 @@ fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
             Spacer(modifier = Modifier.height(12.dp))
             
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                Text("Requested on: ${java.text.SimpleDateFormat("dd MMM, yyyy", java.util.Locale.getDefault()).format(java.util.Date(request.appliedOn))}", fontSize = 12.sp, color = Color(0xFF9CA3AF))
+                Text("${stringResource(R.string.requested_on)} ${java.text.SimpleDateFormat("dd MMM, yyyy", java.util.Locale.getDefault()).format(java.util.Date(request.appliedOn))}", fontSize = 12.sp, color = Color(0xFF9CA3AF))
             }
         }
     }
@@ -218,7 +221,7 @@ fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
             containerColor = Color.White
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
-                Text("Provider Details", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
+                Text(stringResource(R.string.provider_details), fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
                 
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
                     Icon(Icons.Filled.Person, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))

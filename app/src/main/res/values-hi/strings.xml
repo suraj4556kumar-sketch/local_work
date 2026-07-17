@@ -1,523 +1,322 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    
-    <string name="cat_cook">रसोइया</string>
-    <string name="cat_maid">नौकरानी</string>
-    <string name="cat_driver">ड्राइवर</string>
-    <string name="cat_office_boy">ऑफिस बॉय</string>
-    <string name="cat_security_guard">सुरक्षा गार्ड</string>
-    <string name="cat_delivery">डिलीवरी</string>
-    <string name="cat_electrician">इलेक्ट्रीशियन</string>
-    <string name="cat_plumber">प्लंबर</string>
-    <string name="cat_carpenter">बढ़ई</string>
-    <string name="cat_painter">पेंटर</string>
-    <string name="cat_welder">वेल्डर</string>
-    <string name="cat_mechanic">मैकेनिक</string>
-    <string name="cat_cleaner">क्लीनर</string>
-    <string name="cat_mason">राजमिस्त्री</string>
-    <string name="cat_technician">टेक्नीशियन</string>
-    <string name="cat_other">अन्य</string>
-
-    
-    <string name="template_desc_cook">स्वादिष्ट भोजन तैयार करने के लिए एक अनुभवी रसोइए की तलाश है। विभिन्न व्यंजनों का अच्छा ज्ञान होना चाहिए और उच्च स्वच्छता मानकों को बनाए रखना चाहिए।</string>
-    <string name="template_desc_maid">सफाई, धूल झाड़ने और व्यवस्थित करने सहित दैनिक घरेलू कामों के लिए एक विश्वसनीय और भरोसेमंद नौकरानी की तलाश है।</string>
-    <string name="template_desc_driver">यात्रियों को सुरक्षित रूप से ले जाने के लिए वैध लाइसेंस के साथ एक जिम्मेदार ड्राइवर की तलाश है। सुरक्षा को प्राथमिकता देनी चाहिए और यातायात नियमों का कड़ाई से पालन करना चाहिए।</string>
-    <string name="template_desc_office_boy">दैनिक कार्यालय संचालन में सहायता करने, चाय/कॉफी परोसने और बुनियादी फ़ाइल हैंडलिंग को प्रबंधित करने के लिए एक सक्रिय कार्यालय लड़के की तलाश है।</string>
-    <string name="template_desc_security_guard">परिसर की सुरक्षा, निगरानी उपकरणों की निगरानी और सुरक्षित वातावरण सुनिश्चित करने के लिए एक सतर्क सुरक्षा गार्ड की तलाश है।</string>
-    <string name="template_desc_delivery">ग्राहकों को पैकेजों की समय पर और सुरक्षित डिलीवरी सुनिश्चित करने के लिए एक ऊर्जावान डिलीवरी कार्यकारी की तलाश है।</string>
-    <string name="template_desc_electrician">बिजली के तारों और उपकरणों को स्थापित करने, बनाए रखने और मरम्मत करने के लिए एक कुशल इलेक्ट्रीशियन की तलाश है।</string>
-    <string name="template_desc_plumber">पानी की आपूर्ति लाइनों, जल निकासी प्रणालियों और फिक्स्चर को स्थापित करने और मरम्मत करने के लिए एक अनुभवी प्लंबर की तलाश है।</string>
-    <string name="template_desc_carpenter">लकड़ी से बनी संरचनाओं और फिक्स्चर के निर्माण, स्थापना और मरम्मत के लिए एक कुशल बढ़ई की तलाश है।</string>
-    <string name="template_desc_painter">इमारतों और संरचनाओं की सतहों पर पेंट, वार्निश और अन्य फिनिश लगाने के लिए एक विस्तृत-उन्मुख पेंटर की तलाश है।</string>
-    <string name="template_desc_welder">विभिन्न वेल्डिंग तकनीकों का उपयोग करके धातु के हिस्सों को जोड़ने के लिए एक प्रमाणित वेल्डर की तलाश है।</string>
-    <string name="template_desc_mechanic">वाहनों या मशीनरी का निरीक्षण, रखरखाव और मरम्मत करने के लिए एक जानकार मैकेनिक की तलाश है।</string>
-    <string name="template_desc_cleaner">वाणिज्यिक या आवासीय संपत्तियों में स्वच्छता बनाए रखने के लिए एक मेहनती क्लीनर की तलाश है।</string>
-    <string name="template_desc_mason">ईंट, पत्थर और कंक्रीट का उपयोग करके संरचनाओं के निर्माण और मरम्मत के लिए एक कुशल राजमिस्त्री की तलाश है।</string>
-    <string name="template_desc_technician">उपकरणों को स्थापित करने, समस्या निवारण और मरम्मत के लिए एक तकनीकी रूप से सुदृढ़ तकनीशियन की तलाश है।</string>
-    <string name="template_desc_other">इस भूमिका के लिए एक समर्पित पेशेवर की तलाश है।</string>
-
-    
-    <string-array name="skills_cook">
-        <item>अनुसूची के अनुसार भोजन तैयार करें</item>
-        <item>रसोई की सफाई बनाए रखें</item>
-        <item>किराने की सूची का प्रबंधन करें</item>
-    </string-array>
-    <string-array name="skills_maid">
-        <item>फर्श पर झाड़ू और पोछा लगाएं</item>
-        <item>फर्नीचर की धूल झाड़ें और खिड़कियां साफ करें</item>
-        <item>घर की समग्र सफाई बनाए रखें</item>
-    </string-array>
-    <string-array name="skills_driver">
-        <item>निर्दिष्ट मार्गों पर सुरक्षित रूप से ड्राइव करें</item>
-        <item>दैनिक वाहन निरीक्षण करें</item>
-        <item>वाहन के अंदरूनी हिस्से को साफ रखें</item>
-    </string-array>
-    <string-array name="skills_office_boy">
-        <item>कर्मचारियों और मेहमानों को पेय पदार्थ परोसें</item>
-        <item>कार्यालय परिसर को साफ रखें</item>
-        <item>फाइलिंग और छोटे प्रशासनिक कार्यों में सहायता करें</item>
-    </string-array>
-    <string-array name="skills_security_guard">
-        <item>प्रवेश और निकास द्वारों की निगरानी करें</item>
-        <item>आगंतुक लॉग बनाए रखें</item>
-        <item>अलार्म और आपात स्थिति का जवाब दें</item>
-    </string-array>
-    <string-array name="skills_delivery">
-        <item>समय पर पैकेज लें और वितरित करें</item>
-        <item>इष्टतम मार्ग खोजने के लिए नेविगेशन ऐप का उपयोग करें</item>
-        <item>यदि आवश्यक हो तो भुगतान एकत्र करें</item>
-    </string-array>
-    <string-array name="skills_electrician">
-        <item>विद्युत प्रणाली स्थापित करें</item>
-        <item>विद्युत समस्याओं का निदान और मरम्मत करें</item>
-        <item>सुरक्षा कोड का अनुपालन सुनिश्चित करें</item>
-    </string-array>
-    <string-array name="skills_plumber">
-        <item>प्लंबिंग फिक्स्चर स्थापित करें</item>
-        <item>रिसाव की मरम्मत करें और रुकावटों को साफ करें</item>
-        <item>नियमित प्लंबिंग रखरखाव करें</item>
-    </string-array>
-    <string-array name="skills_carpenter">
-        <item>ब्लूप्रिंट पढ़ें और सामग्री मापें</item>
-        <item>उपकरणों का उपयोग करके लकड़ी को काटें और आकार दें</item>
-        <item>कैबिनेट और दरवाजों जैसी लकड़ी की संरचनाएं स्थापित करें</item>
-    </string-array>
-    <string-array name="skills_painter">
-        <item>खुरच कर और रेत कर सतहों को तैयार करें</item>
-        <item>पेंट को समान रूप से मिलाएं और लगाएं</item>
-        <item>पेंटिंग के बाद उपकरण और कार्य क्षेत्र साफ करें</item>
-    </string-array>
-    <string-array name="skills_welder">
-        <item>विनिर्देशों और ब्लूप्रिंट पढ़ें</item>
-        <item>वेल्डिंग उपकरणों को सुरक्षित रूप से संचालित करें</item>
-        <item>खामियों के लिए वेल्डेड सतहों का निरीक्षण करें</item>
-    </string-array>
-    <string-array name="skills_mechanic">
-        <item>नियमित रखरखाव करें</item>
-        <item>यांत्रिक समस्याओं का निदान करें</item>
-        <item>खराब भागों की मरम्मत या प्रतिस्थापन करें</item>
-    </string-array>
-    <string-array name="skills_cleaner">
-        <item>फर्श, शौचालय और सामान्य क्षेत्रों को साफ करें</item>
-        <item>कचरे के डिब्बे खाली करें</item>
-        <item>सफाई आपूर्ति को फिर से स्टॉक करें</item>
-    </string-array>
-    <string-array name="skills_mason">
-        <item>गारा और कंक्रीट मिलाएं</item>
-        <item>संरेखण में ईंटें और ब्लॉक बिछाएं</item>
-        <item>क्षतिग्रस्त चिनाई संरचनाओं की मरम्मत करें</item>
-    </string-array>
-    <string-array name="skills_technician">
-        <item>उपकरण स्थापित और कॉन्फ़िगर करें</item>
-        <item>तकनीकी समस्याओं का निदान करें</item>
-        <item>नियमित उपकरण सर्विसिंग करें</item>
-    </string-array>
-    <string-array name="skills_other">
-        <item>नौकरी की जिम्मेदारियों को कुशलता से पूरा करें</item>
-        <item>पेशेवर आचरण बनाए रखें</item>
-        <item>समय पर कार्य पूरे करें</item>
-    </string-array>
-
-
-    
-    <string name="tab_find_jobs">नौकरियां खोजें</string>
-    <string name="tab_my_apps">मेरे आवेदन</string>
-    <string name="label_monthly">मासिक</string>
-    <string name="label_yearly">वार्षिक</string>
-    <string name="label_daily">दैनिक</string>
-    <string name="label_weekly">साप्ताहिक</string>
-    <string name="label_years">वर्ष</string>
-    <string name="label_year">वर्ष</string>
-
-    <string name="applicants_for">के लिए आवेदक</string>
-    <string name="total">कुल</string>
-    <string name="accept">स्वीकार करें</string>
-    <string name="accept_offer">प्रस्ताव स्वीकार करें</string>
-    <string name="accepted">स्वीकृत</string>
-    <string name="applicant_accepted_offer">आवेदक ने प्रस्ताव स्वीकार किया</string>
-    <string name="applicant_rejected_offer">आवेदक ने प्रस्ताव अस्वीकार किया</string>
-    <string name="applied">लागू किया</string>
-    <string name="apply_now">अभी आवेदन करें</string>
-    <string name="back">पीछे</string>
-    <string name="benefits">लाभ</string>
-    <string name="call">कॉल करें</string>
-    <string name="call_applicant">आवेदक को कॉल करें</string>
-    <string name="call_employer">नियोक्ता को कॉल करें</string>
-    <string name="camera">कैमरा</string>
-    <string name="cancel">रद्द करें</string>
-    <string name="close">बंद करें</string>
-    <string name="documents_title">दस्तावेज़</string>
-    <string name="documents_required">आवश्यक दस्तावेज़</string>
-    <string name="employer_details">नियोक्ता विवरण</string>
-    <string name="exit_app">ऐप से बाहर निकलें</string>
-    <string name="gallery">गैलरी</string>
-    <string name="introduction">परिचय</string>
-    <string name="job_category">नौकरी श्रेणी</string>
-    <string name="job_description">नौकरी का विवरण</string>
-    <string name="job_location">नौकरी का स्थान</string>
-    <string name="loading">लोड हो रहा है...</string>
-    <string name="my_posted_jobs">मेरी पोस्ट की गई नौकरियां</string>
-    <string name="my_posted_services">मेरी पोस्ट की गई सेवाएँ</string>
-    <string name="no">नहीं</string>
-    <string name="notifications">सूचनाएं</string>
-    <string name="ok">ठीक है</string>
-    <string name="post_job">नौकरी पोस्ट करें</string>
-    <string name="post_service">सेवा पोस्ट करें</string>
-    <string name="profile">प्रोफ़ाइल</string>
-    <string name="recent">हाल का</string>
-    <string name="reject">अस्वीकार करें</string>
-    <string name="reject_application">आवेदन अस्वीकार करें</string>
-    <string name="rejected">अस्वीकृत</string>
-    <string name="save">सहेजें</string>
-    <string name="select">चुनें</string>
-    <string name="select_applicant">आवेदक चुनें</string>
-    <string name="shortlist">शॉर्टलिस्ट</string>
-    <string name="shortlist_applicant">आवेदक को शॉर्टलिस्ट करें</string>
-    <string name="similar_jobs">समान नौकरियां</string>
-    <string name="skills_responsibilities">कौशल और जिम्मेदारियां</string>
-    <string name="upload_photo">फोटो अपलोड करें</string>
-    <string name="upload_video">वीडियो अपलोड करें</string>
-    <string name="view">देखें</string>
-    <string name="view_job_details">नौकरी का विवरण देखें</string>
-    <string name="whatsapp">व्हाट्सएप</string>
-    <string name="yes">हाँ</string>
-    <string name="yes_exit">हाँ, बाहर निकलें</string>
-    <string name="filter_all">सभी</string>
-    <string name="filter_new">नया</string>
-    <string name="status_pending">लंबित</string>
-    <string name="status_unknown">अज्ञात</string>
-    <string name="offer_accepted">प्रस्ताव स्वीकृत</string>
-    <string name="offer_rejected">प्रस्ताव अस्वीकृत</string>
-    <string name="applicant_details">आवेदक विवरण</string>
-    <string name="audio_description">ऑडियो विवरण</string>
-    <string name="add">जोड़ें</string>
-    <string name="add_another_benefit">एक और लाभ जोड़ें...</string>
-    <string name="add_another_document">एक और दस्तावेज़ जोड़ें...</string>
-    <string name="add_another_language">एक और भाषा जोड़ें...</string>
-    <string name="add_skill_or_responsibility">कौशल या जिम्मेदारी जोड़ें</string>
-    <string name="address_label">पता:</string>
-    <string name="confirm_exit">क्या आप वाकई LocalConnect से बाहर निकलना चाहते हैं?</string>
-    <string name="confirm_remove_job">क्या आप वाकई इस नौकरी को हटाना चाहते हैं?</string>
-    <string name="available_on">पर उपलब्ध</string>
-    <string name="benefits_offered">प्रदान किए गए लाभ</string>
-    <string name="bengali">बंगाली</string>
-    <string name="build_your_work_profile">अपना कार्य प्रोफ़ाइल बनाएं</string>
-    <string name="category_star">श्रेणी *</string>
-    <string name="change_name">नाम बदलें</string>
-    <string name="choose_photo_upload_option">अपना फोटो अपलोड करने के लिए एक विकल्प चुनें</string>
-    <string name="choose_video_upload_option">अपना वीडियो अपलोड करने के लिए एक विकल्प चुनें</string>
-    <string name="city_area_star">शहर / क्षेत्र *</string>
-    <string name="contact_person_name_star">संपर्क व्यक्ति का नाम *</string>
-    <string name="create_job_post_to_hire">श्रमिकों को काम पर रखने के लिए एक नौकरी पोस्ट बनाएं</string>
-    <string name="date_time_label">दिनांक और समय:</string>
-    <string name="describe_job_role_environment">नौकरी की भूमिका, वातावरण का वर्णन करें...</string>
-    <string name="describe_past_work_responsibilities">अपने पिछले कार्य उत्तरदायित्वों का वर्णन करें</string>
-    <string name="description_of_prior_job">पिछली नौकरी का विवरण</string>
-    <string name="charge_fees_per_km">क्या आप प्रति किमी शुल्क लेते हैं?</string>
-    <string name="documents_optional">दस्तावेज़ (वैकल्पिक)</string>
-    <string name="education">शिक्षा</string>
-    <string name="education_required">शिक्षा आवश्यक</string>
-    <string name="employer_company_name_star">नियोक्ता / कंपनी का नाम *</string>
-    <string name="english">अंग्रेज़ी</string>
-    <string name="enter_alternate_number">वैकल्पिक नंबर दर्ज करें</string>
-    <string name="enter_house_room_shop_address">मकान / कमरा / दुकान का पता दर्ज करें</string>
-    <string name="enter_phone_number">फोन नंबर दर्ज करें</string>
-    <string name="enter_full_name">अपना पूरा नाम दर्ज करें</string>
-    <string name="enter_your_name">अपना नाम दर्ज करें</string>
-    <string name="expected_compensation">अपेक्षित मुआवजा (₹ / माह)</string>
-    <string name="experience">अनुभव</string>
-    <string name="experience_required">अनुभव आवश्यक</string>
-    <string name="gender_preference">लिंग प्राथमिकता</string>
-    <string name="hindi">हिंदी</string>
-    <string name="agree_fake_job_suspension">मैं सहमत हूं कि फर्जी या भ्रामक नौकरी पोस्ट से खाता निलंबित हो सकता है। *</string>
-    <string name="confirm_info_accurate">मैं पुष्टि करता हूं कि इस आवेदन में दी गई जानकारी मेरे सर्वोत्तम ज्ञान के अनुसार सही और सटीक है।</string>
-    <string name="confirm_genuine_job_posting">मैं पुष्टि करता हूं कि यह एक वास्तविक रिक्ति का प्रतिनिधित्व करने वाली एक वास्तविक नौकरी पोस्टिंग है। *</string>
-    <string name="job_title_star">नौकरी का शीर्षक *</string>
-    <string name="key_responsibilities_skills">प्रमुख जिम्मेदारियां और कौशल</string>
-    <string name="landmark_optional">लैंडमार्क (वैकल्पिक)</string>
-    <string name="live_preview">लाइव पूर्वावलोकन</string>
-    <string name="loading_localconnect">LocalConnect लोड हो रहा है...</string>
-    <string name="location_details">स्थान विवरण</string>
-    <string name="monthly_salary_rupees">मासिक वेतन (₹)</string>
-    <string name="nearby_landmark">आसपास का लैंडमार्क</string>
-    <string name="new_name">नया नाम</string>
-    <string name="no_applicants_found">कोई आवेदक नहीं मिला</string>
-    <string name="no_documents_uploaded">कोई दस्तावेज़ अपलोड नहीं किया गया</string>
-    <string name="no_notifications_yet">अभी तक कोई सूचना नहीं</string>
-    <string name="no_requests_found">कोई अनुरोध नहीं मिला।</string>
-    <string name="no_specific_benefits_mentioned">किसी विशिष्ट लाभ का उल्लेख नहीं है।</string>
-    <string name="no_specific_documents_mentioned">किसी विशिष्ट दस्तावेज़ का उल्लेख नहीं है।</string>
-    <string name="offer_service_to_customers">आसपास के ग्राहकों को अपनी सेवा प्रदान करें</string>
-    <string name="pdf_or_image_max_5mb">पीडीएफ या छवि अधिकतम 5एमबी</string>
-    <string name="phone_number_star">फोन नंबर *</string>
-    <string name="photo_selected">फोटो चुना गया</string>
-    <string name="pincode">पिनकोड</string>
-    <string name="post_new_job">नई नौकरी पोस्ट करें</string>
-    <string name="post_a_service">एक सेवा पोस्ट करें</string>
-    <string name="preferred_language">पसंदीदा भाषा</string>
-    <string name="prior_experience_years">पिछला अनुभव (वर्ष)</string>
-    <string name="reject_offer">प्रस्ताव अस्वीकार करें</string>
-    <string name="remove">हटाएं</string>
-    <string name="remove_application">आवेदन हटाएं</string>
-    <string name="remove_job">नौकरी हटाएं</string>
-    <string name="salary">वेतन</string>
-    <string name="save_continue">सहेजें और जारी रखें</string>
-    <string name="save_draft">ड्राफ्ट सहेजें</string>
-    <string name="search_name_or_skill">नाम या कौशल खोजें...</string>
-    <string name="service_requests">सेवा अनुरोध</string>
-    <string name="service_label">सेवा:</string>
-    <string name="state">राज्य</string>
-    <string name="tell_us_about_experience_jobs">सर्वोत्तम नौकरियां खोजने के लिए हमें अपने अनुभव के बारे में बताएं।</string>
-    <string name="tell_us_about_experience">हमें अपने अनुभव के बारे में बताएं...</string>
-    <string name="try_adjusting_filters">अपने फ़िल्टर समायोजित करने का प्रयास करें।</string>
-    <string name="upload_cv_certificate">सीवी या प्रमाणपत्र अपलोड करें</string>
-    <string name="use_current_location">वर्तमान स्थान का उपयोग करें</string>
-    <string name="verified_caps">सत्यापित</string>
-    <string name="verified_employer">सत्यापित नियोक्ता</string>
-    <string name="video_selected">वीडियो चुना गया</string>
-    <string name="view_details">विवरण देखें</string>
-    <string name="waiting_for_applicant_accept">आवेदक के स्वीकार करने की प्रतीक्षा में...</string>
-    <string name="work_address_building">कार्य पता / भवन</string>
-    <string name="work_label">काम:</string>
-    <string name="write_extra_instructions">यहां कोई भी अतिरिक्त निर्देश लिखें...</string>
-    <string name="no_posted_jobs_yet">आपने अभी तक कोई नौकरी पोस्ट नहीं की है।</string>
-    <string name="no_posted_services_yet">आपने अभी तक कोई सेवा पोस्ट नहीं की है।</string>
-    <string name="eg_15000">उदा. 15000</string>
-    <string name="eg_2">उदा. 2</string>
-    <string name="find_available_jobs_area">अपने क्षेत्र में उपलब्ध नौकरियां खोजें</string>
-    <string name="find_services">सेवाएं खोजें</string>
-    <string name="find_local_service_providers">स्थानीय सेवा प्रदाता खोजें</string>
-    <string name="post_job_service">नौकरी/सेवा पोस्ट करें</string>
-    <string name="hire_workers_or_provide_service">श्रमिकों को काम पर रखें या सेवा प्रदान करें</string>
-    <string name="continue_btn">जारी रखें</string>
-    <string name="enter_mobile">अपना मोबाइल नंबर दर्ज करें</string>
+    <string name="app_name">LocalConnect</string>
+    <string name="continue_btn">जारी रखना</string>
+    <string name="enter_mobile">अपना मोबाइल संख्या दर्ज करे</string>
     <string name="otp_subtitle">हम आपको एक सत्यापन कोड भेजेंगे</string>
-    <string name="get_otp">OTP प्राप्त करें</string>
-    <string name="digits_hint">10-अंकीय नंबर दर्ज करें</string>
+    <string name="get_otp">ओटीपी प्राप्त करें</string>
+    <string name="digits_hint">10 अंकीय संख्या दर्ज करें</string>
     <string name="verify_title">अपना नंबर सत्यापित करें</string>
-    <string name="otp_sent_to">OTP भेजा गया</string>
+    <string name="otp_sent_to">ओटीपी भेजा गया</string>
     <string name="verify_btn">सत्यापित करें और जारी रखें</string>
-    <string name="resend_otp">OTP पुनः भेजें</string>
-    <string name="resend_in">में पुनः भेजें</string>
-    <string name="incorrect_otp">गलत OTP। कृपया पुनः प्रयास करें।</string>
-    <string name="profile_title">अपनी प्रोफ़ाइल सेट करें</string>
-    <string name="profile_subtitle">अपने बारे में बताएं</string>
+    <string name="resend_otp">ओटीपी दोबारा भेजें</string>
+    <string name="resend_in">पुनः भेजें</string>
+    <string name="incorrect_otp">ग़लत ओटीपी. कृपया पुन: प्रयास करें।</string>
+    <string name="profile_title">अपना प्रोफ़ाइल सेट करें</string>
+    <string name="profile_subtitle">अपने बारे में हमें बताएं</string>
     <string name="name_placeholder">आपका पूरा नाम</string>
-    <string name="age_placeholder">आपकी आयु</string>
+    <string name="age_placeholder">आपकी उम्र</string>
     <string name="select_gender">लिंग चुनें</string>
     <string name="male">पुरुष</string>
     <string name="female">महिला</string>
     <string name="other">अन्य</string>
     <string name="location_title">आपका स्थान</string>
-    <string name="location_subtitle">आप कहाँ आधारित हैं?</string>
+    <string name="location_subtitle">आप कहाँ पर आधारित हैं?</string>
     <string name="city_placeholder">शहर या क्षेत्र दर्ज करें</string>
+    <string name="use_current_location">📍 वर्तमान स्थान का उपयोग करें</string>
     <string name="popular_cities">लोकप्रिय शहर</string>
     <string name="greeting">नमस्ते</string>
     <string name="home_subtitle">आप क्या करना चाहेंगे?</string>
-    <string name="recruiter_title">नौकरी भर्तीकर्ता और सेवा प्रदाता</string>
-    <string name="recruiter_desc">नौकरियां पोस्ट करें, श्रमिक और ग्राहक खोजें</string>
-    <string name="seeker_title">नौकरी चाहने वाले और सेवा चाहने वाले</string>
-    <string name="seeker_desc">अपने आस-पास नौकरियां और सेवाएं खोजें</string>
+    <string name="recruiter_title">नौकरी भर्तीकर्ता एवं सेवा प्रदाता</string>
+    <string name="recruiter_desc">नौकरियाँ पोस्ट करें, कर्मचारी और ग्राहक खोजें</string>
+    <string name="seeker_title">नौकरी चाहने वाला और सेवा चाहने वाला</string>
+    <string name="seeker_desc">अपने आस-पास नौकरियाँ और सेवाएँ खोजें</string>
     <string name="role_title">आप क्या करना चाहेंगे?</string>
     <string name="role_subtitle">अपनी भूमिका चुनें</string>
-    <string name="hirer_card_title">मैं काम पर रखना चाहता हूँ</string>
-    <string name="hirer_card_desc">नौकरियां पोस्ट करें या सेवाएं दें</string>
-    <string name="seeker_card_title">मुझे काम चाहिए</string>
-    <string name="seeker_card_desc">Find jobs or services near you</string>
-    <string name="hirer_welcome">स्वागत है, नियोक्ता!</string>
-    <string name="post_job_desc">हजारों उम्मीदवारों तक पहुंचें</string>
+    <string name="hirer_card_title">मैं पारिश्रमिक चाहता हूं</string>
+    <string name="hirer_card_desc">नौकरियाँ पोस्ट करें या सेवाएँ प्रदान करें</string>
+    <string name="seeker_card_title">मैं काम करना चाहता हूँ</string>
+    <string name="seeker_card_desc">अपने आस-पास नौकरियाँ या सेवाएँ खोजें</string>
+    <string name="hirer_welcome">आपका स्वागत है, नियोक्ता!</string>
+    <string name="post_job">एक नौकरी पोस्ट करो</string>
+    <string name="post_job_desc">हजारों अभ्यर्थियों तक पहुंचें</string>
     <string name="find_workers">श्रमिक खोजें</string>
     <string name="find_workers_desc">अपने आस-पास कुशल लोगों को ब्राउज़ करें</string>
     <string name="my_postings">मेरी पोस्टिंग</string>
-    <string name="seeker_welcome">स्वागत है!</string>
-    <string name="browse_jobs">नौकरियां ब्राउज़ करें</string>
-    <string name="browse_jobs_desc">अपने स्थान के पास नौकरियां खोजें</string>
-    <string name="browse_services">सेवाएं ब्राउज़ करें</string>
-    <string name="browse_services_desc">अपने आस-पास सेवाएं खोजें</string>
-    <string name="my_applications">मेरे आवेदन</string>
-    <string name="post_job_title">नौकरी पोस्ट करें</string>
-    <string name="job_title_hint">नौकरी का पद (उदा. रसोइया, ड्राइवर)</string>
-    <string name="salary_hint">वेतन (उदा. ₹15,000 / माह)</string>
-    <string name="location_hint">स्थान</string>
+    <string name="seeker_welcome">स्वागत!</string>
+    <string name="browse_jobs">नौकरियाँ ब्राउज़ करें</string>
+    <string name="browse_jobs_desc">अपने स्थान के निकट नौकरियाँ खोजें</string>
+    <string name="browse_services">सेवाएँ ब्राउज़ करें</string>
+    <string name="browse_services_desc">अपने आस-पास सेवाएँ खोजें</string>
+    <string name="my_applications">मेरे अनुप्रयोग</string>
+    <string name="post_job_title">एक नौकरी पोस्ट करो</string>
+    <string name="job_title_hint">नौकरी का शीर्षक (जैसे कुक, ड्राइवर)</string>
+    <string name="salary_hint">वेतन (जैसे ₹15,000/माह)</string>
+    <string name="location_hint">जगह</string>
     <string name="job_desc_hint">नौकरी का विवरण</string>
     <string name="requirements">आवश्यकताएं</string>
     <string name="add_req">आवश्यकता जोड़ें</string>
+    <string name="benefits">फ़ायदे</string>
     <string name="add_benefit">लाभ जोड़ें</string>
     <string name="post_job_btn">नौकरी पोस्ट करें</string>
-    <string name="post_service_title">सेवा पोस्ट करें</string>
-    <string name="service_details">सेवा का विवरण</string>
+    <string name="post_service_title">एक सेवा पोस्ट करें</string>
+    <string name="service_details">सेवा विवरण</string>
     <string name="service_cat">सेवा श्रेणी</string>
-    <string name="custom_cat">कस्टम सेवा का नाम दर्ज करें</string>
-    <string name="rate_hint">दर (उदा. ₹300 / घंटा या ₹1000 / विज़िट)</string>
+    <string name="custom_cat">कस्टम सेवा नाम दर्ज करें</string>
+    <string name="rate_hint">दर (जैसे ₹300/घंटा या ₹1000/विज़िट)</string>
     <string name="location_area_hint">स्थान क्षेत्र</string>
-    <string name="service_desc_hint">सेवा का विवरण</string>
-    <string name="post_service_btn">सेवा पोस्ट करें</string>
+    <string name="service_desc_hint">सेवा विवरण</string>
+    <string name="post_service_btn">सेवा उपरांत</string>
     <string name="apply_for_job">नौकरी के लिए आवेदन करें</string>
+    <string name="apply_now">अभी अप्लाई करें</string>
     <string name="personal_details">व्यक्तिगत विवरण</string>
     <string name="full_name">पूरा नाम</string>
     <string name="phone_number">फ़ोन नंबर</string>
-    <string name="age">उम्र</string>
+    <string name="age">आयु</string>
     <string name="gender">लिंग</string>
     <string name="work_exp">कार्य अनुभव</string>
     <string name="have_prior_exp">क्या आपके पास पूर्व अनुभव है?</string>
-    <string name="years_of_exp">अनुभव के वर्ष</string>
+    <string name="years_of_exp">वर्षों का अनुभव</string>
     <string name="documents">दस्तावेज़</string>
-    <string name="upload_resume">रिज्यूमे अपलोड करें</string>
+    <string name="upload_resume">रेज़्यूमे अपलोड करें</string>
     <string name="upload_aadhaar">आधार अपलोड करें</string>
     <string name="pref_lang">पसंदीदा भाषा</string>
-    <string name="why_hire_you">हम आपको काम पर क्यों रखें?</string>
-    <string name="my_apps_title">मेरे आवेदन</string>
+    <string name="introduction">परिचय</string>
+    <string name="why_hire_you">हम आपको नौकरी क्यों दें?</string>
+    <string name="my_apps_title">मेरे अनुप्रयोग</string>
     <string name="track_apps">अपने नौकरी आवेदनों को ट्रैक करें</string>
-    <string name="no_apps_found">कोई आवेदन नहीं मिला</string>
-    <string name="no_apps_desc">आपने अभी तक किसी नौकरी के लिए आवेदन नहीं किया है।</string>
-    <string name="applied_on">आवेदन तिथि</string>
+    <string name="no_apps_found">कोई एप्लिकेशन नहीं मिला</string>
+    <string name="no_apps_desc">आपने अभी तक किसी भी नौकरी के लिए आवेदन नहीं किया है.</string>
+    <string name="applied_on">पर लागू</string>
     <string name="current_status">वर्तमान स्थिति</string>
-    <string name="emp_feedback">नियोक्ता की प्रतिक्रिया</string>
+    <string name="emp_feedback">नियोक्ता प्रतिक्रिया</string>
     <string name="today">आज</string>
     <string name="tomorrow">कल</string>
-    <string name="choose_date">तारीख चुनें</string>
-    <string name="book_service_title">सेवा बुक करें</string>
-    <string name="book_service_btn">सेवा बुक करें</string>
-    <string name="booking_for">बुकिंग के लिए</string>
-    <string name="visit_charge">विज़िट शुल्क</string>
-    <string name="select_service_type">सेवा का प्रकार चुनें</string>
-    <string name="what_service_need">आपको किस प्रकार की सेवा चाहिए?</string>
-    <string name="problem_details">समस्या का विवरण</string>
+    <string name="choose_date">दिनांक चुनें</string>
+    <string name="book_service_title">पुस्तक सेवा</string>
+    <string name="back">पीछे</string>
+    <string name="cancel">रद्द करना</string>
+    <string name="book_service_btn">पुस्तक सेवा</string>
+    <string name="booking_for">के लिए बुकिंग</string>
+    <string name="visit_charge">विजिट चार्ज</string>
+    <string name="select_service_type">सेवा प्रकार चुनें</string>
+    <string name="what_service_need">आपको किस प्रकार की सेवा की आवश्यकता है?</string>
+    <string name="problem_details">समस्या विवरण</string>
     <string name="describe_problem">अपनी समस्या का वर्णन करें</string>
-    <string name="write_issue_hint">अपनी समस्या यहाँ लिखें</string>
+    <string name="write_issue_hint">अपनी समस्या यहां लिखें</string>
     <string name="example">उदाहरण:</string>
     <string name="example_desc">मेरा नल लीक हो रहा है</string>
     <string name="upload_media">मीडिया अपलोड करें</string>
+    <string name="upload_photo">फोटो अपलोड करें</string>
+    <string name="upload_video">वीडियो अपलोड करें</string>
     <string name="optional">वैकल्पिक</string>
-    <string name="select_date">तारीख चुनें</string>
-    <string name="when_need_service">आपको सेवा की आवश्यकता कब है?</string>
-    <string name="selected_date_label">चयनित तारीख:</string>
+    <string name="select_date">तारीख़ चुनें</string>
+    <string name="when_need_service">आपको सेवा की आवश्यकता कब होगी?</string>
+    <string name="selected_date_label">चयनित तिथि:</string>
     <string name="not_selected">चयनित नहीं</string>
-    <string name="select_time_slot">समय स्लॉट चुनें</string>
+    <string name="select_time_slot">टाइम स्लॉट चुनें</string>
     <string name="available_time_slots">उपलब्ध समय स्लॉट</string>
-    <string name="price_details">कीमत का विवरण</string>
+    <string name="price_details">मूल्य विवरण</string>
     <string name="service_charge">सेवा शुल्क</string>
-    <string name="decided_after_inspection">निरीक्षण के बाद तय किया जाएगा</string>
-    <string name="material_cost">सामग्री की लागत</string>
-    <string name="extra_if_required">आवश्यकता होने पर अतिरिक्त</string>
-    <string name="total_payable_now">अब कुल देय राशि</string>
-    <string name="note">नोट:</string>
-    <string name="price_note_desc">अंतिम कीमत वास्तविक कार्य के आधार पर भिन्न हो सकती है।</string>
+    <string name="decided_after_inspection">निरीक्षण के बाद निर्णय लिया गया</string>
+    <string name="material_cost">सामग्री लागत</string>
+    <string name="extra_if_required">यदि आवश्यक हो तो अतिरिक्त</string>
+    <string name="total_payable_now">कुल देय</string>
+    <string name="note">टिप्पणी:</string>
+    <string name="price_note_desc">वास्तविक कार्य के आधार पर अंतिम कीमत भिन्न हो सकती है।</string>
     <string name="profile_tab_title">प्रोफ़ाइल</string>
     <string name="phone_label">फ़ोन</string>
-    <string name="dob_label">जन्म तिथि</string>
+    <string name="dob_label">जन्मतिथि</string>
     <string name="gender_label">लिंग</string>
-    <string name="location_label">स्थान</string>
+    <string name="location_label">जगह</string>
     <string name="change_language">भाषा बदलें</string>
     <string name="logout">लॉग आउट</string>
     <string name="dob_placeholder">DD/MM/YYYY</string>
     <string name="distance">दूरी</string>
-    <string name="all_services">सभी सेवाएं</string>
+    <string name="all_services">सभी सेवाएँ</string>
     <string name="rating_high_to_low">रेटिंग (उच्च से निम्न)</string>
     <string name="salary_high_to_low">वेतन (उच्च से निम्न)</string>
-    <string name="search_service_hint">सेवाएं खोजें...</string>
-    <string name="filters">फ़िल्टर</string>
-    <string name="sort_by">क्रमबद्ध करें</string>
+    <string name="search_service_hint">सेवाएँ खोजें...</string>
+    <string name="filters">फिल्टर</string>
+    <string name="sort_by">इसके अनुसार क्रमबद्ध करें</string>
     <string name="no_jobs_found">कोई नौकरी नहीं मिली</string>
     <string name="max_distance">अधिकतम दूरी</string>
     <string name="max_rate">अधिकतम दर</string>
     <string name="min_rating">न्यूनतम रेटिंग</string>
     <string name="apply_filters">फ़िल्टर लागू करें</string>
     <string name="rate_per_hour">दर/घंटा</string>
-    <string name="service_category">श्रेणी</string>
-    <string name="home_tab">होम</string>
+    <string name="service_category">वर्ग</string>
+    <string name="home_tab">घर</string>
     <string name="chats_tab">चैट</string>
     <string name="profile_tab">प्रोफ़ाइल</string>
     <string name="job_details">नौकरी का विवरण</string>
-    <string name="all_jobs">सभी नौकरियां</string>
-    <string name="experience_low_to_high">अनुभव (कम से ज्यादा)</string>
-    <string name="search_hint">खोजें...</string>
+    <string name="all_jobs">सारी नौकरियां</string>
+    <string name="experience_low_to_high">अनुभव (निम्न से उच्च)</string>
+    <string name="recent">हाल ही का</string>
+    <string name="search_hint">खोज...</string>
     <string name="min_salary">न्यूनतम वेतन</string>
     <string name="min_experience">न्यूनतम अनुभव</string>
+    <string name="salary">वेतन</string>
+    <string name="experience">अनुभव</string>
     <string name="coming_soon">जल्द आ रहा है</string>
-    <string name="job_tile">नौकरियां</string>
-    <string name="job_tile_desc">नौकरियां खोजें और पोस्ट करें</string>
+    <string name="job_tile">नौकरियाँ</string>
+    <string name="job_tile_desc">नौकरियां ढूंढें और पोस्ट करें</string>
     <string name="service_tile">सेवाएं</string>
-    <string name="service_tile_desc">सेवाएं खोजें और प्रदान करें</string>
-    <string name="seek_service_title">सेवा चाहिए</string>
-    <string name="seek_service_desc">अपने पास एक पेशेवर खोजें</string>
-    <string name="provide_service_title">सेवा प्रदान करें</string>
-    <string name="provide_service_desc">दूसरों को अपना कौशल पेश करें</string>
+    <string name="service_tile_desc">सेवाएँ खोजें और प्रदान करें</string>
+    <string name="seek_service_title">एक सेवा की आवश्यकता है</string>
+    <string name="seek_service_desc">अपने निकट एक पेशेवर खोजें</string>
+    <string name="provide_service_title">एक सेवा प्रदान करें</string>
+    <string name="provide_service_desc">अपना कौशल दूसरों को प्रदान करें</string>
+    <string name="accepted">स्वीकृत</string>
+    <string name="reject">अस्वीकार करना</string>
+    <string name="my_posted_jobs">मेरी पोस्ट की गई नौकरियाँ</string>
+    <string name="call_applicant">आवेदक को कॉल करें</string>
+    <string name="total">कुल</string>
+    <string name="reject_application">आवेदन अस्वीकार करें</string>
+    <string name="profile">प्रोफ़ाइल</string>
+    <string name="status_unknown">स्थिति अज्ञात</string>
+    <string name="offer_rejected">प्रस्ताव अस्वीकृत</string>
+    <string name="no_posted_services_yet">अभी तक कोई सेवा पोस्ट नहीं की गई</string>
+    <string name="try_adjusting_filters">फ़िल्टर समायोजित करने का प्रयास करें</string>
+    <string name="post_new_job">नई नौकरी पोस्ट करें</string>
+    <string name="shortlist">शॉर्टलिस्ट</string>
+    <string name="applicant_accepted_offer">आवेदक ने प्रस्ताव स्वीकार कर लिया</string>
+    <string name="no_applicants_found">कोई आवेदक नहीं मिला</string>
+    <string name="service_requests">सेवा अनुरोध</string>
+    <string name="search_name_or_skill">नाम या कौशल खोजें</string>
+    <string name="applicant_details">आवेदक का विवरण</string>
+    <string name="waiting_for_applicant_accept">आवेदक की स्वीकृति की प्रतीक्षा की जा रही है</string>
+    <string name="my_posted_services">मेरी पोस्ट की गई सेवाएँ</string>
+    <string name="applicants_for">आवेदकों के लिए</string>
+    <string name="status_pending">स्थिति लंबित</string>
+    <string name="rejected">अस्वीकार कर दिया</string>
+    <string name="filter_new">नया फ़िल्टर करें</string>
+    <string name="no_requests_found">कोई अनुरोध नहीं मिला</string>
+    <string name="shortlist_applicant">आवेदक को शॉर्टलिस्ट करें</string>
+    <string name="remove_job">अय्यूब हटाएँ</string>
+    <string name="select">चुनना</string>
+    <string name="call">पुकारना</string>
+    <string name="filter_all">सभी को फ़िल्टर करें</string>
+    <string name="whatsapp">Whatsapp</string>
+    <string name="no_posted_jobs_yet">अभी तक कोई नौकरी पोस्ट नहीं की गई</string>
+    <string name="post_service">सेवा उपरांत</string>
+    <string name="documents_title">दस्तावेज़ शीर्षक</string>
+    <string name="applicant_rejected_offer">आवेदक ने प्रस्ताव अस्वीकार कर दिया</string>
+    <string name="remove">निकालना</string>
+    <string name="offer_accepted">प्रस्ताव स्वीकृत है</string>
+    <string name="accept">स्वीकार करना</string>
+    <string name="confirm_remove_job">कार्य हटाने की पुष्टि करें</string>
+    <string name="select_applicant">आवेदक का चयन करें</string>
+    <string name="no_documents_uploaded">कोई दस्तावेज़ अपलोड नहीं किया गया</string>
     <string name="exp_required">अनुभव आवश्यक</string>
+    <string name="yes">हाँ</string>
+    <string name="available_on">पर उपलब्ध है</string>
+    <string name="job_category">कार्य श्रेणी</string>
     <string name="monthly_salary">मासिक वेतन (₹)</string>
-    <string name="no_docs_mentioned">कोई विशिष्ट दस्तावेज उल्लिखित नहीं।</string>
-    <string name="listen">सुनें</string>
-    <string name="enter_phone">फोन नंबर दर्ज करें</string>
+    <string name="address_label">पता:</string>
+    <string name="no_docs_mentioned">किसी विशिष्ट दस्तावेज़ का उल्लेख नहीं किया गया.</string>
+    <string name="live_preview">लाइव पूर्वावलोकन</string>
+    <string name="view_job_details">नौकरी विवरण देखें</string>
+    <string name="documents_optional">दस्तावेज़ (वैकल्पिक)</string>
+    <string name="listen">सुनना</string>
+    <string name="enter_phone">फ़ोन नंबर दर्ज करें</string>
     <string name="describe_past_work">अपनी पिछली कार्य जिम्मेदारियों का वर्णन करें</string>
-    <string name="find_jobs_tab">नौकरियां खोजें</string>
+    <string name="find_jobs_tab">नौकरी ढूंढे</string>
     <string name="notifications_tab">सूचनाएं</string>
-    <string name="docs_required">आवश्यक दस्तावेज</string>
-    <string name="city_area">शहर / क्षेत्र *</string>
-    <string name="add_other_doc">अन्य दस्तावेज जोड़ें</string>
+    <string name="docs_required">आवश्यक दस्तावेज़</string>
+    <string name="city_area">शहरी क्षेत्र *</string>
+    <string name="add_other_doc">अन्य दस्तावेज़ जोड़ें</string>
     <string name="new_name_label">नया नाम</string>
-    <string name="change_name_title">नाम बदलें</string>
-    <string name="write_extra_inst">यहां कोई अतिरिक्त निर्देश लिखें...</string>
-    <string name="confirm_app_correct">मैं पुष्टि करता हूं कि इस आवेदन में दी गई जानकारी मेरे सर्वोत्तम ज्ञान के अनुसार सही और सटीक है।</string>
+    <string name="change_name_title">नाम परिवर्तन करें</string>
+    <string name="write_extra_inst">कोई भी अतिरिक्त निर्देश यहां लिखें...</string>
+    <string name="confirm_app_correct">मैं पुष्टि करता हूं कि इस एप्लिकेशन में दी गई जानकारी मेरी सर्वोत्तम जानकारी के अनुसार सही और सटीक है।</string>
     <string name="state_label">राज्य</string>
-    <string name="enter_alt_number">वैकल्पिक नंबर दर्ज करें</string>
+    <string name="enter_alt_number">वैकल्पिक संख्या दर्ज करें</string>
+    <string name="enter_your_name">अपना नाम दर्ज करें</string>
     <string name="post_job_service_card">नौकरी/सेवा पोस्ट करें</string>
-    <string name="applied_status">लागू किया</string>
+    <string name="applied_status">लागू</string>
     <string name="exit_confirm_msg">क्या आप वाकई LocalConnect से बाहर निकलना चाहते हैं?</string>
     <string name="loading_text">लोड हो रहा है...</string>
-    <string name="confirm_genuine_job">मैं पुष्टि करता हूं कि यह एक वास्तविक नौकरी पोस्टिंग है जो एक वास्तविक रिक्ति का प्रतिनिधित्व करती है। *</string>
+    <string name="verified_employer">सत्यापित नियोक्ता</string>
+    <string name="job_location">नौकरी का स्थान</string>
+    <string name="eg_15000">जैसे 15000</string>
+    <string name="confirm_genuine_job">मैं पुष्टि करता हूं कि यह एक वास्तविक नौकरी पोस्टिंग है जो वास्तविक रिक्ति का प्रतिनिधित्व करती है। *</string>
     <string name="no_notifications">अभी तक कोई सूचना नहीं</string>
-    <string name="tell_us_experience_best">सर्वोत्तम नौकरियां खोजने के लिए हमें अपने अनुभव के बारे में बताएं।</string>
+    <string name="tell_us_experience_best">सर्वोत्तम नौकरियाँ खोजने के अपने अनुभव के बारे में हमें बताएं।</string>
     <string name="audio_desc">ऑडियो विवरण</string>
     <string name="choose_photo_upload">अपनी फोटो अपलोड करने के लिए एक विकल्प चुनें</string>
-    <string name="upload_cv_cert">सीवी या प्रमाणपत्र अपलोड करें</string>
+    <string name="upload_cv_cert">CV या प्रमाणपत्र अपलोड करें</string>
+    <string name="phone_number_star">फ़ोन नंबर*</string>
     <string name="ok_btn">ठीक है</string>
-    <string name="delivery_exec">डिलीवरी एक्जीक्यूटिव</string>
+    <string name="delivery_exec">डिलिवरी कार्यकारी</string>
     <string name="english_lang">अंग्रेज़ी</string>
-    <string name="save_draft_btn">ड्राफ्ट सहेजें</string>
+    <string name="save_draft_btn">मसौदा सेव करें</string>
     <string name="use_current_loc">वर्तमान स्थान का उपयोग करें</string>
     <string name="bengali_lang">बंगाली</string>
-    <string name="key_resp_skills">मुख्य जिम्मेदारियां और कौशल</string>
-    <string name="tell_us_exp_dots">हमें अपने अनुभव के बारे में बताएं...</string>
-    <string name="close_btn">बंद करें</string>
-    <string name="pdf_image_max">पीडीएफ या छवि अधिकतम 5MB</string>
+    <string name="service_label">सेवा:</string>
+    <string name="key_resp_skills">प्रमुख जिम्मेदारियाँ और कौशल</string>
+    <string name="tell_us_exp_dots">अपने अनुभव के बारे में बताएं...</string>
+    <string name="similar_jobs">समान नौकरियाँ</string>
+    <string name="close_btn">बंद करना</string>
+    <string name="pdf_image_max">पीडीएफ या छवि अधिकतम 5 एमबी</string>
+    <string name="benefits_offered">लाभ की पेशकश की गई</string>
     <string name="education_label">शिक्षा</string>
+    <string name="reject_offer">प्रस्ताव अस्वीकार</string>
+    <string name="job_title_star">नौकरी का शीर्षक *</string>
+    <string name="verified_caps">सत्यापित</string>
+    <string name="photo_selected">फ़ोटो चयनित</string>
     <string name="selected_loc">चयनित स्थान</string>
-    <string name="gallery_opt">गेलरी</string>
+    <string name="gallery_opt">गैलरी</string>
+    <string name="enter_full_name">अपना पूरा नाम भरें</string>
     <string name="offer_service_nearby">आस-पास के ग्राहकों को अपनी सेवा प्रदान करें</string>
     <string name="charge_fees_km">क्या आप प्रति किमी शुल्क लेते हैं?</string>
     <string name="camera_opt">कैमरा</string>
+    <string name="work_address_building">कार्य पता/भवन</string>
     <string name="choose_video_upload">अपना वीडियो अपलोड करने के लिए एक विकल्प चुनें</string>
-    <string name="desc_job_role_env">नौकरी की भूमिका, पर्यावरण का वर्णन करें...</string>
-    <string name="gender_pref">लिंग प्राथमिकता</string>
+    <string name="eg_2">जैसे 2</string>
+    <string name="desc_job_role_env">कार्य भूमिका, वातावरण का वर्णन करें...</string>
+    <string name="accept_offer">प्रस्ताव स्वीकार करें</string>
+    <string name="gender_pref">लिंग वरीयता</string>
+    <string name="yes_exit">हाँ, बाहर निकलें</string>
     <string name="prior_exp_years">पूर्व अनुभव (वर्ष)</string>
-    <string name="new_job_app">नया नौकरी आवेदन</string>
-    <string name="remove_app">आवेदन हटाएं</string>
-    <string name="landmark_opt">लैंडमार्क (वैकल्पिक)</string>
-    <string name="save_btn">सहेजें</string>
-    <string name="view_btn">देखें</string>
-    <string name="pincode_star">पिनकोड *</string>
-    <string name="desc_prior_job">पिछली नौकरी का विवरण</string>
-    <string name="hindi_lang">हिन्दी</string>
-    <string name="add_btn">जोड़ें</string>
-    <string name="no_benefits_mentioned">कोई विशिष्ट लाभ उल्लिखित नहीं है।</string>
+    <string name="new_job_app">नई नौकरी के लिए आवेदन</string>
+    <string name="employer_details">नियोक्ता विवरण</string>
+    <string name="remove_app">एप्लिकेशन हटाएं</string>
+    <string name="landmark_opt">मील का पत्थर (वैकल्पिक)</string>
+    <string name="save_btn">बचाना</string>
+    <string name="date_time_label">दिनांक समय:</string>
+    <string name="view_btn">देखना</string>
+    <string name="work_label">काम:</string>
+    <string name="pincode_star">पिनकोड*</string>
+    <string name="desc_prior_job">पूर्व कार्य का विवरण</string>
+    <string name="hindi_lang">हिंदी</string>
+    <string name="add_btn">जोड़ना</string>
+    <string name="no_benefits_mentioned">कोई विशेष लाभ का उल्लेख नहीं किया गया।</string>
     <string name="edu_req">शिक्षा आवश्यक</string>
-    <string name="expected_comp">अपेक्षित मुआवजा (₹ / माह)</string>
-    <string name="employer_company_star">नियोक्ता / कंपनी का नाम *</string>
-    <string name="agree_fake_suspend">मैं सहमत हूं कि नकली या भ्रामक नौकरी पोस्ट के परिणामस्वरूप खाता निलंबित हो सकता है। *</string>
+    <string name="expected_comp">अपेक्षित मुआवज़ा (₹/माह)</string>
+    <string name="employer_company_star">नियोक्ता/कंपनी का नाम*</string>
+    <string name="agree_fake_suspend">मैं सहमत हूं कि फर्जी या भ्रामक नौकरी पोस्ट के परिणामस्वरूप खाता निलंबित किया जा सकता है। *</string>
+    <string name="loading_localconnect">लोकलकनेक्ट लोड हो रहा है...</string>
     <string name="contact_person_star">संपर्क व्यक्ति का नाम *</string>
     <string name="select_loc_map">मानचित्र पर स्थान चुनें</string>
+    <string name="exit_app">ऐप से बाहर निकलें</string>
+    <string name="category_star">वर्ग *</string>
     <string name="no_btn">नहीं</string>
+    <string name="save_continue">सहेजें जारी रखें</string>
     <string name="whatsapp_opt">WhatsApp</string>
     <string name="add_skill_resp">कौशल या जिम्मेदारी जोड़ें</string>
     <string name="view_details_btn">विवरण देखें</string>
-    <string name="skills_resp">कौशल और जिम्मेदारियां</string>
+    <string name="skills_resp">कौशल और जिम्मेदारियाँ</string>
+    <string name="call_employer">नियोक्ता को बुलाओ</string>
     <string name="driver_personal">ड्राइवर (व्यक्तिगत)</string>
-    <string name="build_work_profile">अपनी कार्य प्रोफ़ाइल बनाएं</string>
-    <string name="find_services_title">सेवाएं खोजें</string>
+    <string name="build_work_profile">अपना कार्य प्रोफ़ाइल बनाएं</string>
+    <string name="find_services_title">सेवाएँ खोजें</string>
+    <string name="video_selected">वीडियो चयनित</string>
     <string name="view_on_map">मानचित्र पर देखें</string>
-    <string name="enter_house_address">घर / कमरा / दुकान का पता दर्ज करें</string>
-    <string name="create_job_hire">श्रमिकों को काम पर रखने के लिए नौकरी पोस्ट बनाएं</string>
-    <string name="post_a_job_new">नौकरी पोस्ट करें</string>
-    <string name="post_a_service_new">सेवा पोस्ट करें</string>
+    <string name="enter_house_address">घर/कमरे/दुकान का पता दर्ज करें</string>
+    <string name="create_job_hire">श्रमिकों को काम पर रखने के लिए एक जॉब पोस्ट बनाएं</string>
+    <string name="nearby_landmark">निकटवर्ती मील का पत्थर</string>
+    <string name="post_a_job_new">एक नौकरी पोस्ट करो</string>
+    <string name="post_a_service_new">एक सेवा पोस्ट करें</string>
     <string name="what_do_you_want_post">आप क्या पोस्ट करना चाहते हैं?</string>
-<string name="tab_my_jobs">मेरे जॉब्स</string><string name="tab_my_services">मेरी सेवाएँ</string></resources>
+<string name="tab_my_jobs">मेरे काम</string><string name="tab_my_services">मेरी सेवाएँ</string><string name="tab_find_services">सेवाएँ खोजें</string><string name="tab_my_bookings">मेरी बुकिंग</string><string name="km_away">किमी दूर</string><string name="visiting_fee">विजिटिंग शुल्क: ₹</string><string name="exp_years">ऍक्स्प:</string><string name="book_service">पुस्तक सेवा</string><string name="view_bookings">बुकिंग देखें</string><string name="cancel_booking_title">बुकिंग रद्द करें</string><string name="cancel_booking_msg">क्या आप वाकई यह बुकिंग हटाना चाहते हैं?</string><string name="requested_on">इस पर अनुरोध किया गया:</string><string name="call_btn">पुकारना</string><string name="whatsapp_btn">WhatsApp</string><string name="details_btn">विवरण</string><string name="customer_details">ग्राहक विवरण</string><string name="phone_lbl">फ़ोन</string><string name="location_lbl">जगह</string><string name="date_lbl">तारीख</string><string name="time_lbl">समय</string><string name="exact_location">सटीक स्थान</string><string name="problem_desc">समस्या विवरण</string><string name="status_prefix">स्थिति:</string><string name="call_customer">ग्राहक को कॉल करें</string><string name="none_text">कोई नहीं</string><string name="provider_details">प्रदाता विवरण</string><string name="rating_lbl">रेटिंग</string><string name="status_active">सक्रिय</string><string name="per_monthly">/ महीने के</string><string name="view_applicants">आवेदकों को देखें</string><string name="gender_lbl">लिंग</string><string name="age_lbl">आयु</string><string name="experience_lbl">अनुभव</string><string name="years_lbl">साल</string><string name="view_driving_license">ड्राइविंग लाइसेंस देखें</string><string name="view_aadhaar_card">आधार कार्ड देखें</string><string name="status_accepted">स्थिति स्वीकृत</string><string name="status_rejected">स्थिति अस्वीकृत</string></resources>

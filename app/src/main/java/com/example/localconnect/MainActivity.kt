@@ -57,9 +57,12 @@ class MainActivity : ComponentActivity() {
             e.printStackTrace()
         }
 
+        
+
+
         setContent {
             LocalConnectTheme {
-                AppNavigation()
+                AppNavigation(this@MainActivity)
             }
         }
     }
@@ -67,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppNavigation() {
+fun AppNavigation(activity: android.app.Activity) {
     var currentScreen by remember {
         mutableStateOf<Screen>(Screen.Splash)
     }
@@ -204,6 +207,7 @@ fun AppNavigation() {
 
                 // 2 — Phone
                 is Screen.PhoneEntry -> PhoneEntryScreen(
+                    activity = activity,
                     session = screen.session,
                     onBack = { currentScreen = Screen.LanguageSelection },
                     onGetOtp = { phone, verificationId ->
@@ -215,7 +219,31 @@ fun AppNavigation() {
                 is Screen.OtpVerification -> OtpVerificationScreen(
                     session = screen.session,
                     onVerified = { firebaseUid -> 
-                        currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = firebaseUid)) 
+                        val db = FirebaseFirestore.getInstance()
+                        db.collection("users").document(firebaseUid).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists() && document.contains("location")) {
+                                    val languageCode = document.getString("language") ?: "en"
+                                    val language = supportedLanguages.find { it.code == languageCode } ?: supportedLanguages[0]
+                                    val fetchedName = document.getString("name") ?: ""
+                                    
+                                    val completeSession = UserSession(
+                                        language = language,
+                                        phone = document.getString("phone") ?: screen.session.phone,
+                                        firebaseUid = firebaseUid,
+                                        name = fetchedName,
+                                        dob = document.getString("dob") ?: "",
+                                        gender = document.getString("gender") ?: "",
+                                        location = document.getString("location") ?: ""
+                                    )
+                                    currentScreen = Screen.Home(completeSession)
+                                } else {
+                                    currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = firebaseUid)) 
+                                }
+                            }
+                            .addOnFailureListener {
+                                currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = firebaseUid))
+                            }
                     },
                     onBack = { currentScreen = Screen.PhoneEntry(screen.session) }
                 )

@@ -1,5 +1,6 @@
 package com.example.localconnect
 
+import com.example.localconnect.ui.TranslatedText
 import androidx.compose.ui.res.stringResource
 import com.example.localconnect.R
 
@@ -120,7 +121,7 @@ fun MyPostedServicesScreen(
 }
 
 @Composable
-fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -> Unit)? = null, buttonText: String = "View Bookings", isButtonEnabled: Boolean = true) {
+fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -> Unit)? = null, buttonText: String = stringResource(R.string.view_bookings), isButtonEnabled: Boolean = true) {
     val primaryColor = Color(0xFFF97316)
     val primaryDarkColor = Color(0xFFEA580C)
     val lightOrangeColor = Color(0xFFFFF7ED)
@@ -136,8 +137,8 @@ fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(service.serviceTitle.ifBlank { "Service Title" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F2937))
-                    Text(service.providerName.ifBlank { "Provider Name" }, fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
+                    TranslatedText(service.serviceTitle.ifBlank { "Service Title" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1F2937))
+                    TranslatedText(service.providerName.ifBlank { "Provider Name" }, fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
@@ -158,10 +159,15 @@ fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Text("📍 ${service.locality.ifBlank { "Area" }}, ${service.city.ifBlank { "City" }}", fontSize = 14.sp, color = Color(0xFF4B5563))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("📍 ${service.locality.ifBlank { "Area" }}, ${service.city.ifBlank { "City" }}", fontSize = 14.sp, color = Color(0xFF4B5563), modifier = Modifier.weight(1f))
+                if (service.distanceKm > 0.0) {
+                    Text("${String.format("%.1f", service.distanceKm)} km away", fontSize = 12.sp, color = primaryDarkColor, fontWeight = FontWeight.Bold)
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.Bottom) {
-                Text("Visiting Fee: ₹${service.price}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = primaryDarkColor)
+                Text("${stringResource(R.string.visiting_fee)}${service.price}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = primaryDarkColor)
                 if (service.feesPerKm > 0) {
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("+ ₹${service.feesPerKm}/km", fontSize = 14.sp, color = primaryDarkColor)
@@ -169,7 +175,7 @@ fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("⭐ Exp: ${service.experience}", fontSize = 12.sp, color = Color.Gray)
+                Text("⭐ ${stringResource(R.string.exp_years)} ${service.experience}", fontSize = 12.sp, color = Color.Gray)
                 Text("🕒 ${service.availableDays.joinToString(", ").takeIf { it.isNotBlank() } ?: "None"}", fontSize = 12.sp, color = Color.Gray)
             }
             Spacer(modifier = Modifier.height(16.dp))

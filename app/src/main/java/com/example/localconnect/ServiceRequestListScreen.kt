@@ -1,5 +1,7 @@
 package com.example.localconnect
 
+import com.example.localconnect.ui.TranslatedText
+import com.example.localconnect.R
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -204,7 +206,7 @@ fun CompactServiceRequestCard(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF374151))
             ) {
-                Text("View Details", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.view_details_btn), fontSize = 14.sp, fontWeight = FontWeight.Medium)
             }
             
             Spacer(modifier = Modifier.height(12.dp))
@@ -271,14 +273,14 @@ fun ServiceRequestDetailsScreen(
                 Button(onClick = {
                     try { val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${request.customerPhone}")); callIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(callIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "Cannot open dialer", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1f).height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)), shape = RoundedCornerShape(12.dp)) {
-                    Text("Call Customer", fontSize = 14.sp, color = Color.White)
+                    Text(stringResource(R.string.call_customer), fontSize = 14.sp, color = Color.White)
                 }
                 Button(onClick = {
                     var waPhone = request.customerPhone
                     if (waPhone.length == 10 && !waPhone.startsWith("+")) waPhone = "+91$waPhone"
                     try { val waIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$waPhone")).apply { setPackage("com.whatsapp") }; waIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(waIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "WhatsApp not installed", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1f).height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)), shape = RoundedCornerShape(12.dp)) {
-                    Text("Whatsapp", fontSize = 14.sp, color = Color.White)
+                    Text(stringResource(R.string.whatsapp_btn), fontSize = 14.sp, color = Color.White)
                 }
             }
             
@@ -287,7 +289,7 @@ fun ServiceRequestDetailsScreen(
             
             Column(modifier = Modifier.padding(bottom = 24.dp)) {
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Phone", fontSize = 14.sp, color = Color.Gray)
+                    Text(stringResource(R.string.phone_lbl), fontSize = 14.sp, color = Color.Gray)
                     Text(request.customerPhone, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -305,7 +307,32 @@ fun ServiceRequestDetailsScreen(
             }
 
             if (request.latitude != 0.0 && request.longitude != 0.0) {
-                Text("Exact Location", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Exact Location", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                    
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    Text(
+                        text = "View on Map",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFEA580C),
+                        modifier = Modifier.clickable {
+                            val uri = android.net.Uri.parse("geo:${request.latitude},${request.longitude}?q=${request.latitude},${request.longitude}")
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
+                            intent.setPackage("com.google.android.apps.maps")
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            } else {
+                                val browserIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://www.google.com/maps/search/?api=1&query=${request.latitude},${request.longitude}"))
+                                context.startActivity(browserIntent)
+                            }
+                        }.padding(4.dp)
+                    )
+                }
                 val customerLocation = com.google.android.gms.maps.model.LatLng(request.latitude, request.longitude)
                 val cameraPositionState = com.google.maps.android.compose.rememberCameraPositionState {
                     position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(customerLocation, 15f)
@@ -328,7 +355,7 @@ fun ServiceRequestDetailsScreen(
             
             // Introduction (Mapped to Problem Description)
             Text("Problem Description", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
-            Text(request.problemDescription, fontSize = 14.sp, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 24.dp))
+            TranslatedText(request.problemDescription, fontSize = 14.sp, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 24.dp))
             
             if (request.instructions.isNotBlank()) {
                 Text("Special Instructions", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))

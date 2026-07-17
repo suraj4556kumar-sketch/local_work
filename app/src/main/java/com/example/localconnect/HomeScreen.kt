@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import com.example.localconnect.ui.TranslatedText
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -176,7 +177,18 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
         }
     }
 
+    
     LaunchedEffect(Unit) {
+        com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                if (uid != null) {
+                    com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken", token).addOnFailureListener {}
+                }
+            }
+        }
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (androidx.core.content.ContextCompat.checkSelfPermission(context, "android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 permissionLauncher.launch("android.permission.POST_NOTIFICATIONS")

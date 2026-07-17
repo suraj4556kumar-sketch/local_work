@@ -17,8 +17,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import com.example.localconnect.ui.TranslatedText
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import android.widget.Toast
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -41,13 +49,45 @@ import androidx.compose.runtime.LaunchedEffect
 fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
     var selectedTab by remember { mutableIntStateOf(initialTab) }
     var dummyServices by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
+    var userLat by remember { mutableStateOf<Double?>(null) }
+    var userLon by remember { mutableStateOf<Double?>(null) }
     var bookedServiceIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     val coroutineScope = rememberCoroutineScope()
     
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         dummyServices = FirebaseRepository.getServices()
         val myBookings = FirebaseRepository.getMyServiceBookings(session.phone)
-        bookedServiceIds = myBookings.map { it.serviceId }.toSet()
+        bookedServiceIds = myBookings.filter { it.status.lowercase() != "rejected" && it.status.lowercase() != "completed" }.map { it.serviceId }.toSet()
+        
+        val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (hasFineLocation || hasCoarseLocation) {
+            try {
+                val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
+                    if (location != null) {
+                        userLat = location.latitude
+                        userLon = location.longitude
+                    } else {
+                        userLat = 19.0760
+                        userLon = 72.8777
+                    }
+                }.addOnFailureListener {
+                    userLat = 19.0760
+                    userLon = 72.8777
+                }
+            } catch (e: Exception) {
+                userLat = 19.0760
+                userLon = 72.8777
+            }
+        }
+    }
+    
+    val allServices = remember(dummyServices, userLat, userLon) { 
+        dummyServices.map { 
+            it.copy(distanceKm = if (userLat != null && userLon != null && it.latitude != 0.0 && it.longitude != 0.0) calculateDistance(userLat!!, userLon!!, it.latitude, it.longitude) else if (it.latitude == 0.0 && it.longitude == 0.0) -1.0 else it.distanceKm)
+        } 
     }
 
     var selectedService by remember { mutableStateOf<ServiceTask?>(null) }
@@ -67,19 +107,19 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
     var maxRate by remember { mutableIntStateOf(2000) }
     var minRating by remember { mutableDoubleStateOf(0.0) }
 
-    val allCategories = remember(dummyServices) { dummyServices.map { it.category }.distinct() }
+    val allCategories = remember(allServices) { allServices.map { it.category }.distinct() }
     val allServicesStr = stringResource(R.string.all_services)
     val serviceFilterOptions = remember(allCategories, allServicesStr) { listOf(allServicesStr) + allCategories }
     val suggestions = allCategories.filter { it.contains(searchQuery, ignoreCase = true) }
     
     val sortedServices = when (activeSort) {
-        stringResource(R.string.rating_high_to_low) -> dummyServices.sortedByDescending { it.rating }
-        stringResource(R.string.salary_high_to_low) -> dummyServices.sortedBy { it.price }
-        else -> dummyServices.sortedBy { it.distanceKm }
+        stringResource(R.string.rating_high_to_low) -> allServices.sortedByDescending { it.rating }
+        stringResource(R.string.salary_high_to_low) -> allServices.sortedBy { it.price }
+        else -> allServices.sortedBy { it.distanceKm }
     }
 
     val advancedFiltered = sortedServices.filter {
-        it.distanceKm <= maxDistance &&
+        (maxDistance >= 100.0 || (it.distanceKm > -0.5 && it.distanceKm <= maxDistance)) &&
         it.price <= maxRate &&
         it.rating >= minRating &&
         (selectedServiceFilter == stringResource(R.string.all_services) || it.category == selectedServiceFilter)
@@ -125,14 +165,14 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
             Tab(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
-                text = { Text("Find Services", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                text = { Text(stringResource(R.string.tab_find_services), fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(alpha = 0.7f)
             )
             Tab(
                 selected = selectedTab == 1,
                 onClick = { selectedTab = 1 },
-                text = { Text("My Bookings", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                text = { Text(stringResource(R.string.tab_my_bookings), fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(alpha = 0.7f)
             )
@@ -397,3 +437,15 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
 }
 
 
+
+
+fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    val R = 6371.0 // Radius of earth in KM
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLon = Math.toRadians(lon2 - lon1)
+    val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return R * c
+}

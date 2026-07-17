@@ -95,7 +95,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                 shadowElevation = 1.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp).statusBarsPadding()) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.my_apps_title), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
                     Text(stringResource(R.string.track_apps), fontSize = 14.sp, color = Color(0xFF6B7280))
                 }

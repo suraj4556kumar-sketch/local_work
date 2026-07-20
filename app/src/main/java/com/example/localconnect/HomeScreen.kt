@@ -55,6 +55,8 @@ import androidx.compose.foundation.lazy.items
 @Composable
 fun HomeScreen(
     initialSession: UserSession,
+    initialActionType: String? = null,
+    initialReferenceId: String? = null,
     onLogout: () -> Unit = {},
     onSessionUpdate: (UserSession) -> Unit = {}
 ) {
@@ -64,9 +66,15 @@ fun HomeScreen(
     var selectedJobId by remember { mutableStateOf<String?>(null) }
     var selectedServiceId by remember { mutableStateOf<String?>(null) }
     var jobSearchInitialTab by remember { mutableIntStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+    val userIds = listOfNotNull(session.firebaseUid.takeIf { it.isNotBlank() }, session.phone.takeIf { it.isNotBlank() }).distinct()
+    val notifications by com.example.localconnect.data.FirebaseRepository.getNotificationsFlow(userIds).collectAsState(initial = emptyList())
 
         val context = LocalContext.current
     var showExitDialog by remember { mutableStateOf(false) }
+
+    var serviceSearchInitialTab by remember { mutableIntStateOf(0) }
+
 
     fun navigateTo(tab: Int) {
         if (tabStack.lastOrNull() != tab) {
@@ -81,6 +89,46 @@ fun HomeScreen(
             showExitDialog = true
         }
     }
+
+    LaunchedEffect(initialActionType, initialReferenceId) {
+        if (!initialActionType.isNullOrBlank()) {
+            when (initialActionType) {
+                "job_application", "application_status_employer", "job_application_update" -> {
+                    if (!initialReferenceId.isNullOrBlank()) {
+                        selectedJobId = initialReferenceId
+                        navigateTo(8)
+                    }
+                }
+                "application_status", "status_update", "application_status_applicant" -> {
+                    jobSearchInitialTab = 1
+                    navigateTo(1)
+                }
+                "service_request" -> {
+                    if (!initialReferenceId.isNullOrBlank()) {
+                        selectedServiceId = initialReferenceId
+                        navigateTo(10)
+                    }
+                }
+                "service_status_update" -> {
+                    serviceSearchInitialTab = 1
+                    navigateTo(2)
+                }
+            }
+        }
+    }
+    
+    val sharedPreferences = context.getSharedPreferences("NotificationsPrefs", android.content.Context.MODE_PRIVATE)
+    LaunchedEffect(notifications) {
+        val unreadNotifications = notifications.filter { !it.isRead }
+        for (notif in unreadNotifications) {
+            val key = "notified_${notif.id}"
+            if (!sharedPreferences.getBoolean(key, false)) {
+                com.example.localconnect.utils.NotificationHelper.showNotification(context, notif.title, notif.message, notif.referenceId, notif.type)
+                sharedPreferences.edit().putBoolean(key, true).apply()
+            }
+        }
+    }
+
 
     BackHandler {
         popBack()
@@ -139,9 +187,9 @@ fun HomeScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
-                0 -> HomeContent(session, onNavigateToJobs = { navigateTo(1) }, onNavigateToServices = { navigateTo(2) }, onNavigateToPostJob = { navigateTo(7) }, onNavigateToPostService = { navigateTo(6) }, onProfileClick = { navigateTo(4) }, onNavigateToApplicantList = { jobId -> selectedJobId = jobId; navigateTo(8) }, onNavigateToMyApplications = { jobSearchInitialTab = 1; navigateTo(1) })
+                0 -> HomeContent(session, onNavigateToJobs = { navigateTo(1) }, onNavigateToServices = { navigateTo(2) }, onNavigateToPostJob = { navigateTo(7) }, onNavigateToPostService = { navigateTo(6) }, onProfileClick = { navigateTo(4) }, onNavigateToApplicantList = { jobId -> selectedJobId = jobId; navigateTo(8) }, onNavigateToMyApplications = { jobSearchInitialTab = 1; navigateTo(1) }, unreadCount = notifications.count { !it.isRead }, notifications = notifications, onNavigateToNotifications = { navigateTo(11) }, onMarkNotificationsRead = { coroutineScope.launch { com.example.localconnect.data.FirebaseRepository.markNotificationsAsRead(userIds) } })
                 1 -> JobSearchScreen(session = session, initialTab = jobSearchInitialTab)
-                2 -> ServiceSearchScreen(session = session)
+                2 -> ServiceSearchScreen(session = session, initialTab = serviceSearchInitialTab)
                 3 -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("${stringResource(R.string.chats_tab)} Screen (${stringResource(R.string.coming_soon)})") }
                 4 -> ProfileScreen(session, onUpdateSession = { session = it; onSessionUpdate(it) }, onLogout, onNavigateToPostJob = { navigateTo(5) }, onNavigateToPostService = { navigateTo(6) })
                 5 -> PostJobScreen(session = session, onBack = { popBack() }, onJobPosted = { popBack() })
@@ -150,6 +198,40 @@ fun HomeScreen(
                 7 -> MyPostedJobsScreen(session = session, onBack = { popBack() }, onNavigateToPostNew = { navigateTo(5) }, onJobClick = { jobId -> selectedJobId = jobId; navigateTo(8) })
                 8 -> selectedJobId?.let { ApplicantListScreen(session = session, jobId = it, onBack = { popBack() }, onNavigateToPostNew = { navigateTo(5) }) }
                 10 -> selectedServiceId?.let { ServiceRequestListScreen(session = session, serviceId = it, onBack = { popBack() }) }
+                11 -> NotificationsScreen(
+                    notifications = notifications,
+                    onBack = { popBack() },
+                    onNotificationClick = { notif ->
+                        when (notif.type) {
+                            "job_application", "application_status_employer", "job_application_update" -> {
+                                if (notif.referenceId.isNotBlank()) {
+                                    selectedJobId = notif.referenceId
+                                    navigateTo(8)
+                                }
+                            }
+                            "application_status", "status_update", "application_status_applicant" -> {
+                                jobSearchInitialTab = 1
+                                navigateTo(1)
+                            }
+                            "service_status_update" -> {
+                                serviceSearchInitialTab = 1
+                                navigateTo(2)
+                            }
+                            "new_offer", "offer_response" -> {
+                                // Ignore or implement
+                            }
+                            "service_request" -> {
+                                if (notif.referenceId.isNotBlank()) {
+                                    selectedServiceId = notif.referenceId
+                                    navigateTo(10)
+                                }
+                            }
+                        }
+                    },
+                    onDeleteNotification = { notif ->
+                        coroutineScope.launch { com.example.localconnect.data.FirebaseRepository.deleteNotification(notif.id) }
+                    }
+                )
             }
         }
     }
@@ -157,9 +239,8 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNavigateToServices: () -> Unit, onNavigateToPostJob: () -> Unit, onNavigateToPostService: () -> Unit, onProfileClick: () -> Unit, onNavigateToApplicantList: (String) -> Unit, onNavigateToMyApplications: () -> Unit) {
+private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNavigateToServices: () -> Unit, onNavigateToPostJob: () -> Unit, onNavigateToPostService: () -> Unit, onProfileClick: () -> Unit, onNavigateToApplicantList: (String) -> Unit, onNavigateToMyApplications: () -> Unit, unreadCount: Int, notifications: List<com.example.localconnect.data.Notification>, onNavigateToNotifications: () -> Unit, onMarkNotificationsRead: () -> Unit) {
     var showPostActionSheet by remember { mutableStateOf(false) }
-    var showNotifications by remember { mutableStateOf(false) }
         val userIds = listOfNotNull(
         session.firebaseUid.takeIf { it.isNotBlank() },
         session.phone.takeIf { it.isNotBlank() }
@@ -196,18 +277,7 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
         }
     }
 
-    var previousNotificationCount by remember { mutableStateOf(-1) }
 
-    LaunchedEffect(notifications) {
-        if (previousNotificationCount != -1 && notifications.size > previousNotificationCount) {
-            // A new notification was added!
-            val latestNotification = notifications.firstOrNull() // assuming sorted descending by timestamp
-            if (latestNotification != null && !latestNotification.isRead) {
-                com.example.localconnect.utils.NotificationHelper.showNotification(context, latestNotification.title, latestNotification.message)
-            }
-        }
-        previousNotificationCount = notifications.size
-    }
 
     val coroutineScope = rememberCoroutineScope()
     val initial = session.name.firstOrNull()?.uppercaseChar()?.toString()
@@ -262,13 +332,9 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
                     ) {
                         IconButton(
                             onClick = { 
-                                showNotifications = true
+                                onNavigateToNotifications()
                                 if (unreadCount > 0) {
-                                    val userIdsList = listOfNotNull(
-                                        session.firebaseUid.takeIf { it.isNotBlank() },
-                                        session.phone.takeIf { it.isNotBlank() }
-                                    ).distinct()
-                                    coroutineScope.launch { FirebaseRepository.markNotificationsAsRead(userIdsList) }
+                                    onMarkNotificationsRead()
                                 }
                             }
                         ) {
@@ -383,30 +449,7 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
         )
     }
 
-    if (showNotifications) {
-        NotificationsBottomSheet(
-            notifications = notifications,
-            onDismiss = { showNotifications = false },
-            onNotificationClick = { notif ->
-                showNotifications = false
-                when (notif.type) {
-                    "new_application", "application_status_employer" -> {
-                        if (notif.referenceId.isNotBlank()) {
-                            onNavigateToApplicantList(notif.referenceId)
-                        }
-                    }
-                    "application_status_applicant" -> {
-                        onNavigateToMyApplications()
-                    }
-                }
-            }
-        )
-    }
 }
-
-
-
-
 
 @Composable
 private fun ActionCard(
@@ -623,102 +666,3 @@ private fun PostActionSheet(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NotificationsBottomSheet(
-    notifications: List<Notification>,
-    onDismiss: () -> Unit,
-    onNotificationClick: (Notification) -> Unit
-) {
-    ModalBottomSheet(
-        modifier = Modifier.fillMaxHeight(),
-        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        onDismissRequest = onDismiss,
-        containerColor = Color.White
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(R.string.notifications_tab), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Filled.Close, contentDescription = "Close", tint = Color.Gray)
-                }
-            }
-            
-            HorizontalDivider(color = Color(0xFFE0E0E0))
-            
-            if (notifications.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Outlined.Notifications, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color.LightGray)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(stringResource(R.string.no_notifications), fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
-                    }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 24.dp)
-                ) {
-                    items(notifications) { notif ->
-                        NotificationItem(notif, onNotificationClick)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun NotificationItem(notification: Notification, onClick: (Notification) -> Unit) {
-    val df = remember { SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault()) }
-    val timeString = remember(notification.timestamp) { df.format(Date(notification.timestamp)) }
-    val isUnread = !notification.isRead
-    
-    val bgColor = if (isUnread) Color(0xFFFFF3E0) else Color.White
-    
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(bgColor)
-            .clickable { onClick(notification) }
-            .padding(20.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .background(if (isUnread) OrangePrimary.copy(alpha = 0.1f) else Color(0xFFF5F5F5), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            val icon = when(notification.type) {
-                "job_application" -> Icons.Filled.Person
-                "job_application_update" -> Icons.Filled.Info
-                "offer_response" -> Icons.Filled.CheckCircle
-                else -> Icons.Filled.Notifications
-            }
-            val tint = if (isUnread) OrangePrimary else Color.Gray
-            Icon(icon, contentDescription = null, tint = tint)
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(notification.title, fontSize = 16.sp, fontWeight = if (isUnread) FontWeight.Bold else FontWeight.Medium, color = Color(0xFF1A1A1A))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(notification.message, fontSize = 14.sp, color = Color(0xFF757575))
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(timeString, fontSize = 12.sp, color = Color.Gray)
-        }
-        if (isUnread) {
-            Box(modifier = Modifier.size(8.dp).background(OrangePrimary, CircleShape))
-        }
-    }
-    HorizontalDivider(color = Color(0xFFF5F5F5))
-}

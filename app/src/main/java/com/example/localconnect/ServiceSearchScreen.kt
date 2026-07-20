@@ -103,7 +103,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
     val default_selectedServiceFilter = stringResource(R.string.all_services)
     var selectedServiceFilter by remember { mutableStateOf(default_selectedServiceFilter) }
     
-    var maxDistance by remember { mutableDoubleStateOf(50.0) }
+    var maxDistance by remember { mutableDoubleStateOf(100.0) }
     var maxRate by remember { mutableIntStateOf(2000) }
     var minRating by remember { mutableDoubleStateOf(0.0) }
 
@@ -119,7 +119,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
     }
 
     val advancedFiltered = sortedServices.filter {
-        (maxDistance >= 100.0 || (it.distanceKm > -0.5 && it.distanceKm <= maxDistance)) &&
+        (it.distanceKm > -0.5 && it.distanceKm <= maxDistance) &&
         it.price <= maxRate &&
         it.rating >= minRating &&
         (selectedServiceFilter == stringResource(R.string.all_services) || it.category == selectedServiceFilter)
@@ -184,7 +184,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
             Column {
                 ExposedDropdownMenuBox(
@@ -210,7 +210,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
                             }
                         },
                         textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A)),
-                        modifier = Modifier.fillMaxWidth().height(52.dp).menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = Color(0xFFE0E0E0),
@@ -323,7 +323,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
             if (displayedServices.isEmpty()) {
                 item {
                     Text(
-                        text = "${stringResource(R.string.no_jobs_found)} \"$searchQuery\"",
+                        text = "${stringResource(R.string.no_services_found)} \"$searchQuery\"",
                         modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                         color = Color.Gray,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,

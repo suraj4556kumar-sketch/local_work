@@ -72,7 +72,7 @@ fun ServiceRequestListScreen(
             onBack = { selectedRequest = null },
             onAccept = {
                 coroutineScope.launch {
-                    val success = FirebaseRepository.updateServiceRequestStatus(selectedRequest!!.id, "Accepted")
+                    val success = FirebaseRepository.updateServiceRequestStatus(selectedRequest!!, "Accepted")
                     if (success) {
                         requests[selectedIndex] = requests[selectedIndex].copy(status = "Accepted")
                         selectedRequest = null
@@ -82,7 +82,7 @@ fun ServiceRequestListScreen(
             },
             onReject = {
                 coroutineScope.launch {
-                    val success = FirebaseRepository.updateServiceRequestStatus(selectedRequest!!.id, "Rejected")
+                    val success = FirebaseRepository.updateServiceRequestStatus(selectedRequest!!, "Rejected")
                     if (success) {
                         requests[selectedIndex] = requests[selectedIndex].copy(status = "Rejected")
                         selectedRequest = null

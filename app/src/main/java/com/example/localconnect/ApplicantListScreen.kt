@@ -226,13 +226,15 @@ fun ApplicantListScreen(
                             onStatusChange = { newStatus ->
                                 val index = applications.indexOfFirst { it.id == app.id }
                                 if (index != -1) {
-                                    val updated = applications[index].copy(status = newStatus)
-                                    val mutable = applications.toMutableList()
-                                    mutable[index] = updated
-                                    applications = mutable
-                                    coroutineScope.launch { FirebaseRepository.updateApplicationStatus(updated, newStatus) }
+                                    if (applications[index].status != newStatus) {
+                                        val updated = applications[index].copy(status = newStatus)
+                                        val mutable = applications.toMutableList()
+                                        mutable[index] = updated
+                                        applications = mutable
+                                        coroutineScope.launch { FirebaseRepository.updateApplicationStatus(updated, newStatus) }
+                                        Toast.makeText(context.applicationContext, "Applicant marked as $newStatus", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                                Toast.makeText(context.applicationContext, "Applicant marked as $newStatus", Toast.LENGTH_SHORT).show()
                             }
                         )
                     }

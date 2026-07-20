@@ -35,7 +35,7 @@ sealed class Screen {
     data class OtpVerification(val session: UserSession) : Screen()
     data class ProfileSetup(val session: UserSession) : Screen()
     data class LocationSetup(val session: UserSession) : Screen()
-    data class Home(val session: UserSession) : Screen()
+    data class Home(val session: UserSession, val intentType: String? = null, val intentReferenceId: String? = null) : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -236,7 +236,9 @@ fun AppNavigation(activity: android.app.Activity) {
                                         gender = document.getString("gender") ?: "",
                                         location = document.getString("location") ?: ""
                                     )
-                                    currentScreen = Screen.Home(completeSession)
+                                    val intentType = activity.intent.getStringExtra("type")
+                                    val intentRefId = activity.intent.getStringExtra("referenceId")
+                                    currentScreen = Screen.Home(completeSession, intentType, intentRefId)
                                 } else {
                                     currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = firebaseUid)) 
                                 }
@@ -269,7 +271,7 @@ fun AppNavigation(activity: android.app.Activity) {
                 )
 
                 // 7 — Personalised Home
-                is Screen.Home -> HomeScreen(
+                is Screen.Home -> HomeScreen(initialActionType = screen.intentType, initialReferenceId = screen.intentReferenceId, 
                     initialSession = screen.session,
                     onLogout = {
                         currentScreen = Screen.LanguageSelection

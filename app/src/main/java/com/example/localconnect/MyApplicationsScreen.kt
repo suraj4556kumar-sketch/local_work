@@ -267,7 +267,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 
-                if (selectedApp!!.status == "Selected") {
+                if (selectedApp!!.status == "Selected" || selectedApp!!.status == "Shortlisted") {
                     val coroutineScope = rememberCoroutineScope()
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
@@ -280,7 +280,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                                     mutable[index] = updated
                                     myApplications = mutable
                                 }
-                                coroutineScope.launch { FirebaseRepository.applyForJob(updated) }
+                                coroutineScope.launch { FirebaseRepository.updateApplicationStatus(updated, "Offer Accepted") }
                             },
                             modifier = Modifier.weight(1f).height(48.dp),
                             shape = RoundedCornerShape(12.dp),
@@ -298,7 +298,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                                     mutable[index] = updated
                                     myApplications = mutable
                                 }
-                                coroutineScope.launch { FirebaseRepository.applyForJob(updated) }
+                                coroutineScope.launch { FirebaseRepository.updateApplicationStatus(updated, "Offer Rejected") }
                             },
                             modifier = Modifier.weight(1f).height(48.dp),
                             shape = RoundedCornerShape(12.dp),

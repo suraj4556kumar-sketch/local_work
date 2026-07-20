@@ -338,6 +338,7 @@ fun PostJobScreen(
                                     endTime = endTime,
                                     weeklyOff = weeklyOff,
                                     joiningDate = joiningDate,
+                                    postingDate = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date()),
                                     description = jobDescription,
                                     responsibilities = responsibilities.toList(),
                                     isCustomDescription = true,

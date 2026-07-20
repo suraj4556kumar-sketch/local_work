@@ -210,7 +210,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
     val default_selectedJobFilter = stringResource(R.string.all_jobs)
     var selectedJobFilter by remember { mutableStateOf(default_selectedJobFilter) }
     
-    var maxDistance by remember { mutableDoubleStateOf(50.0) }
+    var maxDistance by remember { mutableDoubleStateOf(100.0) }
     var minSalary by remember { mutableIntStateOf(0) }
     var minExperience by remember { mutableIntStateOf(0) }
 
@@ -227,7 +227,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
     }
 
     val advancedFiltered = sortedJobs.filter {
-        (maxDistance >= 50.0 || it.distanceKm <= maxDistance) &&
+        (it.distanceKm <= maxDistance) &&
         it.salaryValue >= minSalary &&
         it.experienceYears >= minExperience &&
         (selectedJobFilter == stringResource(R.string.all_jobs) || it.title == selectedJobFilter)
@@ -248,7 +248,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
             Column {
                 ExposedDropdownMenuBox(
@@ -274,7 +274,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                             }
                         },
                         textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A)),
-                        modifier = Modifier.fillMaxWidth().height(52.dp).menuAnchor(),
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = Color(0xFFE0E0E0),
@@ -302,7 +302,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -416,11 +416,11 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                 Text(stringResource(R.string.filters), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                Text("${stringResource(R.string.max_distance)}: " + if(maxDistance >= 50.0) "Any" else "${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
+                Text("${stringResource(R.string.max_distance)}: ${maxDistance.toInt()} km", fontWeight = FontWeight.SemiBold)
                 Slider(
                     value = maxDistance.toFloat(),
                     onValueChange = { maxDistance = it.toDouble() },
-                    valueRange = 1f..50f,
+                    valueRange = 1f..100f,
                     colors = SliderDefaults.colors(thumbColor = OrangePrimary, activeTrackColor = OrangePrimary)
                 )
                 

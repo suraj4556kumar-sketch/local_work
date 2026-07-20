@@ -166,7 +166,7 @@ fun JobDetailsScreen(
                 shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
                 shadowElevation = 1.dp
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -311,7 +311,7 @@ fun JobDetailsScreen(
                 color = Color.White,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.job_desc_hint), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     // Audio Controls
@@ -414,7 +414,7 @@ fun JobDetailsScreen(
             
             // --- Documents Required ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.docs_required), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     val reqs = job.requirements + job.documentsRequired
@@ -435,7 +435,7 @@ fun JobDetailsScreen(
             
             // --- Benefits ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.benefits), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     if (job.benefits.isNotEmpty()) {
@@ -454,7 +454,7 @@ fun JobDetailsScreen(
             
             // --- Employer Details ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.employer_details), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(bottom = 12.dp))
                     
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -484,7 +484,7 @@ fun JobDetailsScreen(
             
             // --- Job Location ---
             Surface(color = Color.White, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
                         Text(stringResource(R.string.job_location), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
                         Box(
@@ -622,13 +622,13 @@ fun JobDetailsScreen(
             
             // --- Similar Jobs ---
             Column(modifier = Modifier.padding(vertical = 24.dp)) {
-                Text(stringResource(R.string.similar_jobs), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 16.dp))
+                Text(stringResource(R.string.similar_jobs), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp))
                 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp),
+                        .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     val similarJobs = getDummyJobs(session.language.code).filter { it.id != job.id }.take(3)

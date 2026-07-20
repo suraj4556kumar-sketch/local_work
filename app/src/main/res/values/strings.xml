@@ -132,7 +132,7 @@
     <string name="change_language">Change Language</string>
     <string name="logout">Logout</string>
     <string name="dob_placeholder">DD/MM/YYYY</string>
-    <string name="distance">Distance</string>
+    <string name="distance">Distance (Low to High)</string>
     <string name="all_services">All Services</string>
     <string name="rating_high_to_low">Rating (High to Low)</string>
     <string name="salary_high_to_low">Salary (High to Low)</string>
@@ -152,7 +152,7 @@
     <string name="job_details">Job Details</string>
     <string name="all_jobs">All Jobs</string>
     <string name="experience_low_to_high">Experience (Low to High)</string>
-    <string name="recent">Recent</string>
+    <string name="recent">Latest Posting</string>
     <string name="search_hint">Search...</string>
     <string name="min_salary">Min Salary</string>
     <string name="min_experience">Min Experience</string>
@@ -192,6 +192,7 @@
     <string name="rejected">Rejected</string>
     <string name="filter_new">Filter New</string>
     <string name="no_requests_found">No Requests Found</string>
+    <string name="no_services_found">No services found</string>
     <string name="shortlist_applicant">Shortlist Applicant</string>
     <string name="remove_job">Remove Job</string>
     <string name="select">Select</string>

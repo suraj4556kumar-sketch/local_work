@@ -217,9 +217,10 @@ object FirebaseRepository {
             createNotification(Notification(
                 userId = newApp.employerId,
                 title = "New Job Application",
-                message = "${newApp.applicantName} applied for a job.",
+                message = "${newApp.applicantName} applied for your job: ${newApp.jobTitle}",
                 timestamp = System.currentTimeMillis(),
-                type = "job_application"
+                type = "job_application",
+                referenceId = newApp.jobId
             ))
             
             true
@@ -267,6 +268,17 @@ object FirebaseRepository {
             val docRef = if (request.id.isEmpty()) serviceBookingsRef.document() else serviceBookingsRef.document(request.id)
             val newRequest = request.copy(id = docRef.id, appliedOn = System.currentTimeMillis())
             docRef.set(newRequest).await()
+            
+            // Notification to provider
+            createNotification(Notification(
+                userId = request.providerId,
+                title = "New Service Booking",
+                message = "${request.customerName} booked your service: ${request.serviceTitle}",
+                timestamp = System.currentTimeMillis(),
+                type = "service_request",
+                referenceId = request.serviceId
+            ))
+            
             true
         } catch (e: Exception) {
             Log.e("FirebaseRepo", "Error booking service", e)
@@ -294,9 +306,26 @@ object FirebaseRepository {
         }
     }
 
-    suspend fun updateServiceRequestStatus(requestId: String, newStatus: String): Boolean {
+    suspend fun updateServiceRequestStatus(request: ServiceRequest, newStatus: String): Boolean {
         return try {
-            serviceBookingsRef.document(requestId).update("status", newStatus).await()
+            serviceBookingsRef.document(request.id).update("status", newStatus).await()
+            
+            val message = when(newStatus) {
+                "Accepted" -> "Your booking for ${request.serviceTitle} has been confirmed by the provider!"
+                "Rejected" -> "Your booking for ${request.serviceTitle} was declined by the provider."
+                "Completed" -> "Your service ${request.serviceTitle} has been marked as completed."
+                else -> "Your booking for ${request.serviceTitle} is now $newStatus."
+            }
+            
+            createNotification(Notification(
+                userId = request.seekerId,
+                title = "Booking Update",
+                message = message,
+                timestamp = System.currentTimeMillis(),
+                type = "service_status_update",
+                referenceId = request.serviceId
+            ))
+            
             true
         } catch (e: Exception) {
             android.util.Log.e("FirebaseRepo", "Error updating request status", e)
@@ -306,11 +335,37 @@ object FirebaseRepository {
 
 
     suspend fun updateApplicationStatus(application: JobApplication, status: String): Boolean {
-        return try {
+        try {
             jobAppsRef.document(application.id).update("status", status).await()
-            true
+            
+            if (status == "Shortlisted") {
+                return true
+            }
+            
+            val recipientId = if (status == "Offer Accepted" || status == "Offer Rejected") application.employerId else application.seekerId
+            
+            val notificationMessage = when (status) {
+                "Selected", "Shortlisted" -> "You are selected for the job ${application.jobTitle} at ${application.companyName}. Please accept it from your side."
+                "Rejected" -> "Your application for ${application.jobTitle} was unfortunately not selected."
+                "Offer Accepted" -> "${application.applicantName} has accepted your job offer for ${application.jobTitle}!"
+                "Offer Rejected" -> "${application.applicantName} declined the job offer for ${application.jobTitle}."
+                else -> "Your application for ${application.jobTitle} has been marked as $status."
+            }
+            
+            val notificationType = if (status == "Offer Accepted" || status == "Offer Rejected") "job_application_update" else "status_update"
+
+            createNotification(Notification(
+                userId = recipientId,
+                title = "Application Update",
+                message = notificationMessage,
+                timestamp = System.currentTimeMillis(),
+                type = notificationType,
+                referenceId = application.jobId
+            ))
+            
+            return true
         } catch (e: Exception) {
-            false
+            return false
         }
     }
 
@@ -364,19 +419,22 @@ object FirebaseRepository {
     suspend fun markNotificationsAsRead(userIds: List<String>) {
         if (userIds.isEmpty()) return
         try {
-            val unread = notificationsRef
-                .whereIn("userId", userIds)
-                .whereEqualTo("isRead", false)
-                .get()
-                .await()
-            
-            db.runBatch { batch ->
-                for (doc in unread.documents) {
-                    batch.update(doc.reference, "isRead", true)
-                }
-            }.await()
+            val snapshot = notificationsRef.whereIn("userId", userIds).whereEqualTo("isRead", false).get().await()
+            val batch = db.batch()
+            for (doc in snapshot.documents) {
+                batch.update(doc.reference, "isRead", true)
+            }
+            batch.commit().await()
         } catch (e: Exception) {
-            Log.e("FirebaseRepo", "Error marking notifications read", e)
+            Log.e("FirebaseRepo", "Error marking notifications as read", e)
+        }
+    }
+
+    suspend fun deleteNotification(notificationId: String) {
+        try {
+            notificationsRef.document(notificationId).delete().await()
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error deleting notification", e)
         }
     }
 

@@ -44,7 +44,7 @@
     
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCe_CALYYORIwFQDvpWl9oYeNKSKgT1PtI" />
+            android:value="AIzaSyCAnoBKHOcmB4GyOlAn-Vd9pvUeY8n3XpY" />
     
         <service
             android:name=".MyFirebaseMessagingService"

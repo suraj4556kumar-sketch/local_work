@@ -61,7 +61,6 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     
     // ML Kit Translation
-    implementation("com.google.mlkit:translate:17.0.3")
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

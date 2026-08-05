@@ -16,6 +16,26 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val title = remoteMessage.notification?.title ?: remoteMessage.data["title"] ?: "New Notification"
         val message = remoteMessage.notification?.body ?: remoteMessage.data["message"] ?: ""
 
+        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(user.uid).get()
+                .addOnSuccessListener { document ->
+                    val lang = document.getString("language") ?: "en"
+                    com.example.localconnect.utils.TranslationManager.translate(title, lang) { translatedTitle ->
+                        com.example.localconnect.utils.TranslationManager.translate(message, lang) { translatedMessage ->
+                            showPushNotification(translatedTitle, translatedMessage)
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    showPushNotification(title, message)
+                }
+        } else {
+            showPushNotification(title, message)
+        }
+    }
+
+    private fun showPushNotification(title: String, message: String) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "localconnect_channel"
 

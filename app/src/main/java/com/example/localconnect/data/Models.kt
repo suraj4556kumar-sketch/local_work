@@ -18,7 +18,9 @@ data class User(
     val location: String = "",
     val roles: UserRoles = UserRoles(),
     val languageCode: String = "en",
-    val createdAt: Timestamp? = null
+    val createdAt: Timestamp? = null,
+    val rating: Double = 0.0,
+    val completedJobs: Int = 0
 )
 
 data class ServiceTask(
@@ -42,10 +44,10 @@ data class ServiceTask(
     val availableTo: String = "",
     val experience: String = "",
     val pincode: String = "",
-    val rating: Double = 0.0,
-    val completedJobs: Int = 0,
     val description: String = "",
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val rating: Double = 0.0,
+    val completedJobs: Int = 0
 )
 
 data class ServiceRequest(
@@ -68,7 +70,8 @@ data class ServiceRequest(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val instructions: String = "",
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val isReviewed: Boolean = false // true once the seeker has left a review
 )
 
 data class Job(
@@ -122,7 +125,9 @@ data class Job(
     val requirements: List<String> = emptyList(),
     val benefits: List<String> = emptyList(),
     val languagesPref: List<String> = emptyList(),
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val rating: Double = 0.0,
+    val completedJobs: Int = 0
 )
 
 data class JobApplication(
@@ -138,7 +143,8 @@ data class JobApplication(
     val appliedOnDate: String = "",
     val appliedOn: Long = 0L,
     val feedback: String = "",
-    
+    val isReviewed: Boolean = false, // true once the seeker has left a review for the employer
+
     // applicant details
     val applicantName: String = "",
     val applicantPhone: String = "",
@@ -165,4 +171,23 @@ data class JobTemplate(
     val category: String = "",
     val description: String = "",
     val responsibilities: List<String> = emptyList()
+)
+
+/**
+ * A single review submitted by a seeker (service or job).
+ * reviewType: "service" or "job"
+ */
+data class Review(
+    val id: String = "",
+    val reviewerId: String = "",      // UID of person leaving the review
+    val reviewerName: String = "",    // Display name of reviewer
+    val targetId: String = "",        // providerId (service) or employerId (job)
+    val targetName: String = "",      // Provider / Company name
+    val referenceId: String = "",     // serviceRequestId or jobApplicationId
+    val reviewType: String = "service", // "service" or "job"
+    val entityId: String = "",        // serviceId or jobId for per-item ratings
+    val rating: Float = 0f,           // 1.0 to 5.0
+    val comment: String = "",
+    val serviceTitle: String = "",    // for display context
+    val timestamp: Long = 0L
 )

@@ -62,23 +62,12 @@ fun PhoneEntryScreen(
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
     fun handleGetOtp() {
-        if (activity == null) return
         isLoading = true
-        AuthManager.sendOtp(
-            activity = activity,
-            phoneNumber = phoneNumber,
-            onCodeSent = { verificationId ->
-                isLoading = false
-                onGetOtp(phoneNumber, verificationId)
-            },
-            onVerificationFailed = { exception ->
-                isLoading = false
-                Toast.makeText(context.applicationContext, "Verification failed: ${exception.message}", Toast.LENGTH_LONG).show()
-            },
-            onVerificationCompleted = {
-                // Auto verification success. You can handle this by jumping to Home, but for now we'll rely on the OTP screen.
-            }
-        )
+        // Bypass Firebase Auth entirely and generate a unique ID for new users.
+        // Existing users will have their real UID fetched from the database in MainActivity.
+        val fallbackUid = java.util.UUID.randomUUID().toString()
+        isLoading = false
+        onGetOtp(phoneNumber, fallbackUid)
     }
 
     Box(

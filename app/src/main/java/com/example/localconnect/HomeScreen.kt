@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import com.example.localconnect.ui.TranslatedText
+
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -150,7 +150,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(stringResource(R.string.exit_app),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
+                        fontSize = 16.sp,
                         color = Color(0xFF1A1A1A)
                     )
                 }
@@ -163,7 +163,18 @@ fun HomeScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { (context as? Activity)?.finish() },
+                    onClick = {
+                                var actContext = context
+                                while (actContext is android.content.ContextWrapper) {
+                                    if (actContext is android.app.Activity) break
+                                    actContext = actContext.baseContext
+                                }
+                                val act = actContext as? android.app.Activity
+                                if (act != null) {
+                                    act.finishAffinity()
+                                }
+                                android.os.Process.killProcess(android.os.Process.myPid())
+                            },
                     colors = ButtonDefaults.buttonColors(containerColor = com.example.localconnect.ui.theme.OrangePrimary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -187,7 +198,7 @@ fun HomeScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
-                0 -> HomeContent(session, onNavigateToJobs = { navigateTo(1) }, onNavigateToServices = { navigateTo(2) }, onNavigateToPostJob = { navigateTo(7) }, onNavigateToPostService = { navigateTo(6) }, onProfileClick = { navigateTo(4) }, onNavigateToApplicantList = { jobId -> selectedJobId = jobId; navigateTo(8) }, onNavigateToMyApplications = { jobSearchInitialTab = 1; navigateTo(1) }, unreadCount = notifications.count { !it.isRead }, notifications = notifications, onNavigateToNotifications = { navigateTo(11) }, onMarkNotificationsRead = { coroutineScope.launch { com.example.localconnect.data.FirebaseRepository.markNotificationsAsRead(userIds) } })
+                0 -> HomeContent(session, onNavigateToJobs = { navigateTo(1) }, onNavigateToServices = { navigateTo(2) }, onNavigateToPostJob = { navigateTo(7) }, onNavigateToPostService = { navigateTo(6) }, onProfileClick = { navigateTo(4) }, onNavigateToApplicantList = { jobId -> selectedJobId = jobId; navigateTo(8) }, onNavigateToMyApplications = { jobSearchInitialTab = 1; navigateTo(1) }, onNavigateToMyBookings = { serviceSearchInitialTab = 1; navigateTo(2) }, unreadCount = notifications.count { !it.isRead }, notifications = notifications, onNavigateToNotifications = { navigateTo(11) }, onMarkNotificationsRead = { coroutineScope.launch { com.example.localconnect.data.FirebaseRepository.markNotificationsAsRead(userIds) } })
                 1 -> JobSearchScreen(session = session, initialTab = jobSearchInitialTab)
                 2 -> ServiceSearchScreen(session = session, initialTab = serviceSearchInitialTab)
                 3 -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("${stringResource(R.string.chats_tab)} Screen (${stringResource(R.string.coming_soon)})") }
@@ -239,7 +250,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNavigateToServices: () -> Unit, onNavigateToPostJob: () -> Unit, onNavigateToPostService: () -> Unit, onProfileClick: () -> Unit, onNavigateToApplicantList: (String) -> Unit, onNavigateToMyApplications: () -> Unit, unreadCount: Int, notifications: List<com.example.localconnect.data.Notification>, onNavigateToNotifications: () -> Unit, onMarkNotificationsRead: () -> Unit) {
+private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNavigateToServices: () -> Unit, onNavigateToPostJob: () -> Unit, onNavigateToPostService: () -> Unit, onProfileClick: () -> Unit, onNavigateToApplicantList: (String) -> Unit, onNavigateToMyApplications: () -> Unit, onNavigateToMyBookings: () -> Unit, unreadCount: Int, notifications: List<com.example.localconnect.data.Notification>, onNavigateToNotifications: () -> Unit, onMarkNotificationsRead: () -> Unit) {
     var showPostActionSheet by remember { mutableStateOf(false) }
         val userIds = listOfNotNull(
         session.firebaseUid.takeIf { it.isNotBlank() },
@@ -263,7 +274,7 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
         com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val token = task.result
-                val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                val uid = session.firebaseUid
                 if (uid != null) {
                     com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken", token).addOnFailureListener {}
                 }
@@ -297,7 +308,7 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
                 .fillMaxWidth()
                 .background(Brush.verticalGradient(headerGradient))
                 .systemBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 20.dp)
+                .padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -306,18 +317,18 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
             ) {
                 Column {
                     Text(
-                        text = "LocalConnect",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.White
-                    )
+                                text = "LocalConnect",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White
+                            )
                     Spacer(modifier = Modifier.height(2.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(11.dp))
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = session.location.ifBlank { "India" },
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             color = Color.White.copy(alpha = 0.85f)
                         )
                     }
@@ -368,194 +379,69 @@ private fun HomeContent(session: UserSession, onNavigateToJobs: () -> Unit, onNa
                             ) { onProfileClick() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(initial, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                        Text(initial, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                     }
                 }
             }
         }
-
-        // ---- Welcome banner ----
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 20.dp)
-                .clip(RoundedCornerShape(18.dp))
-                .background(Brush.linearGradient(headerGradient.map { it.copy(alpha = 0.12f) }))
-                .padding(20.dp)
-        ) {
-            Column {
-                Text(
-                    text = "${stringResource(R.string.greeting)}, ${session.name.ifBlank { session.phone }}!",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A1A1A)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.home_subtitle),
-                    fontSize = 13.sp,
-                    color = Color(0xFF757575)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         // ---- Main Tiles ----
         Column(
             modifier = Modifier.padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            MainTile(
-                icon = Icons.Filled.Search,
-                title = stringResource(R.string.seeker_card_title), // "I want Work" or "Find Jobs"
-                description = "Find available jobs in your area",
-                gradientColors = listOf(OrangePrimary, Color(0xFFFB923C)),
-                onClick = onNavigateToJobs
+            Text(stringResource(R.string.jobs_and_work_section), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF94A3B8), modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
+            
+            CompositeActionCard(
+                mainTitle = stringResource(R.string.seeker_card_title),
+                mainDescription = stringResource(R.string.browse_jobs_card_desc),
+                mainIcon = Icons.Filled.Search,
+                mainColors = listOf(OrangePrimary, Color(0xFFFB923C)),
+                onMainClick = onNavigateToJobs,
+                subTitle = stringResource(R.string.my_applications),
+                subActionText = stringResource(R.string.view_status_btn),
+                subIcon = Icons.Filled.Description,
+                onSubClick = onNavigateToMyApplications
             )
-
-            MainTile(
-                icon = Icons.Filled.Build,
-                title = stringResource(R.string.find_services_title), // Hardcoding as requested, can localize later
-                description = "Find local service providers",
-                gradientColors = listOf(Color(0xFFEA580C), OrangePrimary),
-                onClick = onNavigateToServices
+            
+            PostActionCard(
+                title = stringResource(R.string.post_job_title),
+                description = stringResource(R.string.post_job_card_desc),
+                onClick = onNavigateToPostJob
             )
-
-            MainTile(
-                icon = Icons.Filled.AddCircle,
-                title = stringResource(R.string.post_job_service_card),
-                description = "Hire workers or provide a service",
-                gradientColors = listOf(Color(0xFFF59E0B), Color(0xFFFBBF24)),
-                onClick = { showPostActionSheet = true }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(stringResource(R.string.local_services_section), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF94A3B8), modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
+            
+            CompositeActionCard(
+                mainTitle = stringResource(R.string.find_services_title),
+                mainDescription = stringResource(R.string.discover_services_card_desc),
+                mainIcon = Icons.Filled.Settings,
+                mainColors = listOf(Color(0xFFF59E0B), Color(0xFFFBBF24)),
+                onMainClick = onNavigateToServices,
+                subTitle = stringResource(R.string.tab_my_bookings),
+                subActionText = stringResource(R.string.manage_btn),
+                subIcon = Icons.Filled.DateRange,
+                onSubClick = onNavigateToMyBookings
+            )
+            
+            PostActionCard(
+                title = stringResource(R.string.post_service_title),
+                description = stringResource(R.string.post_service_card_desc),
+                onClick = onNavigateToPostService
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
     }
 
-    if (showPostActionSheet) {
-        PostActionSheet(
-            
-            onDismiss = { showPostActionSheet = false },
-            onPostJob = {
-                showPostActionSheet = false
-                onNavigateToPostJob()
-            },
-            onPostService = {
-                showPostActionSheet = false
-                onNavigateToPostService()
-            }
-        )
-    }
+    
 
 }
 
-@Composable
-private fun ActionCard(
-    title: String,
-    description: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp), tint = com.example.localconnect.ui.theme.Primary)
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
-                Text(description, fontSize = 13.sp, color = Color(0xFF757575))
-            }
-        }
-    }
-}
 
-@Composable
-private fun MainTile(
-    icon: ImageVector,
-    title: String,
-    description: String,
-    gradientColors: List<Color>,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(130.dp)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) { onClick() },
-        shape = RoundedCornerShape(22.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Brush.linearGradient(gradientColors))
-                .padding(24.dp)
-        ) {
-            // Background Icon
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.CenterEnd)
-                    .offset(x = 10.dp, y = 10.dp),
-                tint = Color.White.copy(alpha = 0.15f)
-            )
 
-            // Content
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(icon, contentDescription = null, tint = Color.White)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = description,
-                    fontSize = 13.sp,
-                    color = Color.White.copy(alpha = 0.9f)
-                )
-            }
-        }
-    }
-}
+
 
 @Composable
 private fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
@@ -606,63 +492,119 @@ fun HomePreview() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+
+
+
+
 @Composable
-private fun PostActionSheet(
-    
-    onDismiss: () -> Unit,
-    onPostJob: () -> Unit,
-    onPostService: () -> Unit
+private fun CompositeActionCard(
+    mainTitle: String,
+    mainDescription: String,
+    mainIcon: ImageVector,
+    mainColors: List<Color>,
+    onMainClick: () -> Unit,
+    subTitle: String,
+    subActionText: String,
+    subIcon: ImageVector,
+    onSubClick: () -> Unit
 ) {
-    ModalBottomSheet(
-        modifier = Modifier.fillMaxHeight(),
-        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        onDismissRequest = onDismiss,
-        containerColor = Color.White
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFFFF7ED)) // Very light orange/yellow background for the sub card part
     ) {
-        Column(
+        // Top part (Main)
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
+                .clickable { onMainClick() }
+                .background(Brush.linearGradient(mainColors))
+                .padding(10.dp)
         ) {
-            Text(
-                text = "What do you want to post?",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A1A1A),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            ActionCard(
-                title = stringResource(R.string.post_job_title),
-                description = "Hire local workers for your needs",
-                icon = Icons.Filled.Work,
-                onClick = onPostJob
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ActionCard(
-                title = stringResource(R.string.post_service_title),
-                description = "Offer your skills as a service provider",
-                icon = Icons.Filled.Build,
-                onClick = onPostService
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            OutlinedButton(
-                onClick = onDismiss,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(stringResource(R.string.cancel), color = Color(0xFF1A1A1A), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(mainIcon, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(mainTitle, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(mainDescription, fontSize = 11.sp, color = Color.White.copy(alpha = 0.9f))
+                }
+                Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.White)
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
+        }
+        
+        // Bottom part (Sub)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onSubClick() }
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(subIcon, contentDescription = null, tint = OrangePrimary, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(subTitle, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF78350F))
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(subActionText, fontSize = 11.sp, color = OrangePrimary, fontWeight = FontWeight.Medium)
+                Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = OrangePrimary, modifier = Modifier.size(16.dp))
+            }
         }
     }
 }
 
+@Composable
+private fun PostActionCard(
+    title: String,
+    description: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF7ED)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp), tint = OrangePrimary)
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+                Text(description, fontSize = 11.sp, color = Color(0xFF475569))
+            }
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = OrangePrimary, modifier = Modifier.size(20.dp))
+            }
+        }
+    }
+}
 

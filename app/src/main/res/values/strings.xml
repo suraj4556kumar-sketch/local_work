@@ -35,7 +35,7 @@
     <string name="role_subtitle">Choose your role</string>
     <string name="hirer_card_title">I want to Hire</string>
     <string name="hirer_card_desc">Post jobs or offer services</string>
-    <string name="seeker_card_title">I want Work</string>
+    <string name="seeker_card_title">Find Jobs</string>
     <string name="seeker_card_desc">Find jobs or services near you</string>
     <string name="hirer_welcome">Welcome, Employer!</string>
     <string name="post_job">Post a Job</string>
@@ -193,6 +193,8 @@
     <string name="filter_new">Filter New</string>
     <string name="no_requests_found">No Requests Found</string>
     <string name="no_services_found">No services found</string>
+    <string name="status_active">Active</string>
+    <string name="view_applicants">View Applicants →</string>
     <string name="shortlist_applicant">Shortlist Applicant</string>
     <string name="remove_job">Remove Job</string>
     <string name="select">Select</string>
@@ -209,11 +211,11 @@
     <string name="confirm_remove_job">Confirm Remove Job</string>
     <string name="select_applicant">Select Applicant</string>
     <string name="no_documents_uploaded">No Documents Uploaded</string>
-    <string name="exp_required">Experience Required</string>
+    <string name="exp_required">Experience Required *</string>
     <string name="yes">Yes</string>
     <string name="available_on">Available On</string>
     <string name="job_category">Job Category</string>
-    <string name="monthly_salary">Monthly Salary (₹)</string>
+    <string name="monthly_salary">Monthly Salary (₹) *</string>
     <string name="address_label">Address:</string>
     <string name="no_docs_mentioned">No specific documents mentioned.</string>
     <string name="live_preview">Live Preview</string>
@@ -231,7 +233,7 @@
     <string name="change_name_title">Change Name</string>
     <string name="write_extra_inst">Write any extra instructions here...</string>
     <string name="confirm_app_correct">I confirm that the information provided in this application is correct and accurate to the best of my knowledge.</string>
-    <string name="state_label">State</string>
+    <string name="state_label">State *</string>
     <string name="enter_alt_number">Enter alternate number</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="post_job_service_card">Post Job/Service</string>
@@ -272,18 +274,18 @@
     <string name="offer_service_nearby">Offer your service to nearby customers</string>
     <string name="charge_fees_km">Do you charge fees per km?</string>
     <string name="camera_opt">Camera</string>
-    <string name="work_address_building">Work Address / Building</string>
+    <string name="work_address_building">Work Address / Building *</string>
     <string name="choose_video_upload">Choose an option to upload your video</string>
     <string name="eg_2">e.g. 2</string>
-    <string name="desc_job_role_env">Describe the job role, environment...</string>
+    <string name="desc_job_role_env">Describe the job role, environment... *</string>
     <string name="accept_offer">Accept Offer</string>
-    <string name="gender_pref">Gender Preference</string>
+    <string name="gender_pref">Gender Preference *</string>
     <string name="yes_exit">Yes, Exit</string>
     <string name="prior_exp_years">Prior Experience (Years)</string>
     <string name="new_job_app">New Job Application</string>
     <string name="employer_details">Employer Details</string>
     <string name="remove_app">Remove Application</string>
-    <string name="landmark_opt">Landmark (Optional)</string>
+    <string name="landmark_opt">Landmark</string>
     <string name="save_btn">Save</string>
     <string name="date_time_label">Date &amp; Time:</string>
     <string name="view_btn">View</string>
@@ -293,9 +295,9 @@
     <string name="hindi_lang">Hindi</string>
     <string name="add_btn">Add</string>
     <string name="no_benefits_mentioned">No specific benefits mentioned.</string>
-    <string name="edu_req">Education Required</string>
+    <string name="edu_req">Education Required *</string>
     <string name="expected_comp">Expected Compensation (₹ / month)</string>
-    <string name="employer_company_star">Employer / Company Name *</string>
+    <string name="employer_company_star">Company Name *</string>
     <string name="agree_fake_suspend">I agree that fake or misleading job posts may result in account suspension. *</string>
     <string name="loading_localconnect">Loading LocalConnect...</string>
     <string name="contact_person_star">Contact Person Name *</string>
@@ -320,4 +322,62 @@
     <string name="post_a_job_new">Post a Job</string>
     <string name="post_a_service_new">Post a Service</string>
     <string name="what_do_you_want_post">What do you want to post?</string>
-<string name="tab_my_jobs">My Jobs</string><string name="tab_my_services">My Services</string><string name="tab_find_services">Find Services</string><string name="tab_my_bookings">My Bookings</string><string name="km_away">km away</string><string name="visiting_fee">Visiting Fee: ₹</string><string name="exp_years">Exp:</string><string name="book_service">Book Service</string><string name="view_bookings">View Bookings</string><string name="cancel_booking_title">Cancel Booking</string><string name="cancel_booking_msg">Are you sure you want to remove this booking?</string><string name="requested_on">Requested on:</string><string name="call_btn">Call</string><string name="whatsapp_btn">WhatsApp</string><string name="details_btn">Details</string><string name="customer_details">Customer Details</string><string name="phone_lbl">Phone</string><string name="location_lbl">Location</string><string name="date_lbl">Date</string><string name="time_lbl">Time</string><string name="exact_location">Exact Location</string><string name="problem_desc">Problem Description</string><string name="status_prefix">Status:</string><string name="call_customer">Call Customer</string><string name="none_text">None</string><string name="provider_details">Provider Details</string><string name="rating_lbl">Rating</string><string name="status_active">Active</string><string name="per_monthly">/ Monthly</string><string name="view_applicants">View Applicants</string><string name="gender_lbl">Gender</string><string name="age_lbl">Age</string><string name="experience_lbl">Experience</string><string name="years_lbl">years</string><string name="view_driving_license">View Driving License</string><string name="view_aadhaar_card">View Aadhaar Card</string><string name="status_accepted">Status Accepted</string><string name="status_rejected">Status Rejected</string></resources>
+<string name="tab_my_jobs">My Jobs</string><string name="tab_my_services">My Services</string><string name="tab_find_services">Find Services</string><string name="tab_my_bookings">My Bookings</string><string name="km_away">km away</string><string name="visiting_fee">Visiting Fee: ₹</string><string name="exp_years">Exp:</string><string name="book_service">Book Service</string><string name="view_bookings">View Bookings</string><string name="cancel_booking_title">Cancel Booking</string><string name="cancel_booking_msg">Are you sure you want to remove this booking?</string><string name="requested_on">Requested on:</string><string name="call_btn">Call</string><string name="whatsapp_btn">WhatsApp</string><string name="details_btn">Details</string><string name="customer_details">Customer Details</string><string name="phone_lbl">Phone</string><string name="location_lbl">Location</string><string name="date_lbl">Date</string><string name="time_lbl">Time</string><string name="exact_location">Exact Location</string><string name="problem_desc">Problem Description</string><string name="status_prefix">Status:</string><string name="call_customer">Call Customer</string><string name="none_text">None</string><string name="provider_details">Provider Details</string><string name="rating_lbl">Rating</string><string name="per_monthly">/ Monthly</string><string name="gender_lbl">Gender</string><string name="age_lbl">Age</string><string name="experience_lbl">Experience</string><string name="years_lbl">years</string><string name="view_driving_license">View Driving License</string><string name="view_aadhaar_card">View Aadhaar Card</string><string name="status_accepted">Status Accepted</string><string name="status_rejected">Status Rejected</string><string name="post_job_employer_info">1. Employer Info</string><string name="post_job_details">2. Job Details</string><string name="post_job_location">3. Location</string><string name="post_service_provider_info">1. Service Provider Info</string><string name="post_service_details">2. Service Details</string><string name="post_service_location">3. Location</string><string name="post_service_pricing">4. Pricing</string><string name="post_service_description">5. Description</string><string name="post_service_includes">6. Service Includes</string><string name="prov_bus_name">Provider / Business Name</string><string name="ph_raju">e.g., Raju Plumbing Services</string><string name="srv_category">Service Category</string><string name="short_desc">Short Description</string><string name="ph_pipe">Pipe leakage, tap repair...</string><string name="visit_fees">Visiting Fees (₹)</string><string name="ph_500">e.g. 500</string><string name="fees_per_km">Fees per km (₹)</string><string name="ph_10">e.g. 10</string><string name="city_label">City</string><string name="ph_kol">Kolkata</string><string name="area_loc">Area / Locality</string><string name="ph_salt">Salt Lake</string><string name="pincode_label">Pincode</string><string name="ph_pin">700091</string><string name="srv_radius">Service Radius</string><string name="from_label">From</string><string name="to_label">To</string><string name="experience_label">Experience</string><string name="avail_exp_title">Availability &amp; Experience</string><string name="sg_provider_info">SERVICE PROVIDER INFO</string><string name="sg_service_details">SERVICE DETAILS</string><string name="sg_pricing">PRICING</string><string name="sg_location">LOCATION</string><string name="sg_availability">AVAILABILITY</string><string name="sg_experience">EXPERIENCE</string>    <string name="jobs_and_work_section">JOBS &amp; WORK</string>
+    <string name="local_services_section">LOCAL SERVICES</string>
+    <string name="browse_jobs_card_desc">Browse and apply for local work</string>
+    <string name="discover_services_card_desc">Discover local skilled professionals</string>
+    <string name="view_status_btn">View Status</string>
+    <string name="manage_btn">Manage</string>
+    <string name="post_job_card_desc">Hire talent for your specific needs</string>
+    <string name="post_service_card_desc">Offer your skills and get hired</string>
+    <string name="selected">Selected</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
+    <string name="exp_fresher">Fresher</string>
+    <string name="exp_1_2_years">1-2 Years</string>
+    <string name="exp_3_5_years">3-5 Years</string>
+    <string name="exp_5_plus_years">5+ Years</string>
+    <string name="doc_aadhaar">Aadhaar Card</string>
+    <string name="doc_pan">PAN Card</string>
+    <string name="doc_resume">Resume</string>
+    <string name="upload_document">Upload document</string>
+    <string name="uploaded">Uploaded</string>
+    <string name="tab_all">All</string>
+    <string name="tab_pending">Pending</string>
+    <string name="tab_accepted">Accepted</string>
+    <string name="tab_rejected">Rejected</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="select_experience">Select Experience</string>
+    <string name="exp_select">Select experience (years)</string>
+    <string name="exp_0_1">0-1 year</string>
+    <string name="exp_1_3">1-3 years</string>
+    <string name="exp_3_plus">3+ years</string>
+
+    <!-- Rating &amp; Review System -->
+    <string name="rate_service">Rate Service</string>
+    <string name="rate_employer">Rate Employer</string>
+    <string name="leave_a_review">Leave a Review</string>
+    <string name="your_rating">Your Rating</string>
+    <string name="write_comment_hint">Write your experience (optional)...</string>
+    <string name="submit_review">Submit Review</string>
+    <string name="skip">Skip</string>
+    <string name="reviewed">Reviewed</string>
+    <string name="review_submitted">Review submitted successfully!</string>
+    <string name="review_failed">Failed to submit review. Please try again.</string>
+    <string name="how_was_service">How was the service?</string>
+    <string name="how_was_employer">How was your experience with this employer?</string>
+    <string name="tap_star_to_rate">Tap a star to rate</string>
+    <string name="reviews">Reviews</string>
+    <string name="no_reviews_yet">No reviews yet</string>
+    <string name="be_first_review">Be the first to review!</string>
+    <string name="review_count">%d reviews</string>
+    <string name="rating_badge">%s ★</string>
+    <!-- STATIC: document upload source chooser -->
+    <string name="choose_doc_upload">Choose an option to upload your document</string>
+
+
+    <string name="select_rating_error">Please select a star rating.</string>
+    <string name="delete_service_title">Delete Service</string>
+    <string name="delete_service_confirmation">Are you sure you want to remove this service?</string>
+</resources>

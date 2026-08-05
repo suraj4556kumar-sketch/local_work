@@ -18,6 +18,7 @@ object FirebaseRepository {
     private val jobAppsRef = db.collection("job_applications")
     private val serviceBookingsRef = db.collection("service_bookings")
     private val notificationsRef = db.collection("notifications")
+    private val reviewsRef = db.collection("reviews")
 
     // --- Users ---
     suspend fun saveUser(user: User): Boolean {
@@ -216,7 +217,7 @@ object FirebaseRepository {
             // Notify employer
             createNotification(Notification(
                 userId = newApp.employerId,
-                title = "New Job Application",
+                title = "New Job Applicant!",
                 message = "${newApp.applicantName} applied for your job: ${newApp.jobTitle}",
                 timestamp = System.currentTimeMillis(),
                 type = "job_application",
@@ -311,9 +312,9 @@ object FirebaseRepository {
             serviceBookingsRef.document(request.id).update("status", newStatus).await()
             
             val message = when(newStatus) {
-                "Accepted" -> "Your booking for ${request.serviceTitle} has been confirmed by the provider!"
-                "Rejected" -> "Your booking for ${request.serviceTitle} was declined by the provider."
-                "Completed" -> "Your service ${request.serviceTitle} has been marked as completed."
+                "Accepted" -> "Great news! Your booking for  has been confirmed."
+                "Rejected" -> "Sorry, your booking for  was declined."
+                "Completed" -> "Your service  is now complete."
                 else -> "Your booking for ${request.serviceTitle} is now $newStatus."
             }
             
@@ -345,8 +346,9 @@ object FirebaseRepository {
             val recipientId = if (status == "Offer Accepted" || status == "Offer Rejected") application.employerId else application.seekerId
             
             val notificationMessage = when (status) {
-                "Selected", "Shortlisted" -> "You are selected for the job ${application.jobTitle} at ${application.companyName}. Please accept it from your side."
-                "Rejected" -> "Your application for ${application.jobTitle} was unfortunately not selected."
+                "Selected" -> "Congratulations! You have been selected for the job:  at . Please accept the offer from your side."
+                "Shortlisted" -> "Good news! You are shortlisted for . The employer will contact you soon."
+                "Rejected" -> "Your application for  was not selected this time. Keep applying to other jobs!"
                 "Offer Accepted" -> "${application.applicantName} has accepted your job offer for ${application.jobTitle}!"
                 "Offer Rejected" -> "${application.applicantName} declined the job offer for ${application.jobTitle}."
                 else -> "Your application for ${application.jobTitle} has been marked as $status."
@@ -490,4 +492,136 @@ object FirebaseRepository {
             }
         }
     }
+
+    // --- Reviews ---
+
+    /**
+     * Submit a review. Also aggregates the average rating back on the ServiceTask (for service reviews).
+     */
+    suspend fun submitReview(review: Review): Boolean {
+        return try {
+            val docRef = if (review.id.isEmpty()) reviewsRef.document() else reviewsRef.document(review.id)
+            val finalReview = review.copy(id = docRef.id, timestamp = System.currentTimeMillis())
+            docRef.set(finalReview).await()
+
+            // Aggregate rating onto the target and send notification
+            if (review.reviewType == "service" && review.referenceId.isNotEmpty()) {
+                updateServiceRatingAggregation(review.entityId)
+                createNotification(Notification(
+                    userId = review.targetId,
+                    title = "New Rating",
+                    message = "You received a ${review.rating.toInt()}-star rating for your service.",
+                    type = "rating",
+                    referenceId = review.referenceId
+                ))
+            } else if (review.reviewType == "job" && review.referenceId.isNotEmpty()) {
+                updateJobRatingAggregation(review.entityId)
+                createNotification(Notification(
+                    userId = review.targetId,
+                    title = "New Rating",
+                    message = "You received a ${review.rating.toInt()}-star rating from an applicant.",
+                    type = "rating",
+                    referenceId = review.referenceId
+                ))
+            }
+            true
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error submitting review", e)
+            false
+        }
+    }
+
+    /** Recalculates and saves avg rating + completedJobs count for a specific job */
+    private suspend fun updateJobRatingAggregation(jobId: String) {
+        if (jobId.isEmpty()) return
+        try {
+            val allReviews = reviewsRef
+                .whereEqualTo("entityId", jobId)
+                .whereEqualTo("reviewType", "job")
+                .get().await()
+                .toObjects(Review::class.java)
+
+            if (allReviews.isEmpty()) return
+
+            val avgRating = allReviews.map { it.rating }.average()
+            val totalReviews = allReviews.size
+
+            jobsRef.document(jobId).update(
+                mapOf(
+                    "rating" to avgRating,
+                    "completedJobs" to totalReviews
+                )
+            ).await()
+            
+        } catch (e: Exception) {
+            android.util.Log.e("FirebaseRepo", "Error aggregating job rating", e)
+        }
+    }
+
+    /** Recalculates and saves avg rating + completedJobs count for a given service provider */
+    private suspend fun updateServiceRatingAggregation(providerId: String) {
+        try {
+            val allReviews = reviewsRef
+                .whereEqualTo("targetId", providerId)
+                .whereEqualTo("reviewType", "service")
+                .get().await()
+                .toObjects(Review::class.java)
+
+            if (allReviews.isEmpty()) return
+
+            val avgRating = allReviews.map { it.rating }.average()
+            val totalReviews = allReviews.size
+
+            // Update all ServiceTask documents belonging to this provider
+            val tasks = servicesRef.whereEqualTo("providerId", providerId).get().await()
+            for (doc in tasks.documents) {
+                doc.reference.update(
+                    mapOf(
+                        "rating" to avgRating,
+                        "completedJobs" to totalReviews
+                    )
+                ).await()
+            }
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error aggregating rating", e)
+        }
+    }
+
+    /** Fetch all reviews left for a given target (providerId for services, employerId for jobs) */
+    suspend fun getReviewsForTarget(targetId: String, reviewType: String): List<Review> {
+        return try {
+            reviewsRef
+                .whereEqualTo("targetId", targetId)
+                .whereEqualTo("reviewType", reviewType)
+                .get().await()
+                .toObjects(Review::class.java)
+                .sortedByDescending { it.timestamp }
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error fetching reviews", e)
+            emptyList()
+        }
+    }
+
+    /** Mark a ServiceRequest as reviewed so the "Rate Service" button is hidden after submission */
+    suspend fun markServiceRequestReviewed(requestId: String): Boolean {
+        return try {
+            serviceBookingsRef.document(requestId).update("isReviewed", true).await()
+            true
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error marking service request reviewed", e)
+            false
+        }
+    }
+
+    /** Mark a JobApplication as reviewed so the "Rate Employer" button is hidden after submission */
+    suspend fun markJobApplicationReviewed(applicationId: String): Boolean {
+        return try {
+            jobAppsRef.document(applicationId).update("isReviewed", true).await()
+            true
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error marking job application reviewed", e)
+            false
+        }
+    }
 }
+

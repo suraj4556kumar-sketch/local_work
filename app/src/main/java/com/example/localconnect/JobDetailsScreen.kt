@@ -202,6 +202,12 @@ fun JobDetailsScreen(
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(stringResource(R.string.verified_employer), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Color(0xFFF97316))
                                 }
+                                Text(" • ", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(horizontal = 4.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color(0xFFFFB300))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(if (job.rating > 0.0) String.format("%.1f", job.rating) else "New", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFB300))
+                                }
                             }
                         }
                         
@@ -402,7 +408,7 @@ fun JobDetailsScreen(
                                 Row(verticalAlignment = Alignment.Top) {
                                     Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(14.dp).padding(top = 4.dp), tint = com.example.localconnect.ui.theme.Primary)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(res, fontSize = 14.sp, color = Color(0xFF475569))
+                                    com.example.localconnect.ui.TranslatedText(res, fontSize = 14.sp, color = Color(0xFF475569))
                                 }
                             }
                         }
@@ -631,7 +637,8 @@ fun JobDetailsScreen(
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    val similarJobs = getDummyJobs(session.language.code).filter { it.id != job.id }.take(3)
+                    val allJobs by com.example.localconnect.data.FirebaseRepository.getJobsFlow().collectAsState(initial = emptyList())
+                            val similarJobs = allJobs.filter { it.id != job.id }.take(3)
                     
                     similarJobs.forEach { simJob ->
                         Surface(
@@ -680,7 +687,7 @@ fun ReqChip(text: String, modifier: Modifier = Modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color(0xFFF97316))
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text, fontSize = 12.sp, color = Color(0xFF475569))
+            com.example.localconnect.ui.TranslatedText(text, fontSize = 12.sp, color = Color(0xFF475569))
         }
     }
 }
@@ -693,6 +700,6 @@ fun BenefitChip(text: String, bgColor: Color, textColor: Color, borderColor: Col
             .border(1.dp, borderColor, RoundedCornerShape(50))
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
-        Text(text, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = textColor)
+        com.example.localconnect.ui.TranslatedText(text, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = textColor)
     }
 }

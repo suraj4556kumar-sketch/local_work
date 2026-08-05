@@ -65,7 +65,19 @@ fun MyServiceBookingsScreen(session: UserSession) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(bookings.sortedByDescending { it.appliedOn }) { request ->
-                SeekerBookingCard(request = request, onRemove = { requestToRemove = request })
+                SeekerBookingCard(
+                    request = request,
+                    session = session,
+                    onRemove = { requestToRemove = request },
+                    onReviewed = { updatedRequest ->
+                        val idx = bookings.indexOfFirst { it.id == updatedRequest.id }
+                        if (idx != -1) {
+                            val mutable = bookings.toMutableList()
+                            mutable[idx] = updatedRequest
+                            bookings = mutable
+                        }
+                    }
+                )
             }
         }
     }
@@ -103,7 +115,12 @@ fun MyServiceBookingsScreen(session: UserSession) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
+fun SeekerBookingCard(
+    request: ServiceRequest,
+    session: UserSession,
+    onRemove: () -> Unit,
+    onReviewed: (ServiceRequest) -> Unit = {}
+) {
     val statusBgColor = when (request.status.lowercase()) {
         "accepted" -> Color(0xFFFFF7ED)
         "rejected" -> Color(0xFFFFF7ED)
@@ -123,7 +140,11 @@ fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
     var providerUser by remember { mutableStateOf<User?>(null) }
     var serviceTask by remember { mutableStateOf<ServiceTask?>(null) }
     var showDetails by remember { mutableStateOf(false) }
+    var showReviewSheet by remember { mutableStateOf(false) }
+    // Track local reviewed state so button hides immediately after submitting
+    var isReviewedLocally by remember { mutableStateOf(request.isReviewed) }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(request.status, request.providerId, request.serviceId) {
         if (request.status.lowercase() == "accepted") {
@@ -204,6 +225,42 @@ fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
                 }
             }
 
+            // --- RATE SERVICE button: visible only for Completed/Accepted + not yet reviewed ---
+            if ((request.status.lowercase() == "completed" || request.status.lowercase() == "accepted") && !isReviewedLocally) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = { showReviewSheet = true },
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B))
+                ) {
+                    Icon(
+                        Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    // STATIC: button label from strings.xml
+                    Text(stringResource(R.string.rate_service), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
+            }
+
+            // Reviewed badge: shows after user has submitted a review
+            if (isReviewedLocally && (request.status.lowercase() == "completed" || request.status.lowercase() == "accepted")) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color(0xFFF59E0B))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    // STATIC
+                    Text(stringResource(R.string.reviewed), fontSize = 12.sp, color = Color(0xFFF59E0B), fontWeight = FontWeight.Medium)
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(color = Color(0xFFF3F4F6))
             Spacer(modifier = Modifier.height(12.dp))
@@ -262,4 +319,27 @@ fun SeekerBookingCard(request: ServiceRequest, onRemove: () -> Unit) {
             }
         }
     }
+
+    if (showReviewSheet) {
+        LeaveReviewBottomSheet(
+            reviewType = "service",
+            targetId = request.providerId,
+            targetName = providerUser?.name ?: serviceTask?.providerName ?: request.providerId,
+            entityId = request.serviceId,
+            serviceTitle = request.serviceTitle,
+            referenceId = request.id,
+            reviewerUid = session.firebaseUid,
+            reviewerName = session.name,
+            onDismiss = { showReviewSheet = false },
+            onSubmitted = {
+                showReviewSheet = false
+                coroutineScope.launch {
+                    FirebaseRepository.markServiceRequestReviewed(request.id)
+                    isReviewedLocally = true
+                    onReviewed(request.copy(isReviewed = true))
+                }
+            }
+        )
+    }
 }
+

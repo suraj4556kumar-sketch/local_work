@@ -15,6 +15,11 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import java.io.File
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,22 +55,36 @@ fun JobApplicationScreen(
     var isSubmitting by remember { mutableStateOf(false) }
 
     // Form States
-    var fullName by remember { mutableStateOf(session.name) }
+    var fullName by remember { mutableStateOf(session.name.lowercase()) }
+    androidx.compose.runtime.LaunchedEffect(session.language.code) {
+        if (session.language.code != "en" && fullName.equals(session.name, ignoreCase = true)) {
+            com.example.localconnect.utils.TranslationManager.translate(session.name, session.language.code) { translatedName ->
+            fullName = translatedName
+        }
+        }
+    }
     var phone by remember { mutableStateOf(session.phone) }
     var age by remember { mutableStateOf("") }
     
     // Gender Dropdown
     var expandedGender by remember { mutableStateOf(false) }
-    var gender by remember { mutableStateOf("Male") }
-    val genders = listOf("Male", "Female", "Other")
+    val defaultGender = androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.gender_male)
+    var gender by remember(defaultGender) { mutableStateOf(defaultGender) }
+    val genders = listOf(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.gender_male), androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.gender_female), androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.gender_other))
 
     // Experience Toggle
     var hasExperience by remember { mutableStateOf(true) }
     
     // Exp Years Dropdown
     var expandedYears by remember { mutableStateOf(false) }
-    var expYears by remember { mutableStateOf("Select experience (years)") }
-    val yearsOptions = listOf("Select experience (years)", "0-1 year", "1-3 years", "3+ years")
+    val defaultExp = androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.exp_select)
+    var expYears by remember(defaultExp) { mutableStateOf(defaultExp) }
+    val yearsOptions = listOf(
+        androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.exp_select),
+        androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.exp_0_1),
+        androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.exp_1_3),
+        androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.exp_3_plus)
+    )
 
     // Language Radio
     var selectedLang by remember { mutableStateOf("Hindi") }
@@ -76,16 +95,42 @@ fun JobApplicationScreen(
     var confirmed by remember { mutableStateOf(false) }
 
     var currentPickingIndex by remember { mutableStateOf(-1) }
-    var docUris by remember { mutableStateOf<Map<Int, android.net.Uri>>(emptyMap()) }
-    val requiredDocs = remember(job.documentsRequired) {
-        if (job.documentsRequired.isNotEmpty()) job.documentsRequired else listOf("Resume", "ID Proof")
+    var docUris by remember { mutableStateOf<Map<Int, Uri>>(emptyMap()) }
+    var showDocUploadDialog by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    val defaultResumeDoc = androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.doc_resume)
+    val requiredDocs = remember(job.documentsRequired, defaultResumeDoc) {
+        if (job.documentsRequired.isNotEmpty()) job.documentsRequired else listOf(defaultResumeDoc, "ID Proof")
     }
-    val docLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.GetContent()
-    ) { uri: android.net.Uri? ->
+
+    // Helper: create a temp file URI for camera capture
+    fun createTempDocUri(): Uri {
+        val dir = File(context.cacheDir, "doc_captures")
+        dir.mkdirs()
+        val file = File.createTempFile("doc_", ".jpg", dir)
+        return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    }
+
+    // Camera launcher — captures a photo and stores it in docUris
+    val cameraDocLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && currentPickingIndex != -1 && tempCameraUri != null) {
+            docUris = docUris + (currentPickingIndex to tempCameraUri!!)
+            if (firstDocUri.isEmpty()) firstDocUri = tempCameraUri.toString()
+        }
+        currentPickingIndex = -1
+        tempCameraUri = null
+    }
+
+    // Gallery / file picker launcher — picks any document or image
+    val docLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
         if (uri != null && currentPickingIndex != -1) {
             docUris = docUris + (currentPickingIndex to uri)
-            if (firstDocUri.isEmpty()) { firstDocUri = uri.toString() }
+            if (firstDocUri.isEmpty()) firstDocUri = uri.toString()
         }
         currentPickingIndex = -1
     }
@@ -173,6 +218,12 @@ fun JobApplicationScreen(
                         onClick = {
                             coroutineScope.launch {
                                 isSubmitting = true
+                                
+                                if (fullName.isBlank() || phone.isBlank() || age.isBlank()) {
+                                    android.widget.Toast.makeText(context.applicationContext, "Please fill all mandatory fields (*)", android.widget.Toast.LENGTH_SHORT).show()
+                                    isSubmitting = false
+                                    return@launch
+                                }
                                 
                                 if (docUris.size < requiredDocs.size) {
                                     android.widget.Toast.makeText(context.applicationContext, "Please upload all required documents (${requiredDocs.size} required)", android.widget.Toast.LENGTH_SHORT).show()
@@ -268,7 +319,7 @@ fun JobApplicationScreen(
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(stringResource(R.string.personal_details), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
-                    Text(stringResource(R.string.full_name), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                    Text(stringResource(R.string.full_name) + " *", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
                         value = fullName,
                         onValueChange = { fullName = it },
@@ -283,7 +334,7 @@ fun JobApplicationScreen(
                         )
                     )
                     
-                    Text(stringResource(R.string.phone_number), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                    Text(stringResource(R.string.phone_number) + " *", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
@@ -301,7 +352,7 @@ fun JobApplicationScreen(
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.age), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                            Text(stringResource(R.string.age) + " *", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                             OutlinedTextField(
                                 value = age,
                                 onValueChange = { age = it },
@@ -319,7 +370,7 @@ fun JobApplicationScreen(
                         }
                         
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.gender), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
+                            Text(stringResource(R.string.gender) + " *", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 4.dp))
                             ExposedDropdownMenuBox(
                                 expanded = expandedGender,
                                 onExpandedChange = { expandedGender = it }
@@ -329,7 +380,7 @@ fun JobApplicationScreen(
                                     onValueChange = {},
                                     readOnly = true,
                                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGender) },
-                                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
+                                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
                                     shape = RoundedCornerShape(8.dp),
                                     textStyle = androidx.compose.ui.text.TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Color(0xFF111827)),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -366,7 +417,7 @@ fun JobApplicationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(stringResource(R.string.work_exp), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
+                    Text(stringResource(R.string.work_exp) + " *", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 16.dp)) {
                         Button(
@@ -405,7 +456,7 @@ fun JobApplicationScreen(
                                 onValueChange = {},
                                 readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedYears) },
-                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
+                                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
                                 textStyle = androidx.compose.ui.text.TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Color(0xFF111827)),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -441,7 +492,7 @@ fun JobApplicationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(stringResource(R.string.documents), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
+                    Text(stringResource(R.string.documents) + " *", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(bottom = 16.dp))
                     
                     requiredDocs.forEachIndexed { index, docName ->
                         val docUri = docUris[index]
@@ -450,16 +501,17 @@ fun JobApplicationScreen(
                                 .fillMaxWidth()
                                 .border(1.dp, if(docUri != null) Color(0xFF10B981) else Color(0xFFD1D5DB), RoundedCornerShape(8.dp))
                                 .padding(16.dp)
-                                .clickable { 
+                                .clickable {
+                                    // Show Camera / Gallery dialog instead of opening gallery directly
                                     currentPickingIndex = index
-                                    docLauncher.launch("image/*") 
-                                }, 
+                                    showDocUploadDialog = true
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             if (docUri != null) {
-                                Text("Uploaded: $docName", fontSize = 14.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
+                                Text("${androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.uploaded)}: $docName", fontSize = 14.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
                             } else {
-                                Text("Upload $docName", fontSize = 14.sp, color = Color(0xFF6B7280))
+                                Text("${androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.upload_document)} $docName", fontSize = 14.sp, color = Color(0xFF6B7280))
                             }
                         }
                         if (index < requiredDocs.size - 1) {
@@ -467,7 +519,7 @@ fun JobApplicationScreen(
                         }
                     }
                     
-                    Text(stringResource(R.string.pref_lang), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(top = 24.dp, bottom = 16.dp))
+                    Text(stringResource(R.string.pref_lang) + " *", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), modifier = Modifier.padding(top = 24.dp, bottom = 16.dp))
                     
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -526,5 +578,47 @@ fun JobApplicationScreen(
             
             Spacer(modifier = Modifier.height(80.dp))
         }
+    }
+
+    // Camera / Gallery chooser dialog for document upload
+    if (showDocUploadDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDocUploadDialog = false
+                currentPickingIndex = -1
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.upload_photo),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Normal
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.choose_photo_upload),
+                    fontSize = 14.sp
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDocUploadDialog = false
+                    val uri = createTempDocUri()
+                    tempCameraUri = uri
+                    cameraDocLauncher.launch(uri)
+                }) {
+                    Text(text = stringResource(R.string.camera_opt), color = Primary)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDocUploadDialog = false
+                    docLauncher.launch("*/*")
+                }) {
+                    Text(text = stringResource(R.string.gallery_opt), color = Primary)
+                }
+            },
+            shape = RoundedCornerShape(28.dp)
+        )
     }
 }

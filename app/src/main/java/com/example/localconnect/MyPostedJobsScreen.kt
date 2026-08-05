@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.example.localconnect.ui.TranslatedText
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -154,14 +155,14 @@ fun PostedJobCard(job: Job, onClick: () -> Unit, onLongClick: () -> Unit) {
                 verticalAlignment = Alignment.Top
             ) {
                 Column {
-                    Text(
+                    TranslatedText(
                         text = job.title,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = Color(0xFF1F2937)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
+                    TranslatedText(
                         text = job.companyName.ifBlank { "Company Name" },
                         fontSize = 14.sp,
                         color = Color(0xFF6B7280)
@@ -171,7 +172,7 @@ fun PostedJobCard(job: Job, onClick: () -> Unit, onLongClick: () -> Unit) {
                     color = Color(0xFFFFF7ED),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(
+                    TranslatedText(
                         text = "Active",
                         color = Color(0xFFF97316),
                         fontSize = 12.sp,
@@ -184,7 +185,7 @@ fun PostedJobCard(job: Job, onClick: () -> Unit, onLongClick: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(job.location.ifBlank { job.city }, fontSize = 14.sp, color = Color.Gray)
+                TranslatedText(job.location.ifBlank { job.city }, fontSize = 14.sp, color = Color.Gray)
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -192,13 +193,13 @@ fun PostedJobCard(job: Job, onClick: () -> Unit, onLongClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                TranslatedText(
                     text = job.salary.ifBlank { "₹${job.salaryMin} / ${job.salaryType}" },
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFF97316),
                     fontSize = 14.sp
                 )
-                Text(
+                TranslatedText(
                     text = "View Applicants →",
                     color = OrangePrimary,
                     fontWeight = FontWeight.SemiBold,

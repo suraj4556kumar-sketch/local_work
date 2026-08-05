@@ -244,7 +244,7 @@ fun ProfileScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+                        val uid = session.firebaseUid
                         if (uid != null && newName.isNotBlank()) {
                             FirebaseFirestore.getInstance().collection("users").document(uid)
                                 .update("name", newName)

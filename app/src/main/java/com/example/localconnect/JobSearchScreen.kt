@@ -12,16 +12,24 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import com.example.localconnect.ui.TranslatedText
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -188,13 +196,13 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
         return round(distKm * 10.0) / 10.0
     }
 
-        val dummyJobs = remember(session.language.code) { getDummyJobs(session.language.code) }
+        
     
-    val firebaseJobs by FirebaseRepository.getJobsFlow().collectAsState(initial = emptyList())
+    val firebaseJobs by FirebaseRepository.getJobsFlow().collectAsState(initial = emptyList<com.example.localconnect.data.Job>())
 
-    val rawJobs = remember(dummyJobs, firebaseJobs) { firebaseJobs + dummyJobs }
-    val allJobs = remember(rawJobs, userLat, userLon) { 
-        rawJobs.map { 
+    
+    val allJobs = remember(firebaseJobs, userLat, userLon) { 
+        firebaseJobs.map { 
             it.copy(distanceKm = if (userLat != null && userLon != null && it.latitude != 0.0 && it.longitude != 0.0) calculateDistance(userLat!!, userLon!!, it.latitude, it.longitude) else if (it.latitude == 0.0 && it.longitude == 0.0) -1.0 else it.distanceKm)
         } 
     }
@@ -227,7 +235,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
     }
 
     val advancedFiltered = sortedJobs.filter {
-        (it.distanceKm <= maxDistance) &&
+        (if (maxDistance >= 100.0) true else it.distanceKm in 0.0..maxDistance) &&
         it.salaryValue >= minSalary &&
         it.experienceYears >= minExperience &&
         (selectedJobFilter == stringResource(R.string.all_jobs) || it.title == selectedJobFilter)
@@ -274,7 +282,8 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                             }
                         },
                         textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A)),
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+                        singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = Color(0xFFE0E0E0),
@@ -288,7 +297,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                         ExposedDropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
-                            containerColor = Color.White
+                            containerColor = Color(0xFFFFF3E0)
                         ) {
                             suggestions.forEach { role ->
                                 DropdownMenuItem(
@@ -330,7 +339,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
                         ExposedDropdownMenu(
                             expanded = showJobFilterDropdown,
                             onDismissRequest = { showJobFilterDropdown = false },
-                            containerColor = Color.White
+                            containerColor = Color(0xFFFFF3E0)
                         ) {
                             jobFilterOptions.forEach { opt ->
                                 DropdownMenuItem(
@@ -377,25 +386,41 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
             }
         }
 
-        // Job List
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            if (displayedJobs.isEmpty()) {
-                item {
-                    Text(
-                        "${stringResource(R.string.no_jobs_found)} '$searchQuery'.",
-                        modifier = Modifier.fillMaxWidth().padding(32.dp),
-                        color = Color.Gray,
-                        fontWeight = FontWeight.SemiBold
-                    )
+        var isRefreshing by remember { mutableStateOf(false) }
+        val pullToRefreshState = rememberPullToRefreshState()
+        val coroutineScope = rememberCoroutineScope()
+        
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                coroutineScope.launch {
+                    delay(1000) // Simulate refresh
+                    isRefreshing = false
                 }
-            } else {
-                items(displayedJobs) { job ->
-                    JobCard(job, session, onJobClick)
+            },
+            state = pullToRefreshState,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (displayedJobs.isEmpty()) {
+                    item {
+                        Text(
+                            "${stringResource(R.string.no_jobs_found)} '$searchQuery'.",
+                            modifier = Modifier.fillMaxWidth().padding(32.dp),
+                            color = Color.Gray,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                } else {
+                    items(displayedJobs) { job ->
+                        JobCard(job, session, onJobClick)
+                    }
                 }
             }
         }
@@ -406,7 +431,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
             modifier = Modifier.fillMaxHeight(),
             sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showAdvancedFilters = false },
-            containerColor = Color.White
+            containerColor = Color(0xFFFFF3E0)
         ) {
             Column(
                 modifier = Modifier
@@ -465,7 +490,7 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
             modifier = Modifier.fillMaxHeight(),
             sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showSortByBottomSheet = false },
-            containerColor = Color.White
+            containerColor = Color(0xFFFFF3E0)
         ) {
             Column(
                 modifier = Modifier
@@ -507,48 +532,61 @@ fun JobSearchContent(session: UserSession, onJobClick: (Job) -> Unit) {
 
 @Composable
 fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
-        Card(
+    Card(
         modifier = Modifier.fillMaxWidth().clickable { onJobClick(job) },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, Color(0xFFE5E7EB))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                    TranslatedText(job.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    TranslatedText(job.companyName, fontSize = 14.sp, color = OrangePrimary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(verticalAlignment = Alignment.Top) {
-                        Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp).padding(top = 2.dp), tint = Color.Gray)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        TranslatedText(job.location, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        if (job.distanceKm >= 0.0) {
-                            Text(" • ", fontSize = 13.sp, color = Color.Gray)
-                            Text("${job.distanceKm} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+                TranslatedText(job.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                if (job.postingDate.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(job.postingDate, fontSize = 12.sp, color = Color.Gray)
                 }
-                TranslatedText(job.postingDate, fontSize = 12.sp, color = Color.Gray, maxLines = 1)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TranslatedText(job.companyName, fontSize = 14.sp, color = OrangePrimary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color(0xFFFFB300))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(if (job.rating > 0.0) String.format("%.1f", job.rating) else "New", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFB300))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
+                Spacer(modifier = Modifier.width(4.dp))
+                
+                TranslatedText(job.location, fontSize = 13.sp, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                if (job.distanceKm >= 0.0) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text("• ", fontSize = 13.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
+                    Text("${round(job.distanceKm * 10) / 10} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.Bold)
+                }
             }
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Column {
-                    Text(stringResource(R.string.salary), fontSize = 12.sp, color = Color.Gray)
-                    TranslatedText(job.salary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.salary), fontSize = 11.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    TranslatedText(job.salary, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                 }
-                Column {
-                    Text(stringResource(R.string.experience), fontSize = 12.sp, color = Color.Gray)
-                    TranslatedText(job.experienceReq, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.experience_lbl), fontSize = 11.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    TranslatedText(job.experienceReq, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                 }
             }
         }
     }
 }
+
+
+fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }

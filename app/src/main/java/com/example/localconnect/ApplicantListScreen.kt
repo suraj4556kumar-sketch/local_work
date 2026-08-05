@@ -165,38 +165,6 @@ fun ApplicantListScreen(
                     }
                     
                     // Search
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).padding(bottom = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            placeholder = { Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.search_name_or_skill), fontSize = 14.sp) },
-                            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                            modifier = Modifier.weight(1f).height(50.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color(0xFFF3F4F6),
-                                focusedBorderColor = OrangePrimary,
-                                unfocusedBorderColor = Color.Transparent
-                            )
-                        )
-                        // Mock Sort Dropdown
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFF3F4F6),
-                            modifier = Modifier.height(50.dp).clickable { }
-                        ) {
-                            Row(modifier = Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.recent), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF374151))
-                                Icon(Icons.Filled.ArrowDropDown, null, tint = Color.Gray)
-                            }
-                        }
-                    }
                 }
             }
 
@@ -305,13 +273,13 @@ fun ApplicantCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                 Row {
                     Box(modifier = Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFFFEDD5)), contentAlignment = Alignment.Center) {
-                        Text(app.applicantName.first().toString(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = OrangePrimary)
+                        TranslatedText(app.applicantName.first().toString(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = OrangePrimary)
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(app.applicantName, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF111827))
+                        TranslatedText(app.applicantName, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF111827))
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                            Text("${app.applicantGender}, ${app.applicantAge} years", fontSize = 12.sp, color = Color.Gray)
+                            TranslatedText("${app.applicantGender}, ${app.applicantAge} years", fontSize = 12.sp, color = Color.Gray)
                         }
                     }
                 }
@@ -324,7 +292,7 @@ fun ApplicantCard(
 
             // Condensed Stats
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("Experience: ${app.applicantExperience} years", fontSize = 12.sp, color = Color.Gray)
+                TranslatedText("Experience: ${app.applicantExperience} years", fontSize = 12.sp, color = Color.Gray)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -441,7 +409,7 @@ fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatu
             
             Spacer(modifier = Modifier.height(24.dp))
             Text(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.introduction), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.Gray, letterSpacing = 1.sp, modifier = Modifier.padding(bottom = 12.dp))
-            Text(applicant.applicantIntro, fontSize = 14.sp, color = Color.DarkGray, modifier = Modifier.padding(bottom = 24.dp))
+            TranslatedText(applicant.applicantIntro, fontSize = 14.sp, color = Color.DarkGray, modifier = Modifier.padding(bottom = 24.dp))
 
             val docsToDisplay = if (applicant.uploadedDocuments.isNotEmpty()) {
                 applicant.uploadedDocuments
@@ -553,8 +521,8 @@ fun ProfileBottomSheet(applicant: JobApplication, onDismiss: () -> Unit, onStatu
 @Composable
 fun ProfileDetailRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, color = Color.Gray, fontSize = 14.sp)
-        Text(value, color = Color.DarkGray, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        TranslatedText(label, color = Color.Gray, fontSize = 14.sp)
+        TranslatedText(value, color = Color.DarkGray, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -564,7 +532,7 @@ fun getStatusConfig(status: String): StatusConfig {
     return when (status) {
         "Pending" -> StatusConfig(R.string.status_pending, Color(0xFFDBEAFE), Color(0xFF1E3A8A), Color(0xFFBFDBFE))
         "Shortlisted" -> StatusConfig(R.string.shortlist, Color(0xFFFEF9C3), Color(0xFFA16207), Color(0xFFFEF08A))
-        "Selected" -> StatusConfig(R.string.select, Color(0xFFFFF7ED), Color(0xFFF97316), Color(0xFFFFEDD5))
+        "Selected" -> StatusConfig(R.string.selected, Color(0xFFFFF7ED), Color(0xFFF97316), Color(0xFFFFEDD5))
         "Offer Accepted" -> StatusConfig(R.string.offer_accepted, Color(0xFFDCFCE7), Color(0xFF166534), Color(0xFFBBF7D0))
         "Offer Rejected" -> StatusConfig(R.string.offer_rejected, Color(0xFFFEE2E2), Color(0xFF991B1B), Color(0xFFFECACA))
         "Rejected" -> StatusConfig(R.string.rejected, Color(0xFFFEE2E2), Color(0xFF991B1B), Color(0xFFFECACA))

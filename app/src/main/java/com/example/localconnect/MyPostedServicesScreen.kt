@@ -42,6 +42,7 @@ fun MyPostedServicesScreen(
     var services by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
+    var serviceToDelete by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         services = FirebaseRepository.getMyPostedServices(session.phone)
@@ -106,17 +107,43 @@ fun MyPostedServicesScreen(
                         service = service, 
                         onClick = { onServiceClick(service.id) },
                         onDelete = {
-                            scope.launch {
-                                val success = FirebaseRepository.deleteService(service.id)
-                                if (success) {
-                                    services = FirebaseRepository.getMyPostedServices(session.phone)
-                                }
-                            }
+                            serviceToDelete = service.id
                         }
                     )
                 }
             }
         }
+    }
+
+    if (serviceToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { serviceToDelete = null },
+            title = { Text(stringResource(R.string.delete_service_title)) },
+            text = { Text(stringResource(R.string.delete_service_confirmation)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val id = serviceToDelete
+                        serviceToDelete = null
+                        if (id != null) {
+                            scope.launch {
+                                val success = FirebaseRepository.deleteService(id)
+                                if (success) {
+                                    services = FirebaseRepository.getMyPostedServices(session.phone)
+                                }
+                            }
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.remove), color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { serviceToDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
@@ -160,23 +187,23 @@ fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("📍 ${service.locality.ifBlank { "Area" }}, ${service.city.ifBlank { "City" }}", fontSize = 14.sp, color = Color(0xFF4B5563), modifier = Modifier.weight(1f))
+                TranslatedText("📍 ${service.locality.ifBlank { "Area" }}, ${service.city.ifBlank { "City" }}", fontSize = 14.sp, color = Color(0xFF4B5563), modifier = Modifier.weight(1f))
                 if (service.distanceKm > 0.0) {
-                    Text("${String.format("%.1f", service.distanceKm)} km away", fontSize = 12.sp, color = primaryDarkColor, fontWeight = FontWeight.Bold)
+                    TranslatedText("${String.format("%.1f", service.distanceKm)} km away", fontSize = 12.sp, color = primaryDarkColor, fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.Bottom) {
-                Text("${stringResource(R.string.visiting_fee)}${service.price}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = primaryDarkColor)
+                TranslatedText("${stringResource(R.string.visiting_fee)}${service.price}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = primaryDarkColor)
                 if (service.feesPerKm > 0) {
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("+ ₹${service.feesPerKm}/km", fontSize = 14.sp, color = primaryDarkColor)
+                    TranslatedText("+ ₹${service.feesPerKm}/km", fontSize = 14.sp, color = primaryDarkColor)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("⭐ ${stringResource(R.string.exp_years)} ${service.experience}", fontSize = 12.sp, color = Color.Gray)
-                Text("🕒 ${service.availableDays.joinToString(", ").takeIf { it.isNotBlank() } ?: "None"}", fontSize = 12.sp, color = Color.Gray)
+                TranslatedText("⭐ ${stringResource(R.string.exp_years)} ${service.experience}", fontSize = 12.sp, color = Color.Gray)
+                TranslatedText("🕒 ${service.availableDays.joinToString(", ").takeIf { it.isNotBlank() } ?: "None"}", fontSize = 12.sp, color = Color.Gray)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(

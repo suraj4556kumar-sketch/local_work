@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +28,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.localconnect.data.FirebaseRepository
 import com.example.localconnect.data.ServiceTask
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import androidx.compose.material.icons.filled.MyLocation
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +49,20 @@ fun PostServiceScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val targetLanguage = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]?.language ?: "en"
+    
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val geocoder = remember { Geocoder(context, Locale.getDefault()) }
+    var isFetchingLocation by remember { mutableStateOf(false) }
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            val granted = permissions.entries.any { it.value }
+            if (!granted) {
+                Toast.makeText(context, "Location permission required", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
     
     val primaryColor = Color(0xFFF97316)
     val primaryDarkColor = Color(0xFFEA580C)
@@ -52,16 +77,19 @@ fun PostServiceScreen(
         "Cleaning" to "Thorough house cleaning, sweeping, mopping, and deep cleaning services."
     )
 
+    var isMapScrollEnabled by remember { mutableStateOf(true) }
+
     // Form States
-    var providerName by remember { mutableStateOf(session.name) }
-    var category by remember { mutableStateOf("Plumber") }
-    var description by remember { mutableStateOf(predefinedDescriptions["Plumber"] ?: "") }
+    var providerName by remember { mutableStateOf(session.name.lowercase()) }
+    var category by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    
     var visitingFees by remember { mutableStateOf("") }
     var hasFeesPerKm by remember { mutableStateOf(false) }
     var feesPerKm by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
     var locality by remember { mutableStateOf("") }
-    var serviceRadius by remember { mutableStateOf("5 km") }
+    var serviceRadius by remember { mutableStateOf("") }
     val availableDays = remember { mutableStateListOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat") }
     var availableFrom by remember { mutableStateOf("09:00") }
     var availableTo by remember { mutableStateOf("18:00") }
@@ -100,19 +128,11 @@ fun PostServiceScreen(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = { Toast.makeText(context.applicationContext, "Draft Saved", Toast.LENGTH_SHORT).show() },
-                        modifier = Modifier.weight(1f).height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, primaryColor),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryColor)
-                    ) {
-                        Text(stringResource(R.string.save_draft_btn), fontWeight = FontWeight.Bold)
-                    }
+
                     Button(
                         onClick = {
-                            if (visitingFees.isBlank() || city.isBlank()) {
-                                Toast.makeText(context.applicationContext, "Please fill Visiting Fees and City", Toast.LENGTH_SHORT).show()
+                            if (providerName.isBlank() || category.isBlank() || description.isBlank() || visitingFees.isBlank() || city.isBlank() || locality.isBlank() || pincode.isBlank() || serviceRadius.isBlank() || availableDays.isEmpty()) {
+                                Toast.makeText(context.applicationContext, "Please fill in all mandatory fields (*)", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
                             isPosting = true
@@ -124,7 +144,7 @@ fun PostServiceScreen(
                                     category = category,
                                     location = "$city, $locality",
                                     price = visitingFees.toIntOrNull() ?: 0,
-                                    pricingType = if (hasFeesPerKm) "Visiting + Per km" else "Visiting Fees",
+                                    pricingType = "Visiting Fees",
                                     feesPerKm = feesPerKm.toIntOrNull() ?: 0,
                                     city = city,
                                     locality = locality,
@@ -165,58 +185,120 @@ fun PostServiceScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState(), enabled = isMapScrollEnabled)
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             
             // 1. SERVICE DETAILS
-            SectionGroup("SERVICE DETAILS", primaryColor, lightOrangeColor) {
+            SectionGroup(stringResource(R.string.sg_service_details), primaryColor, lightOrangeColor) {
                 // Provider Name
-                CustomTextField("Provider / Business Name", "e.g., Raju Plumbing Services", providerName) { providerName = it }
+                CustomTextField(stringResource(R.string.prov_bus_name), stringResource(R.string.ph_raju), providerName) { providerName = it }
 
                 // Category
-                CustomDropdown("Service Category", listOf("Plumber", "Electrician", "Mechanic", "Carpenter", "Painter", "Cleaning"), category) { newCat -> 
+                CustomDropdown(stringResource(R.string.srv_category), listOf("Plumber", "Electrician", "Mechanic", "Carpenter", "Painter", "Cleaning"), category) { newCat -> 
                     category = newCat 
-                    description = predefinedDescriptions[newCat] ?: ""
+                    val rawDesc = predefinedDescriptions[newCat] ?: ""
+                    com.example.localconnect.utils.TranslationManager.translate(rawDesc, targetLanguage) { res ->
+                        description = res
+                    }
                 }
                 
                 // Description
-                CustomTextField("Short Description", "Pipe leakage, tap repair...", description, singleLine = false, lines = 3) { description = it }
+                CustomTextField(stringResource(R.string.short_desc), stringResource(R.string.ph_pipe), description, singleLine = false, lines = 3) { description = it }
             }
 
             // 2. PRICING
-            SectionGroup("PRICING", primaryColor, lightOrangeColor) {
-                CustomTextField("Visiting Fees (₹)", "e.g. 500", visitingFees, keyboardType = KeyboardType.Number) { visitingFees = it }
+            SectionGroup(stringResource(R.string.sg_pricing), primaryColor, lightOrangeColor) {
+                CustomTextField(stringResource(R.string.visit_fees), stringResource(R.string.ph_500), visitingFees, keyboardType = KeyboardType.Number) { visitingFees = it }
                 
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(stringResource(R.string.charge_fees_km), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(selected = false, onClick = null, enabled = false, colors = RadioButtonDefaults.colors(disabledSelectedColor = Color.Gray, disabledUnselectedColor = Color.LightGray))
-                        Text(stringResource(R.string.yes), fontSize = 14.sp, color = Color.Gray)
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { hasFeesPerKm = false }) {
-                        RadioButton(selected = !hasFeesPerKm, onClick = { hasFeesPerKm = false }, colors = RadioButtonDefaults.colors(selectedColor = primaryColor))
-                        Text(stringResource(R.string.no_btn), fontSize = 14.sp)
-                    }
-                }
-                
-                if (hasFeesPerKm) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    CustomTextField("Fees per km (₹)", "e.g. 10", feesPerKm, keyboardType = KeyboardType.Number) { feesPerKm = it }
-                }
+
             }
 
             // 3. SERVICE LOCATION
             SectionGroup("SERVICE LOCATION", primaryColor, lightOrangeColor) {
-                Text(stringResource(R.string.select_loc_map), fontSize = 14.sp, color = Color.DarkGray)
+                Text(stringResource(R.string.select_loc_map), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray)
                 Spacer(modifier = Modifier.height(8.dp))
                 LocationSelectorMap(
                     addressQuery = "$locality $city $pincode",
                     currentLat = latitude,
                     currentLon = longitude,
-                    
+                    onMapTouch = { isMapScrollEnabled = !it },
+                    contentBelowMap = {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(containerColor = primaryColor, contentColor = Color.White),
+                                onClick = {
+                                    val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                    val hasCoarseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                    if (hasFineLocation || hasCoarseLocation) {
+                                        isFetchingLocation = true
+                                        try {
+                                            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
+                                                if (location != null) {
+                                                    latitude = location.latitude
+                                                    longitude = location.longitude
+                                                    try {
+                                                        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                                                        if (!addresses.isNullOrEmpty()) {
+                                                            val addr = addresses[0]
+                                                            val newCity = addr.locality ?: addr.subAdminArea ?: ""
+                                                            val pin = addr.postalCode ?: ""
+                                                            val street = addr.thoroughfare ?: addr.subLocality ?: ""
+                                                            if (street.isNotBlank()) locality = street
+                                                            if (newCity.isNotBlank()) city = newCity
+                                                            if (pin.isNotBlank()) pincode = pin
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        e.printStackTrace()
+                                                    }
+                                                } else {
+                                                    Toast.makeText(context, "Location not available. Try opening Google Maps first.", Toast.LENGTH_SHORT).show()
+                                                }
+                                                isFetchingLocation = false
+                                            }.addOnFailureListener {
+                                                Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
+                                                isFetchingLocation = false
+                                            }
+                                        } catch (e: SecurityException) {
+                                            isFetchingLocation = false
+                                        }
+                                    } else {
+                                        locationPermissionLauncher.launch(
+                                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                        )
+                                    }
+                                }
+                            ) {
+                                if (isFetchingLocation) {
+                                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                }
+                                Text(stringResource(R.string.use_current_location), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    },
+                    contentBeforeSave = {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                CustomTextField(stringResource(R.string.city_label), stringResource(R.string.ph_kol), city) { city = it }
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                CustomTextField(stringResource(R.string.area_loc), stringResource(R.string.ph_salt), locality) { locality = it }
+                            }
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                CustomTextField(stringResource(R.string.pincode_label), stringResource(R.string.ph_pin), pincode, keyboardType = KeyboardType.Number) { pincode = it }
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                CustomDropdown(stringResource(R.string.srv_radius), listOf("2 km", "5 km", "10 km", "20 km"), serviceRadius) { serviceRadius = it }
+                            }
+                        }
+                    },
                     onLocationSelected = { lat, lon, street, newCity, newState, pin, forceOverwrite ->
                         latitude = lat
                         longitude = lon
@@ -231,28 +313,11 @@ fun PostServiceScreen(
                         }
                     }
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        CustomTextField("City", "Kolkata", city) { city = it }
-                    }
-                    Box(modifier = Modifier.weight(1f)) {
-                        CustomTextField("Area / Locality", "Salt Lake", locality) { locality = it }
-                    }
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        CustomTextField("Pincode", "700091", pincode, keyboardType = KeyboardType.Number) { pincode = it }
-                    }
-                    Box(modifier = Modifier.weight(1f)) {
-                        CustomDropdown("Service Radius", listOf("2 km", "5 km", "10 km", "20 km"), serviceRadius) { serviceRadius = it }
-                    }
-                }
             }
 
             // 4. AVAILABILITY
-            SectionGroup("AVAILABILITY", primaryColor, lightOrangeColor) {
-                Text(stringResource(R.string.available_on), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+            SectionGroup(stringResource(R.string.sg_availability), primaryColor, lightOrangeColor) {
+                Text(stringResource(R.string.available_on), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray)
                 val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
                 FlowRow(modifier = Modifier.fillMaxWidth()) {
                     daysOfWeek.forEach { day ->
@@ -268,19 +333,20 @@ fun PostServiceScreen(
                         }
                     }
                 }
+                val timeOptions = listOf("06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00")
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Box(modifier = Modifier.weight(1f)) {
-                        CustomTextField("From", "09:00", availableFrom) { availableFrom = it }
+                        CustomDropdown(stringResource(R.string.from_label), timeOptions, availableFrom) { availableFrom = it }
                     }
                     Box(modifier = Modifier.weight(1f)) {
-                        CustomTextField("To", "18:00", availableTo) { availableTo = it }
+                        CustomDropdown(stringResource(R.string.to_label), timeOptions, availableTo) { availableTo = it }
                     }
                 }
             }
 
             // 5. EXPERIENCE & CONTACT
-            SectionGroup("EXPERIENCE", primaryColor, lightOrangeColor) {
-                CustomDropdown("Experience", listOf("1 Year", "2 Years", "3 Years", "5+ Years"), experience) { experience = it }
+            SectionGroup(stringResource(R.string.sg_experience), primaryColor, lightOrangeColor) {
+                CustomDropdown(stringResource(R.string.experience_label), listOf("1 Year", "2 Years", "3 Years", "5+ Years"), experience) { experience = it }
             }
 
             // 6. PREVIEW CARD
@@ -317,6 +383,25 @@ fun PostServiceScreen(
                     }
                 }
             }
+
+            // 7. DISCLAIMER
+            Surface(
+                color = Color(0xFFFEF2F2),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, Color(0xFFFCA5A5)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Warning, contentDescription = "Warning", tint = Color(0xFFEF4444))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Disclaimer: Posting fake or misleading services will result in an immediate account ban.",
+                        color = Color(0xFFB91C1C),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
         }
     }
 }
@@ -342,7 +427,7 @@ fun CustomTextField(
     onValueChange: (String) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(bottom = 4.dp))
+        Text("$label *", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, modifier = Modifier.padding(bottom = 4.dp))
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -375,17 +460,27 @@ fun CustomDropdown(
     onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var displayOption by remember { mutableStateOf(selectedOption) }
+    val targetLanguage = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]?.language ?: "en"
+    
+    androidx.compose.runtime.LaunchedEffect(selectedOption, targetLanguage) {
+        com.example.localconnect.utils.TranslationManager.translate(selectedOption, targetLanguage) { res ->
+            displayOption = res
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray, modifier = Modifier.padding(bottom = 4.dp))
+        Text("$label *", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray, modifier = Modifier.padding(bottom = 4.dp))
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded },
             modifier = Modifier.fillMaxWidth()
         ) {
             OutlinedTextField(
-                value = selectedOption,
+                readOnly = true,
+                value = displayOption,
                 onValueChange = { 
+                    displayOption = it
                     onOptionSelected(it)
                     expanded = true 
                 },
@@ -401,15 +496,15 @@ fun CustomDropdown(
                     unfocusedTextColor = Color.Black
                 )
             )
-            val filteredOptions = options.filter { it.contains(selectedOption, ignoreCase = true) }
-            if (filteredOptions.isNotEmpty()) {
+            if (options.isNotEmpty()) {
                 ExposedDropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.background(Color.White).heightIn(max = 200.dp)
                 ) {
-                    filteredOptions.forEach { selectionOption ->
+                    options.forEach { selectionOption ->
                         DropdownMenuItem(
-                            text = { Text(selectionOption) },
+                            text = { com.example.localconnect.ui.TranslatedText(selectionOption, color = Color.Black) },
                             onClick = {
                                 onOptionSelected(selectionOption)
                                 expanded = false

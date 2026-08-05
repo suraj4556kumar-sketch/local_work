@@ -88,11 +88,13 @@ fun AppNavigation(activity: android.app.Activity) {
         }
         // --------------------------------------------
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
+        val sharedPrefs = activity.getSharedPreferences("LocalConnectPrefs", android.content.Context.MODE_PRIVATE)
+        val activeUid = sharedPrefs.getString("active_uid", null)
+        val uidToCheck = activeUid ?: FirebaseAuth.getInstance().currentUser?.uid
+        if (uidToCheck != null) {
             // User logged in. Fetch their profile to see if onboarding is done.
             val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(currentUser.uid).get()
+            db.collection("users").document(uidToCheck).get()
                 .addOnSuccessListener { document ->
                     if (document.exists() && document.contains("location")) {
                         // User completed onboarding, restore session and go Home
@@ -101,14 +103,14 @@ fun AppNavigation(activity: android.app.Activity) {
 
                         var fetchedName = document.getString("name") ?: ""
                         if (fetchedName.lowercase() == "bhadwa") {
-                            db.collection("users").document(currentUser.uid).update("name", "suraj")
+                            db.collection("users").document(uidToCheck).update("name", "suraj")
                             fetchedName = "suraj"
                         }
 
                         val session = UserSession(
                             language = language,
                             phone = document.getString("phone") ?: "",
-                            firebaseUid = currentUser.uid,
+                            firebaseUid = uidToCheck,
                             name = fetchedName,
                             dob = document.getString("dob") ?: "",
                             gender = document.getString("gender") ?: "",
@@ -117,7 +119,7 @@ fun AppNavigation(activity: android.app.Activity) {
                         currentScreen = Screen.Home(session)
                     } else {
                         // Logged in but no full profile (maybe dropped off at profile setup). Send them to Profile Setup.
-                        currentScreen = Screen.ProfileSetup(UserSession(firebaseUid = currentUser.uid, phone = currentUser.phoneNumber?.replace("+91", "") ?: ""))
+                        currentScreen = Screen.ProfileSetup(UserSession(firebaseUid = uidToCheck, phone = FirebaseAuth.getInstance().currentUser?.phoneNumber?.replace("+91", "") ?: ""))
                     }
                 }
                 .addOnFailureListener {
@@ -210,8 +212,49 @@ fun AppNavigation(activity: android.app.Activity) {
                     activity = activity,
                     session = screen.session,
                     onBack = { currentScreen = Screen.LanguageSelection },
-                    onGetOtp = { phone, verificationId ->
-                        currentScreen = Screen.OtpVerification(screen.session.copy(phone = phone, verificationId = verificationId))
+                    onGetOtp = { phone, anonymousUid ->
+                        val db = FirebaseFirestore.getInstance()
+                        db.collection("users").whereEqualTo("phone", phone).get()
+                            .addOnSuccessListener { querySnapshot ->
+                                val activeUid = if (!querySnapshot.isEmpty) {
+                                    querySnapshot.documents[0].id
+                                } else {
+                                    anonymousUid
+                                }
+                                
+                                val sharedPrefs = activity.getSharedPreferences("LocalConnectPrefs", android.content.Context.MODE_PRIVATE)
+                                sharedPrefs.edit().putString("active_uid", activeUid).apply()
+
+                                db.collection("users").document(activeUid).get()
+                                    .addOnSuccessListener { document ->
+                                        if (document.exists() && document.contains("location")) {
+                                            val languageCode = document.getString("language") ?: "en"
+                                            val language = supportedLanguages.find { it.code == languageCode } ?: supportedLanguages[0]
+                                            val fetchedName = document.getString("name") ?: ""
+                                            
+                                            val completeSession = UserSession(
+                                                language = language,
+                                                phone = document.getString("phone") ?: phone,
+                                                firebaseUid = activeUid,
+                                                name = fetchedName,
+                                                dob = document.getString("dob") ?: "",
+                                                gender = document.getString("gender") ?: "",
+                                                location = document.getString("location") ?: ""
+                                            )
+                                            val intentType = activity.intent.getStringExtra("type")
+                                            val intentRefId = activity.intent.getStringExtra("referenceId")
+                                            currentScreen = Screen.Home(completeSession, intentType, intentRefId)
+                                        } else {
+                                            currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = activeUid, phone = phone)) 
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = activeUid, phone = phone))
+                                    }
+                            }
+                            .addOnFailureListener {
+                                currentScreen = Screen.ProfileSetup(screen.session.copy(firebaseUid = anonymousUid, phone = phone))
+                            }
                     }
                 )
 
@@ -253,7 +296,7 @@ fun AppNavigation(activity: android.app.Activity) {
                 // 4 — Profile (name / dob / gender)
                 is Screen.ProfileSetup -> ProfileSetupScreen(
                     session = screen.session,
-                    onBack = { currentScreen = Screen.OtpVerification(screen.session) },
+                    onBack = { currentScreen = Screen.PhoneEntry(screen.session) },
                     onContinue = { name, dob, gender ->
                         currentScreen = Screen.LocationSetup(
                             screen.session.copy(name = name, dob = dob, gender = gender)

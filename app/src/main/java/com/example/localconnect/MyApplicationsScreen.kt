@@ -28,6 +28,7 @@ import androidx.compose.material3.*
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.*
+import com.example.localconnect.ui.TranslatedText
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -55,6 +56,7 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
     var applicationToDelete by remember { mutableStateOf<JobApplication?>(null) }
         var selectedApp by remember { mutableStateOf<JobApplication?>(null) }
     var selectedJob by remember { mutableStateOf<com.example.localconnect.data.Job?>(null) }
+    var appToReview by remember { mutableStateOf<JobApplication?>(null) }
     
     LaunchedEffect(selectedApp) {
         if (selectedApp != null) {
@@ -114,10 +116,10 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterTab("All", statsTotal, filter == "All", { filter = "All" }, Modifier.weight(1f))
-                FilterTab("Pending", statsPending, filter == "Pending", { filter = "Pending" }, Modifier.weight(1f))
-                FilterTab("Accepted", statsAccepted, filter == "Accepted", { filter = "Accepted" }, Modifier.weight(1f))
-                FilterTab("Rejected", statsRejected, filter == "Rejected", { filter = "Rejected" }, Modifier.weight(1f))
+                FilterTab(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.tab_all), statsTotal, filter == "All", { filter = "All" }, Modifier.weight(1f))
+                FilterTab(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.tab_pending), statsPending, filter == "Pending", { filter = "Pending" }, Modifier.weight(1f))
+                FilterTab(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.tab_accepted), statsAccepted, filter == "Accepted", { filter = "Accepted" }, Modifier.weight(1f))
+                FilterTab(androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.tab_rejected), statsRejected, filter == "Rejected", { filter = "Rejected" }, Modifier.weight(1f))
             }
 
             // List
@@ -155,7 +157,8 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                                     myApplications = mutable
                                     coroutineScope.launch { FirebaseRepository.applyForJob(updated) }
                                 }
-                            }
+                            },
+                            onRateEmployer = { appToReview = app }
                         )
                     }
                 }
@@ -352,6 +355,8 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                     }
+                    
+
                 }
                 
                 Button(
@@ -366,6 +371,33 @@ fun MyApplicationsScreen(session: UserSession, onJobClick: (com.example.localcon
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
+    }
+    
+    if (appToReview != null) {
+        LeaveReviewBottomSheet(
+            reviewType = "job",
+            targetId = appToReview!!.employerId,
+            targetName = appToReview!!.companyName,
+            entityId = appToReview!!.jobId,
+            serviceTitle = appToReview!!.jobTitle,
+            referenceId = appToReview!!.id,
+            reviewerUid = session.phone,
+            reviewerName = session.name,
+            onDismiss = { appToReview = null },
+            onSubmitted = {
+                coroutineScope.launch {
+                    FirebaseRepository.markJobApplicationReviewed(appToReview!!.id)
+                    // Update locally
+                    val index = myApplications.indexOfFirst { it.id == appToReview!!.id }
+                    if (index != -1) {
+                        myApplications = myApplications.toMutableList().apply {
+                            this[index] = this[index].copy(isReviewed = true)
+                        }
+                    }
+                    appToReview = null
+                }
+            }
+        )
     }
 }
 
@@ -394,7 +426,7 @@ fun FilterTab(label: String, value: Int, selected: Boolean, onClick: () -> Unit,
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, onStatusChange: (String) -> Unit, onLongClick: (JobApplication) -> Unit = {}) {
+fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, onStatusChange: (String) -> Unit, onLongClick: (JobApplication) -> Unit = {}, onRateEmployer: () -> Unit = {}) {
     val statusBgColor = when (app.status) {
         "Accepted" -> Color(0xFFFFF7ED)
         "Rejected" -> Color(0xFFFFF7ED)
@@ -428,15 +460,15 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
                 verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(app.jobTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
-                    Text(app.companyName, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF6B7280))
+                    TranslatedText(app.jobTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
+                    TranslatedText(app.companyName, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF6B7280))
                 }
                 Surface(
                     color = statusBgColor,
                     shape = RoundedCornerShape(50),
                     border = androidx.compose.foundation.BorderStroke(1.dp, statusBorderColor)
                 ) {
-                    Text(
+                    TranslatedText(
                         app.status,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -451,13 +483,13 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(app.location, fontSize = 14.sp, color = Color(0xFF4B5563))
+                TranslatedText(app.location, fontSize = 14.sp, color = Color(0xFF4B5563))
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.AttachMoney, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(app.salary, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Primary)
+                TranslatedText(app.salary, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Primary)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -490,6 +522,19 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
                     ) {
                         Text(stringResource(R.string.reject), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
+                }
+            }
+            if (app.status == "Offer Accepted" && !app.isReviewed) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = { onRateEmployer() },
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B))
+                ) {
+                    Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Rate Employer", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
                 }
             }
         }

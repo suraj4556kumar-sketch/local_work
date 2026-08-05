@@ -132,7 +132,7 @@ private fun NotificationItem(
                 color = Color(0xFF1A1A1A)
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(notification.message, fontSize = 14.sp, color = Color(0xFF4B5563))
+            com.example.localconnect.ui.TranslatedText(notification.message, fontSize = 14.sp, color = Color(0xFF4B5563))
             Spacer(modifier = Modifier.height(6.dp))
             Text(timeString, fontSize = 12.sp, color = Color(0xFF9CA3AF))
         }

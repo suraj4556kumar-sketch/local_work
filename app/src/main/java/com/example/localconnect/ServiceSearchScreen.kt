@@ -20,6 +20,11 @@ import androidx.compose.material3.*
 import com.example.localconnect.ui.TranslatedText
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
@@ -48,7 +53,7 @@ import androidx.compose.runtime.LaunchedEffect
 @Composable
 fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
     var selectedTab by remember { mutableIntStateOf(initialTab) }
-    var dummyServices by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
+    var firebaseServices by remember { mutableStateOf<List<ServiceTask>>(emptyList()) }
     var userLat by remember { mutableStateOf<Double?>(null) }
     var userLon by remember { mutableStateOf<Double?>(null) }
     var bookedServiceIds by remember { mutableStateOf<Set<String>>(emptySet()) }
@@ -56,7 +61,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
     
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        dummyServices = FirebaseRepository.getServices()
+        firebaseServices = FirebaseRepository.getServices()
         val myBookings = FirebaseRepository.getMyServiceBookings(session.phone)
         bookedServiceIds = myBookings.filter { it.status.lowercase() != "rejected" && it.status.lowercase() != "completed" }.map { it.serviceId }.toSet()
         
@@ -84,8 +89,8 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
         }
     }
     
-    val allServices = remember(dummyServices, userLat, userLon) { 
-        dummyServices.map { 
+    val allServices = remember(firebaseServices, userLat, userLon) { 
+        firebaseServices.map { 
             it.copy(distanceKm = if (userLat != null && userLon != null && it.latitude != 0.0 && it.longitude != 0.0) calculateDistance(userLat!!, userLon!!, it.latitude, it.longitude) else if (it.latitude == 0.0 && it.longitude == 0.0) -1.0 else it.distanceKm)
         } 
     }
@@ -118,11 +123,13 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
         else -> allServices.sortedBy { it.distanceKm }
     }
 
+    val currentDay = remember { java.time.LocalDate.now().dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH) }
     val advancedFiltered = sortedServices.filter {
-        (it.distanceKm > -0.5 && it.distanceKm <= maxDistance) &&
+        (if (maxDistance >= 100.0) true else it.distanceKm in 0.0..maxDistance) &&
         it.price <= maxRate &&
         it.rating >= minRating &&
-        (selectedServiceFilter == stringResource(R.string.all_services) || it.category == selectedServiceFilter)
+        (selectedServiceFilter == stringResource(R.string.all_services) || it.category == selectedServiceFilter) &&
+        (it.availableDays.isEmpty() || it.availableDays.contains(currentDay))
     }
 
     val displayedServices = if (searchQuery.isBlank()) {
@@ -210,7 +217,8 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
                             }
                         },
                         textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A)),
-                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+                        modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
+                        singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = Color(0xFFE0E0E0),
@@ -224,7 +232,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
                         ExposedDropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
-                            containerColor = Color.White
+                            containerColor = Color(0xFFFFF3E0)
                         ) {
                             suggestions.forEach { category ->
                                 DropdownMenuItem(
@@ -253,7 +261,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
                         Surface(
                             color = Color(0xFFFFF3E0),
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -268,7 +276,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
                         ExposedDropdownMenu(
                             expanded = showServiceFilterDropdown,
                             onDismissRequest = { showServiceFilterDropdown = false },
-                            containerColor = Color.White
+                            containerColor = Color(0xFFFFF3E0)
                         ) {
                             serviceFilterOptions.forEach { opt ->
                                 DropdownMenuItem(
@@ -315,30 +323,46 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
             }
         }
 
-        // List
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            if (displayedServices.isEmpty()) {
-                item {
-                    Text(
-                        text = "${stringResource(R.string.no_services_found)} \"$searchQuery\"",
-                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
-                        color = Color.Gray,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        fontSize = 16.sp
-                    )
+        var isRefreshing by remember { mutableStateOf(false) }
+        val pullToRefreshState = rememberPullToRefreshState()
+        val coroutineScope = rememberCoroutineScope()
+
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                coroutineScope.launch {
+                    delay(1000)
+                    isRefreshing = false
                 }
-            } else {
-                items(displayedServices) { svc ->
-                    val isBooked = bookedServiceIds.contains(svc.id)
-                    PostedServiceCard(
-                        service = svc,
-                        onClick = { if (!isBooked) selectedService = svc },
-                        buttonText = if (isBooked) "Booked" else "Book Service",
-                        isButtonEnabled = !isBooked
-                    )
+            },
+            state = pullToRefreshState,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (displayedServices.isEmpty()) {
+                    item {
+                        Text(
+                            text = "${stringResource(R.string.no_services_found)} \"$searchQuery\"",
+                            modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                            color = Color.Gray,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            fontSize = 16.sp
+                        )
+                    }
+                } else {
+                    items(displayedServices) { svc ->
+                        val isBooked = bookedServiceIds.contains(svc.id)
+                        PostedServiceCard(
+                            service = svc,
+                            onClick = { if (!isBooked) selectedService = svc },
+                            buttonText = if (isBooked) "Booked" else "Book Service",
+                            isButtonEnabled = !isBooked
+                        )
+                    }
                 }
             }
         }
@@ -350,7 +374,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
             modifier = Modifier.fillMaxHeight(),
             sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showSortByBottomSheet = false },
-            containerColor = Color.White
+            containerColor = Color(0xFFFFF3E0)
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(stringResource(R.string.sort_by), fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
@@ -383,7 +407,7 @@ fun ServiceSearchScreen(session: UserSession, initialTab: Int = 0) {
             modifier = Modifier.fillMaxHeight(),
             sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = { showAdvancedFilters = false },
-            containerColor = Color.White
+            containerColor = Color(0xFFFFF3E0)
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(stringResource(R.string.filters), fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))

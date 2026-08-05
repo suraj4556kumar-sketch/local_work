@@ -51,13 +51,11 @@ fun PostJobScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var isPosting by remember { mutableStateOf(false) }
-    
-
-
+    var isMapScrollEnabled by remember { mutableStateOf(true) }
     // State Variables
     var employerId by remember { mutableStateOf(session.phone) }
-    var employerName by remember { mutableStateOf(session.name) }
-    var contactPersonName by remember { mutableStateOf(session.name) }
+    var employerName by remember { mutableStateOf(session.name.lowercase()) }
+    var contactPersonName by remember { mutableStateOf(session.name.lowercase()) }
     var phoneNumber by remember { mutableStateOf(session.phone) }
     var jobTitle by remember { mutableStateOf("") }
     var jobCategory by remember { mutableStateOf("") }
@@ -71,6 +69,8 @@ fun PostJobScreen(
     var state by remember { mutableStateOf("") }
     var pincode by remember { mutableStateOf("") }
     var landmark by remember { mutableStateOf("") }
+    var isAddressFromMap by remember { mutableStateOf(false) }
+    var isPinSaved by remember { mutableStateOf(false) }
 
     var salaryType by remember { mutableStateOf("Monthly") }
     var salaryMin by remember { mutableStateOf("30000") }
@@ -305,6 +305,10 @@ fun PostJobScreen(
                                 Toast.makeText(context.applicationContext, "Please fill required fields (Title, City, Min Salary)", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
+                            if (!isPinSaved) {
+                                Toast.makeText(context.applicationContext, "Please confirm your location by clicking 'Save Pin Location'", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
                             isPosting = true
                             coroutineScope.launch {
                                 val salaryRange = "₹$salaryMin / $salaryType"
@@ -344,9 +348,9 @@ fun PostJobScreen(
                                     isCustomDescription = true,
                                     isCustomResponsibilities = true,
                                     documentsRequired = documentsRequired.toList(),
-                                    requirements = emptyList(),
                                     benefits = benefits.toList(),
-                                    languagesPref = languagesPref.toList()
+                                    languagesPref = languagesPref.toList(),
+                                    timestamp = System.currentTimeMillis()
                                 )
                                 val success = FirebaseRepository.postJob(newJob)
                                 isPosting = false
@@ -376,25 +380,25 @@ fun PostJobScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(state = rememberScrollState(), enabled = isMapScrollEnabled)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // 1. Employer Info
             FormSection("1. Employer Info") {
-                OutlinedTextField(
+                OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
                     value = employerName, onValueChange = { employerName = it },
                     label = { Text(stringResource(R.string.employer_company_star)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
+                OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
                     value = contactPersonName, onValueChange = { contactPersonName = it },
                     label = { Text(stringResource(R.string.contact_person_star)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
+                OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                     value = phoneNumber, onValueChange = { phoneNumber = it },
                     label = { Text(stringResource(R.string.phone_number_star)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -406,7 +410,7 @@ fun PostJobScreen(
 
             // 2. Job Details
             FormSection("2. Job Details") {
-                OutlinedTextField(
+                OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                     value = jobTitle, onValueChange = { jobTitle = it },
                     label = { Text(stringResource(R.string.job_title_star)) },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
@@ -416,7 +420,7 @@ fun PostJobScreen(
                     expanded = categoryExpanded,
                     onExpandedChange = { categoryExpanded = it }
                 ) {
-                    OutlinedTextField(
+                    OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                         value = jobCategory,
                         onValueChange = { 
                             jobCategory = it
@@ -436,7 +440,7 @@ fun PostJobScreen(
                         ExposedDropdownMenu(
                             expanded = categoryExpanded,
                             onDismissRequest = { categoryExpanded = false },
-                            modifier = Modifier.background(Color.White)
+                            modifier = Modifier.background(Color.White).heightIn(max = 200.dp)
                         ) {
                             filteredCategories.forEach { selectionOption ->
                                 DropdownMenuItem(
@@ -453,23 +457,119 @@ fun PostJobScreen(
             }
 
             // 3. Location
-            FormSection("3. Location") {
+            FormSection(stringResource(R.string.post_job_location)) {
                 Text(stringResource(R.string.select_loc_map), fontSize = 14.sp, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
                 LocationSelectorMap(
                     addressQuery = "$workAddress $city $state $pincode",
+                    isAddressFromMap = isAddressFromMap,
                     currentLat = latitude,
                     currentLon = longitude,
-                    
+                    onMapTouch = { isTouch -> isMapScrollEnabled = !isTouch },
+                    contentBelowMap = {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(containerColor = orangePrimary, contentColor = Color.White),
+                                onClick = {
+                                    val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                    val hasCoarseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                    if (hasFineLocation || hasCoarseLocation) {
+                                        isFetchingLocation = true
+                                        try {
+                                            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
+                                                if (location != null) {
+                                                    latitude = location.latitude
+                                                    longitude = location.longitude
+                                                    isPinSaved = false
+                                                    try {
+                                                        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                                                        if (!addresses.isNullOrEmpty()) {
+                                                            val addr = addresses[0]
+                                                            city = addr.locality ?: addr.subAdminArea ?: ""
+                                                            state = addr.adminArea ?: ""
+                                                            pincode = addr.postalCode ?: ""
+                                                            val street = addr.thoroughfare ?: addr.subLocality ?: ""
+                                                            workAddress = street
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        e.printStackTrace()
+                                                    }
+                                                } else {
+                                                    Toast.makeText(context, "Location not available. Try opening Google Maps first.", Toast.LENGTH_SHORT).show()
+                                                }
+                                                isFetchingLocation = false
+                                            }.addOnFailureListener {
+                                                Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
+                                                isFetchingLocation = false
+                                            }
+                                        } catch (e: SecurityException) {
+                                            isFetchingLocation = false
+                                        }
+                                    } else {
+                                        locationPermissionLauncher.launch(
+                                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                        )
+                                    }
+                                }
+                            ) {
+                                if (isFetchingLocation) {
+                                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                                } else {
+                                    Icon(Icons.Filled.MyLocation, contentDescription = "Current Location", modifier = Modifier.size(16.dp))
+                                }
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(R.string.use_current_location), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    },
+                    contentBeforeSave = {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                            value = workAddress, onValueChange = { workAddress = it; isAddressFromMap = false; isPinSaved = false },
+                            label = { Text(stringResource(R.string.work_address_building)) },
+                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                                value = city, onValueChange = { city = it; isAddressFromMap = false; isPinSaved = false },
+                                label = { Text(stringResource(R.string.city_area)) },
+                                modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
+                            )
+                            OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                                value = state, onValueChange = { state = it; isAddressFromMap = false; isPinSaved = false },
+                                label = { Text(stringResource(R.string.state_label)) },
+                                modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                                value = pincode, onValueChange = { pincode = it; isAddressFromMap = false; isPinSaved = false },
+                                label = { Text(stringResource(R.string.pincode_star)) },
+                                modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
+                            )
+                            OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                                value = landmark, onValueChange = { landmark = it; isAddressFromMap = false; isPinSaved = false },
+                                label = { Text(stringResource(R.string.landmark_opt)) },
+                                modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
+                            )
+                        }
+                    },
                     onLocationSelected = { lat, lon, street, newCity, newState, pin, forceOverwrite ->
+                        isAddressFromMap = true
                         latitude = lat
                         longitude = lon
                         if (forceOverwrite) {
+                            isPinSaved = true
                             if (street.isNotBlank()) workAddress = street
                             if (newCity.isNotBlank()) city = newCity
                             if (newState.isNotBlank()) state = newState
                             if (pin.isNotBlank()) pincode = pin
                         } else {
+                            isPinSaved = false
                             if (workAddress.isBlank()) workAddress = street
                             if (city.isBlank()) city = newCity
                             if (state.isBlank()) state = newState
@@ -477,98 +577,11 @@ fun PostJobScreen(
                         }
                     }
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = workAddress, onValueChange = { workAddress = it },
-                    label = { Text(stringResource(R.string.work_address_building)) },
-                    modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(
-                        value = city, onValueChange = { city = it },
-                        label = { Text(stringResource(R.string.city_area)) },
-                        modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
-                    )
-                    OutlinedTextField(
-                        value = state, onValueChange = { state = it },
-                        label = { Text(stringResource(R.string.state_label)) },
-                        modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(
-                        value = pincode, onValueChange = { pincode = it },
-                        label = { Text(stringResource(R.string.pincode_star)) },
-                        modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
-                    )
-                    OutlinedTextField(
-                        value = landmark, onValueChange = { landmark = it },
-                        label = { Text(stringResource(R.string.landmark_opt)) },
-                        modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = orangePrimary, contentColor = Color.White),
-                        onClick = {
-                            val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                            val hasCoarseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                            if (hasFineLocation || hasCoarseLocation) {
-                                isFetchingLocation = true
-                                try {
-                                    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
-                                        if (location != null) {
-                                            latitude = location.latitude
-                                            longitude = location.longitude
-                                            try {
-                                                val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                                                if (!addresses.isNullOrEmpty()) {
-                                                    val addr = addresses[0]
-                                                    city = addr.locality ?: addr.subAdminArea ?: ""
-                                                    state = addr.adminArea ?: ""
-                                                    pincode = addr.postalCode ?: ""
-                                                    val street = addr.thoroughfare ?: addr.subLocality ?: ""
-                                                    workAddress = street
-                                                }
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
-                                            }
-                                        } else {
-                                            Toast.makeText(context, "Location not available. Try opening Google Maps first.", Toast.LENGTH_SHORT).show()
-                                        }
-                                        isFetchingLocation = false
-                                    }.addOnFailureListener {
-                                        Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
-                                        isFetchingLocation = false
-                                    }
-                                } catch (e: SecurityException) {
-                                    isFetchingLocation = false
-                                }
-                            } else {
-                                locationPermissionLauncher.launch(
-                                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-                                )
-                            }
-                        }
-                    ) {
-                        if (isFetchingLocation) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                        } else {
-                            Icon(Icons.Filled.MyLocation, contentDescription = "Current Location", modifier = Modifier.size(16.dp))
-                        }
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Use Current Location", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
             }
 
             // 4. Salary
             FormSection("4. Salary") {
-                OutlinedTextField(
+                OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                     value = salaryMin, onValueChange = { salaryMin = it },
                     label = { Text(stringResource(R.string.monthly_salary)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -583,7 +596,7 @@ fun PostJobScreen(
                     expanded = expExpanded,
                     onExpandedChange = { expExpanded = !expExpanded }
                 ) {
-                    OutlinedTextField(
+                    OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                         value = experienceRequired,
                         onValueChange = {},
                         readOnly = true,
@@ -615,7 +628,7 @@ fun PostJobScreen(
                     expanded = eduExpanded,
                     onExpandedChange = { eduExpanded = !eduExpanded }
                 ) {
-                    OutlinedTextField(
+                    OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                         value = educationRequired,
                         onValueChange = {},
                         readOnly = true,
@@ -647,7 +660,7 @@ fun PostJobScreen(
                     expanded = genderExpanded,
                     onExpandedChange = { genderExpanded = !genderExpanded }
                 ) {
-                    OutlinedTextField(
+                    OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                         value = genderPreference,
                         onValueChange = {},
                         readOnly = true,
@@ -676,7 +689,7 @@ fun PostJobScreen(
 
             // 7. Description
             FormSection("7. Description") {
-                OutlinedTextField(
+                OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                     value = jobDescription, onValueChange = { jobDescription = it },
                     label = { Text(stringResource(R.string.desc_job_role_env)) },
                     modifier = Modifier.fillMaxWidth().height(180.dp), shape = RoundedCornerShape(8.dp)
@@ -698,7 +711,7 @@ fun PostJobScreen(
                     }
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
+                    OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                         value = newRespInput, onValueChange = { newRespInput = it },
                         placeholder = { Text(stringResource(R.string.add_skill_resp)) },
                         modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)
@@ -727,7 +740,7 @@ fun PostJobScreen(
                     }
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
+                    OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                         value = newDocInput, onValueChange = { newDocInput = it },
                         placeholder = { Text(stringResource(R.string.add_other_doc)) },
                         modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)

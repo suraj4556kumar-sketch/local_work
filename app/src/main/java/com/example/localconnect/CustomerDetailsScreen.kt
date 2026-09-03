@@ -331,7 +331,7 @@ val settingResultRequest = rememberLauncherForActivityResult(
                         if (isBooking) {
                             androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Booking...", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(stringResource(R.string.booking_progress), fontWeight = FontWeight.Bold, color = Color.White)
                         } else {
                             Text(confirmBookingStr, fontWeight = FontWeight.Bold, color = Color.White)
                         }

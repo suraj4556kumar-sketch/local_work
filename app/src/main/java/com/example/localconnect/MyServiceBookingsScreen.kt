@@ -56,7 +56,7 @@ fun MyServiceBookingsScreen(session: UserSession) {
         }
     } else if (bookings.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No bookings found.", color = Color.Gray, fontSize = 16.sp)
+            Text(stringResource(R.string.no_bookings_found), color = Color.Gray, fontSize = 16.sp)
         }
     } else {
         LazyColumn(
@@ -101,12 +101,12 @@ fun MyServiceBookingsScreen(session: UserSession) {
                         }
                     }
                 }) {
-                    Text("Remove", color = Color.Red)
+                    Text(stringResource(R.string.remove), color = Color.Red)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { requestToRemove = null }) {
-                    Text("Cancel", color = Color.Gray)
+                    Text(stringResource(R.string.cancel), color = Color.Gray)
                 }
             }
         )
@@ -312,7 +312,7 @@ fun SeekerBookingCard(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF374151)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Close", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.close_btn), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
                 
                 Spacer(modifier = Modifier.height(24.dp))

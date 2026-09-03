@@ -203,7 +203,6 @@ fun PostedServiceCard(service: ServiceTask, onClick: () -> Unit, onDelete: (() -
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 TranslatedText("⭐ ${stringResource(R.string.exp_years)} ${service.experience}", fontSize = 12.sp, color = Color.Gray)
-                TranslatedText("🕒 ${service.availableDays.joinToString(", ").takeIf { it.isNotBlank() } ?: "None"}", fontSize = 12.sp, color = Color.Gray)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(

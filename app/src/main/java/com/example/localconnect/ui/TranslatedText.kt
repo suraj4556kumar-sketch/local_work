@@ -40,13 +40,9 @@ fun TranslatedText(
     var translatedText by remember(text, targetLanguage) { mutableStateOf(text) }
 
     LaunchedEffect(text, targetLanguage) {
-        if (targetLanguage == "en") {
-            translatedText = text
-        } else {
-            translatedText = text // Start with original text while loading
-            TranslationManager.translate(text, targetLanguage) { result ->
-                translatedText = result
-            }
+        translatedText = text // Start with original text while loading
+        TranslationManager.translate(text, targetLanguage) { result ->
+            translatedText = result
         }
     }
 

@@ -271,7 +271,7 @@ fun JobApplicationScreen(
                                     applicantIntro = introduction,
                                     uploadedDocumentUri = finalDocUrl,
                                     uploadedDocuments = uploadedDocsMap,
-                                    appliedOnDate = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault()).format(java.util.Date()),
+                                    appliedOnDate = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.ENGLISH).format(java.util.Date()),
                                     appliedOn = System.currentTimeMillis()
                                 )
                                 val success = FirebaseRepository.applyForJob(newApp)

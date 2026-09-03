@@ -234,7 +234,11 @@ fun JobDetailsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.DateRange, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
                         Spacer(modifier = Modifier.width(6.dp))
-                        TranslatedText(job.postingDate, fontSize = 14.sp, color = Color(0xFF64748B))
+                        if (job.timestamp > 0L) {
+                            Text(java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date(job.timestamp)), fontSize = 14.sp, color = Color(0xFF64748B))
+                        } else {
+                            TranslatedText(job.postingDate, fontSize = 14.sp, color = Color(0xFF64748B))
+                        }
                     }
                 }
             }
@@ -501,16 +505,16 @@ fun JobDetailsScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                        Row { Text("Work address : ", fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.workAddress.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                        Row { Text(stringResource(R.string.work_address_colon), fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.workAddress.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(modifier = Modifier.fillMaxWidth()) {
-                            Row(modifier = Modifier.weight(1f)) { Text("City : ", fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.city.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
-                            Row(modifier = Modifier.weight(1f)) { Text("State : ", fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.state.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                            Row(modifier = Modifier.weight(1f)) { Text(stringResource(R.string.city_colon), fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.city.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                            Row(modifier = Modifier.weight(1f)) { Text(stringResource(R.string.state_colon), fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.state.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(modifier = Modifier.fillMaxWidth()) {
-                            Row(modifier = Modifier.weight(1f)) { Text("Pincode : ", fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.pincode.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
-                            Row(modifier = Modifier.weight(1f)) { Text("Landmark : ", fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.landmark.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                            Row(modifier = Modifier.weight(1f)) { Text(stringResource(R.string.pincode_colon), fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.pincode.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
+                            Row(modifier = Modifier.weight(1f)) { Text(stringResource(R.string.landmark_colon), fontSize = 14.sp, color = Color(0xFF64748B)); TranslatedText(job.landmark.ifBlank { "N/A" }, fontSize = 14.sp, color = Color(0xFF1E293B)) }
                         }
                     }
                     
@@ -649,10 +653,10 @@ fun JobDetailsScreen(
                             modifier = Modifier.width(220.dp).clickable { onSimilarJobClick(simJob) }
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(simJob.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(simJob.companyName, fontSize = 12.sp, color = Color(0xFF64748B), modifier = Modifier.padding(bottom = 12.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                com.example.localconnect.ui.TranslatedText(simJob.title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                com.example.localconnect.ui.TranslatedText(simJob.companyName, fontSize = 12.sp, color = Color(0xFF64748B), modifier = Modifier.padding(bottom = 12.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                                    Text(simJob.salary, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF97316))
+                                    com.example.localconnect.ui.TranslatedText(simJob.salary, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF97316))
                                     Surface(
                                         color = Color(0xFFF1F5F9),
                                         shape = RoundedCornerShape(50)

@@ -1,0 +1,73 @@
+Total hardcoded static strings: 72
+ApplicantListScreen.kt: ${filteredApplicants.size}
+ApplicantListScreen.kt: ${app.applicantGender}, ${app.applicantAge} years
+ApplicantListScreen.kt: Experience: ${app.applicantExperience} years
+ApplicantListScreen.kt: View $docName
+BookServiceScreen.kt: ${service.rating} Rating
+BookServiceScreen.kt: ${String.format(
+BookServiceScreen.kt: ₹${service.price}
+BookServiceScreen.kt: ₹${service.price}
+BookServiceScreen.kt: ₹${service.price}
+CustomerDetailsScreen.kt: Booking...
+CustomerDetailsScreen.kt: $displayDate, $selectedTimeSlot
+CustomerDetailsScreen.kt: ₹${service.price}
+CustomerDetailsScreen.kt: $displayDate, $selectedTimeSlot
+CustomerDetailsScreen.kt: ₹${service.price}
+HomeScreen.kt: ${stringResource(R.string.chats_tab)} Screen (${stringResource(R.string.coming_soon)})
+JobApplicationScreen.kt: ${androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.uploaded)}: $docName
+JobApplicationScreen.kt: ${androidx.compose.ui.res.stringResource(com.example.localconnect.R.string.upload_document)} $docName
+JobDetailsScreen.kt:  • 15 jobs posted
+JobDetailsScreen.kt:  ${job.distanceKm} km away
+JobDetailsScreen.kt: Work address : 
+JobDetailsScreen.kt: City : 
+JobDetailsScreen.kt: State : 
+JobDetailsScreen.kt: Pincode : 
+JobDetailsScreen.kt: Landmark : 
+JobSearchScreen.kt: ${stringResource(R.string.no_jobs_found)} '$searchQuery'.
+JobSearchScreen.kt: ${stringResource(R.string.max_distance)}: ${maxDistance.toInt()} km
+JobSearchScreen.kt: ${stringResource(R.string.min_salary)}: ₹$minSalary
+JobSearchScreen.kt: ${stringResource(R.string.min_experience)}: $minExperience yrs
+JobSearchScreen.kt: ${round(job.distanceKm * 10) / 10} km
+LocationSelectorMap.kt: Save Pin Location
+MyApplicationsScreen.kt: Are you sure you want to remove your application for ${applicationToDelete!!.jobTitle}?
+MyApplicationsScreen.kt: Rate Employer
+MyPostedServicesScreen.kt: ${service.rating}
+MyPostedServicesScreen.kt: 📍 ${service.locality.ifBlank { 
+MyPostedServicesScreen.kt: ${String.format(
+MyPostedServicesScreen.kt: ${stringResource(R.string.visiting_fee)}${service.price}
+MyPostedServicesScreen.kt: + ₹${service.feesPerKm}/km
+MyPostedServicesScreen.kt: ⭐ ${stringResource(R.string.exp_years)} ${service.experience}
+MyPostedServicesScreen.kt: 🕒 ${service.availableDays.joinToString(
+MyServiceBookingsScreen.kt: No bookings found.
+MyServiceBookingsScreen.kt: Remove
+MyServiceBookingsScreen.kt: Cancel
+MyServiceBookingsScreen.kt: ${request.scheduledDate}, ${request.scheduledTime}
+MyServiceBookingsScreen.kt: ${stringResource(R.string.requested_on)} ${java.text.SimpleDateFormat(
+MyServiceBookingsScreen.kt: ${String.format(
+MyServiceBookingsScreen.kt: Applied on ${java.text.SimpleDateFormat(
+MyServiceBookingsScreen.kt: Close
+OtpVerificationScreen.kt: +91 ${session.phone}
+OtpVerificationScreen.kt: ${stringResource(R.string.resend_in)}  ${secondsLeft}s
+PostServiceScreen.kt: 📍 ${locality.ifBlank { 
+PostServiceScreen.kt: Visiting Fee: ₹${visitingFees.ifBlank { 
+PostServiceScreen.kt: + ₹${feesPerKm.ifBlank { 
+PostServiceScreen.kt: ⭐ Exp: $experience
+PostServiceScreen.kt: 🕒 ${availableDays.joinToString(
+PostServiceScreen.kt: $label *
+PostServiceScreen.kt: $label *
+ServiceRequestListScreen.kt: ${request.scheduledDate}, ${request.scheduledTime}
+ServiceRequestListScreen.kt: Call
+ServiceRequestListScreen.kt: WhatsApp
+ServiceRequestListScreen.kt: Status ${request.status}
+ServiceRequestListScreen.kt: Customer Details
+ServiceRequestListScreen.kt: Location
+ServiceRequestListScreen.kt: Date
+ServiceRequestListScreen.kt: Time
+ServiceRequestListScreen.kt: Exact Location
+ServiceRequestListScreen.kt: Problem Description
+ServiceRequestListScreen.kt: Special Instructions
+ServiceRequestListScreen.kt: Attached Media
+ServiceRequestListScreen.kt: View Attached Picture
+ServiceSearchScreen.kt: ${stringResource(R.string.max_distance)}: ${maxDistance.toInt()} km
+ServiceSearchScreen.kt: ${stringResource(R.string.max_rate)}: ₹$maxRate/hr
+ServiceSearchScreen.kt: ${stringResource(R.string.min_rating)}: ${String.format(

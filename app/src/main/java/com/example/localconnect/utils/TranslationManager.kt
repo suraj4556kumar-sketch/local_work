@@ -21,14 +21,14 @@ object TranslationManager {
     private val scope = CoroutineScope(Dispatchers.IO)
     
     // In-memory cache so we don't hit Firestore for the same string twice in one session
-    private val memoryCache = mutableMapOf<String, String>()
+    private val memoryCache = java.util.concurrent.ConcurrentHashMap<String, String>()
 
     fun translate(
         text: String,
         targetLanguage: String,
         onResult: (String) -> Unit
     ) {
-        if (text.isBlank() || targetLanguage == "en") {
+        if (text.isBlank()) {
             onResult(text)
             return
         }
@@ -120,3 +120,4 @@ object TranslationManager {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 }
+

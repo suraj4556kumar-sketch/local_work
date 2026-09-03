@@ -534,7 +534,7 @@ fun ApplicationJobCard(app: JobApplication, onClick: (JobApplication) -> Unit, o
                 ) {
                     Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Rate Employer", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
+                    Text(stringResource(R.string.rate_employer), fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
                 }
             }
         }

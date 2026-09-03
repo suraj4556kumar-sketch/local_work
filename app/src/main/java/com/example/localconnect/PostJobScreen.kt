@@ -60,7 +60,7 @@ fun PostJobScreen(
     var jobTitle by remember { mutableStateOf("") }
     var jobCategory by remember { mutableStateOf("") }
     var categoryExpanded by remember { mutableStateOf(false) }
-    val categories = listOf("Cook", "Maid", "Driver", "Office Boy", "Security Guard", "Delivery", "Electrician", "Plumber", "Carpenter", "Painter", "Cleaner", "Mechanic", "Welder", "Mason", "Technician", "Beautician", "Tutor", "Data Entry", "Accountant", "Sales Executive", "Other")
+    val categories = listOf(stringResource(R.string.cat_cook), stringResource(R.string.cat_maid), stringResource(R.string.cat_driver), stringResource(R.string.cat_office_boy), stringResource(R.string.cat_security_guard), stringResource(R.string.cat_delivery), stringResource(R.string.cat_electrician), stringResource(R.string.cat_plumber), stringResource(R.string.cat_carpenter), stringResource(R.string.cat_painter), stringResource(R.string.cat_cleaner), stringResource(R.string.cat_mechanic), stringResource(R.string.cat_welder), stringResource(R.string.cat_mason), stringResource(R.string.cat_technician), stringResource(R.string.cat_beautician), stringResource(R.string.cat_tutor), stringResource(R.string.cat_data_entry), stringResource(R.string.cat_accountant), stringResource(R.string.cat_sales_exec), stringResource(R.string.cat_other))
     var vacancies by remember { mutableStateOf("1") }
     var workAddress by remember { mutableStateOf("") }
     var latitude by remember { mutableStateOf<Double?>(null) }
@@ -76,15 +76,18 @@ fun PostJobScreen(
     var salaryMin by remember { mutableStateOf("30000") }
     var salaryMax by remember { mutableStateOf("") }
 
-    var experienceRequired by remember { mutableStateOf("1 - 3 Years") }
+    val initialExp = androidx.compose.ui.res.stringResource(R.string.exp_1_3)
+    var experienceRequired by remember(initialExp) { mutableStateOf(initialExp) }
     var expExpanded by remember { mutableStateOf(false) }
-    val expOptions = listOf("Fresher / No Experience", "0 - 1 Year", "1 - 3 Years", "3+ Years")
-    var educationRequired by remember { mutableStateOf("12th Pass") }
+    val expOptions = listOf(stringResource(R.string.exp_fresher), stringResource(R.string.exp_0_1), stringResource(R.string.exp_1_3), stringResource(R.string.exp_3_plus))
+    val initialEdu = androidx.compose.ui.res.stringResource(R.string.edu_12th)
+    var educationRequired by remember(initialEdu) { mutableStateOf(initialEdu) }
     var eduExpanded by remember { mutableStateOf(false) }
-    val eduOptions = listOf("Not Required", "10th Pass", "12th Pass", "Graduate")
-    var genderPreference by remember { mutableStateOf("Male") }
+    val eduOptions = listOf(stringResource(R.string.edu_not_required), stringResource(R.string.edu_10th), stringResource(R.string.edu_12th), stringResource(R.string.edu_graduate))
+    val initialGender = androidx.compose.ui.res.stringResource(R.string.gender_male)
+    var genderPreference by remember(initialGender) { mutableStateOf(initialGender) }
     var genderExpanded by remember { mutableStateOf(false) }
-    val genderOptions = listOf("Any", "Male Only", "Female Only")
+    val genderOptions = listOf(stringResource(R.string.gender_any), stringResource(R.string.gender_male), stringResource(R.string.gender_female))
     var minAge by remember { mutableStateOf("") }
     var maxAge by remember { mutableStateOf("") }
 
@@ -145,91 +148,88 @@ fun PostJobScreen(
         }
     }
 
-    val defaultJobTemplates = mapOf(
-        "Cook" to Pair(
-            "Looking for an experienced cook to prepare delicious and healthy meals. Must maintain hygiene and manage the kitchen efficiently.",
-            listOf("Prepare daily meals as per requirements", "Maintain kitchen cleanliness and hygiene", "Manage groceries and kitchen supplies", "Ensure timely preparation of food")
+        val defaultJobTemplates = mapOf(
+        stringResource(R.string.cat_cook) to Pair(
+            stringResource(R.string.tpl_desc_cook),
+            listOf(stringResource(R.string.tpl_resp_cook_1), stringResource(R.string.tpl_resp_cook_2), stringResource(R.string.tpl_resp_cook_3), stringResource(R.string.tpl_resp_cook_4))
         ),
-        "Maid" to Pair(
-            "Seeking a reliable and hardworking maid for household chores including cleaning, dusting, and washing. Must be punctual and trustworthy.",
-            listOf("Daily sweeping, mopping, and dusting", "Washing dishes and cleaning the kitchen", "Washing and folding clothes", "General household maintenance")
+        stringResource(R.string.cat_maid) to Pair(
+            stringResource(R.string.tpl_desc_maid),
+            listOf(stringResource(R.string.tpl_resp_maid_1), stringResource(R.string.tpl_resp_maid_2), stringResource(R.string.tpl_resp_maid_3), stringResource(R.string.tpl_resp_maid_4))
         ),
-        "Driver" to Pair(
-            "Looking for a responsible and experienced driver. Must prioritize safety, follow traffic rules strictly, and maintain the vehicle in good condition.",
-            listOf("Drive passengers safely to destinations", "Perform basic maintenance and daily inspections", "Maintain a clean vehicle interior and exterior", "Follow all traffic and safety regulations")
+        stringResource(R.string.cat_driver) to Pair(
+            stringResource(R.string.tpl_desc_driver),
+            listOf(stringResource(R.string.tpl_resp_driver_1), stringResource(R.string.tpl_resp_driver_2), stringResource(R.string.tpl_resp_driver_3), stringResource(R.string.tpl_resp_driver_4))
         ),
-        "Office Boy" to Pair(
-            "Seeking an active and honest office boy to assist with daily administrative tasks, file management, and serving tea/coffee to staff.",
-            listOf("Serve tea/water to staff and guests", "File management and basic paperwork", "Keep the office premises clean", "Assist in local market runs for office supplies")
+        stringResource(R.string.cat_office_boy) to Pair(
+            stringResource(R.string.tpl_desc_office_boy),
+            listOf(stringResource(R.string.tpl_resp_office_boy_1), stringResource(R.string.tpl_resp_office_boy_2), stringResource(R.string.tpl_resp_office_boy_3), stringResource(R.string.tpl_resp_office_boy_4))
         ),
-        "Security Guard" to Pair(
-            "Looking for a vigilant and physically fit security guard to protect premises, monitor entrances, and ensure the safety of staff and property.",
-            listOf("Monitor and authorize entrance of vehicles/people", "Patrol premises regularly", "Report any suspicious activities", "Maintain visitor logbook")
+        stringResource(R.string.cat_security_guard) to Pair(
+            stringResource(R.string.tpl_desc_security_guard),
+            listOf(stringResource(R.string.tpl_resp_security_guard_1), stringResource(R.string.tpl_resp_security_guard_2), stringResource(R.string.tpl_resp_security_guard_3), stringResource(R.string.tpl_resp_security_guard_4))
         ),
-        "Delivery" to Pair(
-            "Seeking an energetic delivery partner for timely and safe delivery of packages. Must have a valid driving license and good area knowledge.",
-            listOf("Deliver packages to customers on time", "Use navigation apps to find optimal routes", "Collect payments if required", "Maintain delivery logs and records")
+        stringResource(R.string.cat_delivery) to Pair(
+            stringResource(R.string.tpl_desc_delivery),
+            listOf(stringResource(R.string.tpl_resp_delivery_1), stringResource(R.string.tpl_resp_delivery_2), stringResource(R.string.tpl_resp_delivery_3), stringResource(R.string.tpl_resp_delivery_4))
         ),
-        "Electrician" to Pair(
-            "Looking for a skilled electrician to install, maintain, and repair electrical wiring and equipment. Must follow safety protocols.",
-            listOf("Install and repair electrical wiring and fixtures", "Troubleshoot electrical issues", "Ensure all work complies with safety codes", "Perform regular maintenance checks")
+        stringResource(R.string.cat_electrician) to Pair(
+            stringResource(R.string.tpl_desc_electrician),
+            listOf(stringResource(R.string.tpl_resp_electrician_1), stringResource(R.string.tpl_resp_electrician_2), stringResource(R.string.tpl_resp_electrician_3), stringResource(R.string.tpl_resp_electrician_4))
         ),
-        "Plumber" to Pair(
-            "Looking for an experienced plumber to install and repair pipes, fixtures, and plumbing equipment. Must be able to read blueprints and diagnose issues.",
-            listOf("Install and repair pipes and fixtures", "Clear obstructions from sink drains and toilets", "Troubleshoot plumbing issues", "Ensure compliance with building codes")
+        stringResource(R.string.cat_plumber) to Pair(
+            stringResource(R.string.tpl_desc_plumber),
+            listOf(stringResource(R.string.tpl_resp_plumber_1), stringResource(R.string.tpl_resp_plumber_2), stringResource(R.string.tpl_resp_plumber_3), stringResource(R.string.tpl_resp_plumber_4))
         ),
-        "Carpenter" to Pair(
-            "Seeking a skilled carpenter to construct, install, and repair wooden structures and furniture. Must have good attention to detail.",
-            listOf("Read blueprints and design layouts", "Cut, shape, and smooth wooden materials", "Install cabinets, doors, and framework", "Repair damaged furniture")
+        stringResource(R.string.cat_carpenter) to Pair(
+            stringResource(R.string.tpl_desc_carpenter),
+            listOf(stringResource(R.string.tpl_resp_carpenter_1), stringResource(R.string.tpl_resp_carpenter_2), stringResource(R.string.tpl_resp_carpenter_3), stringResource(R.string.tpl_resp_carpenter_4))
         ),
-        "Painter" to Pair(
-            "Looking for a professional painter for interior and exterior painting projects. Must prepare surfaces, mix colors, and apply paint evenly.",
-            listOf("Prepare walls and surfaces for painting", "Mix and match paint colors", "Apply paint, varnish, and other finishes", "Clean up work areas and equipment")
+        stringResource(R.string.cat_painter) to Pair(
+            stringResource(R.string.tpl_desc_painter),
+            listOf(stringResource(R.string.tpl_resp_painter_1), stringResource(R.string.tpl_resp_painter_2), stringResource(R.string.tpl_resp_painter_3), stringResource(R.string.tpl_resp_painter_4))
         ),
-        "Cleaner" to Pair(
-            "Seeking a dedicated cleaner for residential or commercial properties. Must maintain a high standard of cleanliness.",
-            listOf("Sweep, mop, and vacuum floors", "Clean and sanitize restrooms", "Empty trash bins and replace liners", "Dust furniture and equipment")
+        stringResource(R.string.cat_cleaner) to Pair(
+            stringResource(R.string.tpl_desc_cleaner),
+            listOf(stringResource(R.string.tpl_resp_cleaner_1), stringResource(R.string.tpl_resp_cleaner_2), stringResource(R.string.tpl_resp_cleaner_3), stringResource(R.string.tpl_resp_cleaner_4))
         ),
-        "Mechanic" to Pair(
-            "Looking for a skilled mechanic to inspect, maintain, and repair vehicles or machinery. Must have strong diagnostic skills.",
-            listOf("Inspect vehicle engines and mechanical parts", "Diagnose and troubleshoot issues", "Perform routine maintenance like oil changes", "Repair or replace defective parts")
+        stringResource(R.string.cat_mechanic) to Pair(
+            stringResource(R.string.tpl_desc_mechanic),
+            listOf(stringResource(R.string.tpl_resp_mechanic_1), stringResource(R.string.tpl_resp_mechanic_2), stringResource(R.string.tpl_resp_mechanic_3), stringResource(R.string.tpl_resp_mechanic_4))
         ),
-        "Welder" to Pair(
-            "Seeking an experienced welder to join metal parts together using various welding techniques. Must follow safety standards.",
-            listOf("Read and interpret blueprints", "Operate welding equipment safely", "Weld metal components accurately", "Inspect welds for durability and safety")
+        stringResource(R.string.cat_welder) to Pair(
+            stringResource(R.string.tpl_desc_welder),
+            listOf(stringResource(R.string.tpl_resp_welder_1), stringResource(R.string.tpl_resp_welder_2), stringResource(R.string.tpl_resp_welder_3), stringResource(R.string.tpl_resp_welder_4))
         ),
-        "Mason" to Pair(
-            "Looking for a skilled mason for bricklaying and concrete work. Must have physical strength and precision.",
-            listOf("Lay bricks, stones, and concrete blocks", "Mix cement and mortar", "Shape and cut materials as required", "Ensure structures are level and secure")
+        stringResource(R.string.cat_mason) to Pair(
+            stringResource(R.string.tpl_desc_mason),
+            listOf(stringResource(R.string.tpl_resp_mason_1), stringResource(R.string.tpl_resp_mason_2), stringResource(R.string.tpl_resp_mason_3), stringResource(R.string.tpl_resp_mason_4))
         ),
-        "Technician" to Pair(
-            "Seeking a reliable technician to install, troubleshoot, and repair equipment. Must have strong technical and problem-solving skills.",
-            listOf("Install and configure new equipment", "Perform routine maintenance checks", "Troubleshoot hardware or software issues", "Provide technical support to users")
+        stringResource(R.string.cat_technician) to Pair(
+            stringResource(R.string.tpl_desc_technician),
+            listOf(stringResource(R.string.tpl_resp_technician_1), stringResource(R.string.tpl_resp_technician_2), stringResource(R.string.tpl_resp_technician_3), stringResource(R.string.tpl_resp_technician_4))
         ),
-        "Beautician" to Pair(
-            "Looking for a professional beautician to provide various beauty and grooming services to clients.",
-            listOf("Provide haircuts, styling, and coloring", "Perform facials and skincare treatments", "Offer manicure and pedicure services", "Maintain cleanliness of salon equipment")
+        stringResource(R.string.cat_beautician) to Pair(
+            stringResource(R.string.tpl_desc_beautician),
+            listOf(stringResource(R.string.tpl_resp_beautician_1), stringResource(R.string.tpl_resp_beautician_2), stringResource(R.string.tpl_resp_beautician_3), stringResource(R.string.tpl_resp_beautician_4))
         ),
-        "Tutor" to Pair(
-            "Seeking a knowledgeable tutor to help students understand subjects and improve academic performance.",
-            listOf("Prepare lesson plans and study materials", "Assess student progress and identify areas for improvement", "Provide one-on-one or group instruction", "Encourage and motivate students")
+        stringResource(R.string.cat_tutor) to Pair(
+            stringResource(R.string.tpl_desc_tutor),
+            listOf(stringResource(R.string.tpl_resp_tutor_1), stringResource(R.string.tpl_resp_tutor_2), stringResource(R.string.tpl_resp_tutor_3), stringResource(R.string.tpl_resp_tutor_4))
         ),
-        "Data Entry" to Pair(
-            "Looking for a detail-oriented data entry operator to input and update records in the database accurately.",
-            listOf("Enter customer and account data accurately", "Verify data for accuracy and completeness", "Maintain confidentiality of information", "Generate reports as needed")
+        stringResource(R.string.cat_data_entry) to Pair(
+            stringResource(R.string.tpl_desc_data_entry),
+            listOf(stringResource(R.string.tpl_resp_data_entry_1), stringResource(R.string.tpl_resp_data_entry_2), stringResource(R.string.tpl_resp_data_entry_3), stringResource(R.string.tpl_resp_data_entry_4))
         ),
-        "Accountant" to Pair(
-            "Seeking a qualified accountant to manage financial records, prepare reports, and ensure compliance with regulations.",
-            listOf("Maintain and reconcile financial records", "Prepare tax returns and ensure compliance", "Analyze financial statements", "Manage payroll and invoices")
+        stringResource(R.string.cat_accountant) to Pair(
+            stringResource(R.string.tpl_desc_accountant),
+            listOf(stringResource(R.string.tpl_resp_accountant_1), stringResource(R.string.tpl_resp_accountant_2), stringResource(R.string.tpl_resp_accountant_3), stringResource(R.string.tpl_resp_accountant_4))
         ),
-        "Sales Executive" to Pair(
-            "Looking for an enthusiastic sales executive to drive business growth by identifying new opportunities and building client relationships.",
-            listOf("Identify and reach out to potential clients", "Present and promote products/services", "Negotiate contracts and close sales", "Maintain customer relationships and follow up")
+        stringResource(R.string.cat_sales_exec) to Pair(
+            stringResource(R.string.tpl_desc_sales_exec),
+            listOf(stringResource(R.string.tpl_resp_sales_exec_1), stringResource(R.string.tpl_resp_sales_exec_2), stringResource(R.string.tpl_resp_sales_exec_3), stringResource(R.string.tpl_resp_sales_exec_4))
         ),
-        "Other" to Pair(
-            "",
-            listOf()
-        )
+        stringResource(R.string.cat_other) to Pair("", emptyList())
     )
 
     androidx.compose.runtime.LaunchedEffect(jobCategory) {
@@ -342,7 +342,7 @@ fun PostJobScreen(
                                     endTime = endTime,
                                     weeklyOff = weeklyOff,
                                     joiningDate = joiningDate,
-                                    postingDate = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date()),
+                                    postingDate = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.ENGLISH).format(java.util.Date()),
                                     description = jobDescription,
                                     responsibilities = responsibilities.toList(),
                                     isCustomDescription = true,
@@ -385,7 +385,7 @@ fun PostJobScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // 1. Employer Info
-            FormSection("1. Employer Info") {
+            FormSection(stringResource(R.string.post_job_employer_info)) {
                 OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
                     value = employerName, onValueChange = { employerName = it },
                     label = { Text(stringResource(R.string.employer_company_star)) },
@@ -409,7 +409,7 @@ fun PostJobScreen(
             }
 
             // 2. Job Details
-            FormSection("2. Job Details") {
+            FormSection(stringResource(R.string.post_job_details)) {
                 OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                     value = jobTitle, onValueChange = { jobTitle = it },
                     label = { Text(stringResource(R.string.job_title_star)) },
@@ -580,7 +580,7 @@ fun PostJobScreen(
             }
 
             // 4. Salary
-            FormSection("4. Salary") {
+            FormSection(stringResource(R.string.post_job_salary)) {
                 OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                     value = salaryMin, onValueChange = { salaryMin = it },
                     label = { Text(stringResource(R.string.monthly_salary)) },
@@ -590,7 +590,7 @@ fun PostJobScreen(
             }
 
             // 5. Candidate Requirements
-            FormSection("5. Candidate Requirements") {
+            FormSection(stringResource(R.string.post_job_candidate_reqs)) {
                 // Experience Dropdown
                 ExposedDropdownMenuBox(
                     expanded = expExpanded,
@@ -688,7 +688,7 @@ fun PostJobScreen(
             }
 
             // 7. Description
-            FormSection("7. Description") {
+            FormSection(stringResource(R.string.post_job_description)) {
                 OutlinedTextField(textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
                     value = jobDescription, onValueChange = { jobDescription = it },
                     label = { Text(stringResource(R.string.desc_job_role_env)) },
@@ -697,7 +697,7 @@ fun PostJobScreen(
             }
 
             // 8. Skills & Responsibilities
-            FormSection("8. Skills & Responsibilities") {
+            FormSection(stringResource(R.string.post_job_skills)) {
                 Text(stringResource(R.string.key_resp_skills), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
                 responsibilities.forEach { res ->
@@ -725,16 +725,19 @@ fun PostJobScreen(
             }
 
             // 9. Documents Required
-            FormSection("9. Documents Required") {
+            FormSection(stringResource(R.string.post_job_docs)) {
                 Text(stringResource(R.string.docs_required), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
+                val docAadhaar = stringResource(R.string.doc_aadhaar)
+                val docDriving = stringResource(R.string.doc_driving_license)
+                val docResume = stringResource(R.string.doc_resume)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    CheckboxOption("Aadhaar Card", documentsRequired.contains("Aadhaar Card"), modifier = Modifier.fillMaxWidth()) { if(it) documentsRequired.add("Aadhaar Card") else documentsRequired.remove("Aadhaar Card") }
-                    CheckboxOption("Driving License", documentsRequired.contains("Driving License"), modifier = Modifier.fillMaxWidth()) { if(it) documentsRequired.add("Driving License") else documentsRequired.remove("Driving License") }
-                    CheckboxOption("CV / Resume", documentsRequired.contains("CV / Resume"), modifier = Modifier.fillMaxWidth()) { if(it) documentsRequired.add("CV / Resume") else documentsRequired.remove("CV / Resume") }
+                    CheckboxOption(docAadhaar, documentsRequired.contains(docAadhaar), modifier = Modifier.fillMaxWidth()) { if(it) documentsRequired.add(docAadhaar) else documentsRequired.remove(docAadhaar) }
+                    CheckboxOption(docDriving, documentsRequired.contains(docDriving), modifier = Modifier.fillMaxWidth()) { if(it) documentsRequired.add(docDriving) else documentsRequired.remove(docDriving) }
+                    CheckboxOption(docResume, documentsRequired.contains(docResume), modifier = Modifier.fillMaxWidth()) { if(it) documentsRequired.add(docResume) else documentsRequired.remove(docResume) }
                     
                     documentsRequired.forEach { doc ->
-                        if (doc !in listOf("Aadhaar Card", "Driving License", "CV / Resume")) {
+                        if (doc !in listOf(docAadhaar, docDriving, docResume)) {
                             CheckboxOption(doc, documentsRequired.contains(doc), modifier = Modifier.fillMaxWidth()) { if(!it) documentsRequired.remove(doc) }
                         }
                     }
@@ -754,14 +757,14 @@ fun PostJobScreen(
             }
 
             // 10. Perks & Preferences
-            FormSection("10. Perks & Preferences") {
+            FormSection(stringResource(R.string.post_job_perks)) {
                 Text(stringResource(R.string.benefits_offered), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column {
-                    listOf("Free Food", "Accommodation", "Weekly Off", "Travel Allowance").forEach { ben ->
+                    listOf(stringResource(R.string.perk_free_food), stringResource(R.string.perk_accommodation), stringResource(R.string.perk_weekly_off), stringResource(R.string.perk_travel_allowance)).forEach { ben ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Checkbox(checked = benefits.contains(ben), onCheckedChange = { if(it) benefits.add(ben) else benefits.remove(ben) })
-                            Text(ben, fontSize = 14.sp, color = textSecondary)
+                            com.example.localconnect.ui.TranslatedText(ben, fontSize = 14.sp, color = textSecondary)
                         }
                     }
                 }
@@ -790,48 +793,6 @@ fun PostJobScreen(
                     Row(verticalAlignment = Alignment.Top) {
                         Checkbox(checked = termsAccepted, onCheckedChange = { termsAccepted = it })
                         Text(stringResource(R.string.agree_fake_suspend), fontSize = 13.sp, color = textSecondary, modifier = Modifier.padding(top = 12.dp))
-                    }
-                }
-            }
-
-            // 13. Live Preview
-            Text(stringResource(R.string.live_preview), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = textSecondary, modifier = Modifier.padding(start = 4.dp))
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White,
-                border = BorderStroke(1.dp, borderColor),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-                    Box(modifier = Modifier.width(4.dp).fillMaxHeight().background(orangePrimary))
-                    Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                            Column {
-                                Text(jobTitle.ifBlank { "Job Title" }, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = textPrimary)
-                                Text(employerName.ifBlank { "Company Name" }, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = textSecondary)
-                            }
-                            Surface(color = Color(0xFFFFF7ED), shape = RoundedCornerShape(4.dp)) {
-                                Text(stringResource(R.string.verified_caps), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF97316), modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(city.ifBlank { "Location" }, fontSize = 14.sp, color = textSecondary)
-                        Text(if (salaryMin.isNotBlank()) "₹$salaryMin / $salaryType" else "Salary", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = textPrimary)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Text(experienceRequired, fontSize = 13.sp, color = textSecondary)
-                            if (benefits.isNotEmpty()) {
-                                Text(benefits.first(), fontSize = 13.sp, color = textSecondary)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            if (jobCategory.isNotBlank()) {
-                                Surface(color = grayBackground, shape = RoundedCornerShape(4.dp)) {
-                                    Text(jobCategory, fontSize = 12.sp, color = textSecondary, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -875,7 +836,7 @@ fun PillOption(text: String, selected: Boolean, onClick: () -> Unit) {
             indication = null
         ) { onClick() }
     ) {
-        Text(
+        com.example.localconnect.ui.TranslatedText(
             text = text,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
@@ -896,7 +857,7 @@ fun CheckboxOption(text: String, checked: Boolean, modifier: Modifier = Modifier
             indication = null
         ) { onCheckedChange(!checked) }
     ) {
-        Text(
+        com.example.localconnect.ui.TranslatedText(
             text = text,
             fontSize = 14.sp,
             color = if (checked) Color(0xFFC2410C) else Color(0xFF4B5563),

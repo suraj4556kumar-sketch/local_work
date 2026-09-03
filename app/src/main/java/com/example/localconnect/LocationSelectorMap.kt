@@ -199,7 +199,7 @@ fun LocationSelectorMap(
         ) {
             Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Save Pin Location", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.save_pin_location), fontWeight = FontWeight.Bold)
         }
     }
 }

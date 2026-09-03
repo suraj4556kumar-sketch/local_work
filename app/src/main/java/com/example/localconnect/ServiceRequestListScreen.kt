@@ -215,14 +215,14 @@ fun CompactServiceRequestCard(
                 Button(onClick = {
                     try { val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${request.customerPhone}")); callIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(callIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "Cannot open dialer", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1f).height(40.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)), shape = RoundedCornerShape(8.dp)) {
-                    Text("Call", fontSize = 12.sp, color = Color.White)
+                    Text(stringResource(R.string.call), fontSize = 12.sp, color = Color.White)
                 }
                 Button(onClick = {
                     var waPhone = request.customerPhone
                     if (waPhone.length == 10 && !waPhone.startsWith("+")) waPhone = "+91$waPhone"
                     try { val waIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$waPhone")).apply { setPackage("com.whatsapp") }; waIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK; context.startActivity(waIntent) } catch(e: Throwable) { android.widget.Toast.makeText(context, "WhatsApp not installed", android.widget.Toast.LENGTH_SHORT).show() }
                 }, modifier = Modifier.weight(1f).height(40.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)), shape = RoundedCornerShape(8.dp)) {
-                    Text("WhatsApp", fontSize = 12.sp, color = Color.White)
+                    Text(stringResource(R.string.whatsapp), fontSize = 12.sp, color = Color.White)
                 }
             }
         }
@@ -285,7 +285,7 @@ fun ServiceRequestDetailsScreen(
             }
             
             // Applicant Details (Mapped to Customer Location/Details)
-            Text("Customer Details", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
+            Text(stringResource(R.string.customer_details), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
             
             Column(modifier = Modifier.padding(bottom = 24.dp)) {
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -293,15 +293,15 @@ fun ServiceRequestDetailsScreen(
                     Text(request.customerPhone, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Location", fontSize = 14.sp, color = Color.Gray)
+                    Text(stringResource(R.string.location_lbl), fontSize = 14.sp, color = Color.Gray)
                     Text(request.customerCity, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Date", fontSize = 14.sp, color = Color.Gray)
+                    Text(stringResource(R.string.date_lbl), fontSize = 14.sp, color = Color.Gray)
                     Text(request.scheduledDate, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Time", fontSize = 14.sp, color = Color.Gray)
+                    Text(stringResource(R.string.time_lbl), fontSize = 14.sp, color = Color.Gray)
                     Text(request.scheduledTime, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
@@ -312,7 +312,7 @@ fun ServiceRequestDetailsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Exact Location", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                    Text(stringResource(R.string.exact_location), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
                     
                     val context = androidx.compose.ui.platform.LocalContext.current
                     Text(
@@ -354,17 +354,17 @@ fun ServiceRequestDetailsScreen(
             }
             
             // Introduction (Mapped to Problem Description)
-            Text("Problem Description", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+            Text(stringResource(R.string.problem_desc), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
             TranslatedText(request.problemDescription, fontSize = 14.sp, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 24.dp))
             
             if (request.instructions.isNotBlank()) {
-                Text("Special Instructions", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.special_instructions), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
                 Text(request.instructions, fontSize = 14.sp, color = Color(0xFF374151), modifier = Modifier.padding(bottom = 24.dp))
             }
             
             // Documents Title (Mapped to Attached Picture)
             if (request.imageUrl.isNotBlank()) {
-                Text("Attached Media", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
+                Text(stringResource(R.string.attached_media), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
                 
                 Button(onClick = {
                     try {
@@ -405,7 +405,7 @@ fun ServiceRequestDetailsScreen(
                 }, modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).height(56.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3F4F6), contentColor = Color(0xFF374151))) {
                     Icon(Icons.Filled.Image, contentDescription = null, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("View Attached Picture", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.view_attached_picture), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
             }
             

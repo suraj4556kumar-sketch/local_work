@@ -542,18 +542,23 @@ fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                 TranslatedText(job.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                if (job.postingDate.isNotBlank()) {
+                if (job.timestamp > 0L) {
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(job.postingDate, fontSize = 12.sp, color = Color.Gray)
+                    Text(java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date(job.timestamp)), fontSize = 12.sp, color = Color.Gray)
+                } else if (job.postingDate.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TranslatedText(job.postingDate, fontSize = 12.sp, color = Color.Gray)
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TranslatedText(job.companyName, fontSize = 14.sp, color = OrangePrimary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                TranslatedText(job.companyName, fontSize = 14.sp, color = OrangePrimary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                 Spacer(modifier = Modifier.width(8.dp))
-                Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color(0xFFFFB300))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(if (job.rating > 0.0) String.format("%.1f", job.rating) else "New", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFB300))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color(0xFFFFB300))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(if (job.rating > 0.0) String.format("%.1f", job.rating) else "New", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFB300))
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -561,11 +566,13 @@ fun JobCard(job: Job, session: UserSession, onJobClick: (Job) -> Unit) {
                 Icon(Icons.Filled.LocationOn, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Gray)
                 Spacer(modifier = Modifier.width(4.dp))
                 
-                TranslatedText(job.location, fontSize = 13.sp, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                TranslatedText(job.location, fontSize = 13.sp, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                 if (job.distanceKm >= 0.0) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text("• ", fontSize = 13.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
-                    Text("${round(job.distanceKm * 10) / 10} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("• ", fontSize = 13.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
+                        Text("${round(job.distanceKm * 10) / 10} km", fontSize = 13.sp, color = OrangePrimary, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
             
